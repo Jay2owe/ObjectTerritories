@@ -36,8 +36,11 @@ public final class LabelObjectExtractor {
         for (int y = 0; y < processor.getHeight(); y++) {
             for (int x = 0; x < processor.getWidth(); x++) {
                 double raw = processor.getf(x, y);
-                if (!Double.isFinite(raw) || raw == 0.0) continue;
-                if (raw < 0.0 || raw != Math.rint(raw) || raw > Long.MAX_VALUE) {
+                if (raw == 0.0) continue;
+                if (!Double.isFinite(raw)
+                        || raw < 0.0
+                        || raw != Math.rint(raw)
+                        || raw > Long.MAX_VALUE) {
                     throw new IllegalArgumentException(
                             "label image '" + labels.getTitle()
                                     + "' contains a non-positive or non-integer label at ("
@@ -83,4 +86,3 @@ public final class LabelObjectExtractor {
         private double sumY;
     }
 }
-

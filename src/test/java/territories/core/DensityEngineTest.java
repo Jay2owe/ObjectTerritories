@@ -75,6 +75,75 @@ public class DensityEngineTest {
         assertEquals(3.0, result.getBandwidthMicrons(), 0.0);
     }
 
+    @Test
+    public void disconnectedComponentsDoNotShareDensity() {
+        SpatialRegion2D disconnected = new SpatialRegion2D(
+                "Disconnected",
+                rectangle("Left", 0.0, 0.0, 3.0, 3.0).getGeometry().union(
+                        rectangle("Right", 6.0, 0.0, 9.0, 3.0).getGeometry()));
+        DensityResult result = DensityEngine.generate(
+                Collections.singletonList(object(0, 1.5, 1.5, 1.0)),
+                disconnected,
+                "Cells",
+                9, 3, 1.0, 1.0, "um", 10.0,
+                DensityWeighting.OBJECT_COUNT,
+                DensityBoundaryMode.CORRECTED);
+
+        assertEquals(1.0, integrated(result), 1.0e-5);
+        assertEquals(0.0, result.getDensityMap().getProcessor().getf(7, 1), 0.0);
+    }
+
+    @Test
+    public void disconnectedObjectsHaveZeroLeaveOneOutDensityAcrossGap() {
+        SpatialRegion2D disconnected = new SpatialRegion2D(
+                "Disconnected",
+                rectangle("Left", 0.0, 0.0, 3.0, 3.0).getGeometry().union(
+                        rectangle("Right", 6.0, 0.0, 9.0, 3.0).getGeometry()));
+        DensityResult result = DensityEngine.generate(
+                Arrays.asList(
+                        object(0, 1.5, 1.5, 1.0),
+                        object(1, 7.5, 1.5, 1.0)),
+                disconnected,
+                "Cells",
+                9, 3, 1.0, 1.0, "um", 10.0,
+                DensityWeighting.OBJECT_COUNT,
+                DensityBoundaryMode.CORRECTED);
+
+        assertEquals(0.0, result.getLocalDensityByObjectIndex().get(0), 0.0);
+        assertEquals(0.0, result.getLocalDensityByObjectIndex().get(1), 0.0);
+    }
+
+    @Test
+    public void boundaryCentroidContributesToItsCoveredRegion() {
+        DensityResult result = DensityEngine.generate(
+                Collections.singletonList(object(0, 1.0, 0.5, 1.0)),
+                rectangle("One pixel", 0.0, 0.0, 1.0, 1.0),
+                "Cells",
+                1, 1, 1.0, 1.0, "um", 1.0,
+                DensityWeighting.OBJECT_COUNT,
+                DensityBoundaryMode.CORRECTED);
+
+        assertEquals(1.0, integrated(result), 1.0e-7);
+        assertEquals(0.0, result.getLocalDensityByObjectIndex().get(0), 0.0);
+    }
+
+    @Test
+    public void rejectsRegionWithNoSampledKernelSupport() {
+        try {
+            DensityEngine.generate(
+                    Collections.singletonList(object(0, 1.0, 1.0, 1.0)),
+                    rectangle("Subpixel", 0.9, 0.9, 1.1, 1.1),
+                    "Cells",
+                    3, 3, 1.0, 1.0, "um", 1.0,
+                    DensityWeighting.OBJECT_COUNT,
+                    DensityBoundaryMode.CORRECTED);
+        } catch (IllegalArgumentException error) {
+            assertTrue(error.getMessage().contains("no sampled support"));
+            return;
+        }
+        throw new AssertionError("Expected an unsupported sampled kernel to fail");
+    }
+
     private static double integrated(DensityResult result) {
         FloatProcessor processor = (FloatProcessor) result.getDensityMap().getProcessor();
         double sum = 0.0;

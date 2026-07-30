@@ -118,11 +118,13 @@ public final class DensityEngine3D {
         int component = componentAtObject(object, region, components);
         double weight = weighting == DensityWeighting.OBJECT_COUNT
                 ? 1.0 : object.getVolume();
+        double supported = gaussianSum(
+                object, bounds, region, components, component, bandwidth);
+        if (!(supported > 0.0)) {
+            throw unsupportedKernel(object, region, bandwidth);
+        }
         double denominator;
         if (boundaryMode == DensityBoundaryMode.CORRECTED) {
-            double supported = gaussianSum(
-                    object, bounds, region, components, component, bandwidth);
-            if (supported <= 0.0) return null;
             denominator = supported
                     * region.getPixelWidth()
                     * region.getPixelHeight()
@@ -132,6 +134,16 @@ public final class DensityEngine3D {
                     * bandwidth * bandwidth * bandwidth;
         }
         return new Kernel(object, bounds, component, weight / denominator);
+    }
+
+    private static IllegalArgumentException unsupportedKernel(
+            SpatialObject3D object, RegionMask3D region, double bandwidth) {
+        return new IllegalArgumentException(
+                "3D density kernel for " + object.getTypeName() + ":" + object.getLabel()
+                        + " has no sampled support inside its region at bandwidth "
+                        + bandwidth + "; increase the bandwidth or use finer voxel resolution "
+                        + "(voxel size " + region.getPixelWidth() + " x "
+                        + region.getPixelHeight() + " x " + region.getPixelDepth() + ")");
     }
 
     private static void accumulate(

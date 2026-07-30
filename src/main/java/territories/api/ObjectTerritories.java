@@ -10,6 +10,7 @@ import territories.core.InteractionEngine;
 import territories.core.InteractionMatrixResult;
 import territories.core.LabelObjectExtractor;
 import territories.core.LabelObjectExtractor3D;
+import territories.core.NeighborhoodCell;
 import territories.core.RegionFactory;
 import territories.core.SpatialObject2D;
 import territories.core.SpatialObject3D;
@@ -72,7 +73,9 @@ public final class ObjectTerritories {
                 territoryResult = TerritoryEngine.analyze(
                         objects, region, parameters.getEdgeCellPolicy());
                 interactionResult = InteractionEngine.analyze(
-                        territoryResult.getCells(),
+                        summaryCells(
+                                territoryResult.getCells(),
+                                parameters.getEdgeCellPolicy()),
                         typeNames,
                         parameters.getPermutations(),
                         parameters.getSeed());
@@ -106,7 +109,15 @@ public final class ObjectTerritories {
         if (unit == null || unit.trim().isEmpty() || unit.equalsIgnoreCase("pixel")) {
             warnings.add("Images are not spatially calibrated; distances and areas are in pixels.");
         }
-        return new ObjectTerritoriesResult(objects, analyses, warnings);
+        return new ObjectTerritoriesResult(
+                objects,
+                analyses,
+                warnings,
+                reference.getWidth(),
+                reference.getHeight(),
+                pixelWidth,
+                pixelHeight,
+                unit);
     }
 
     public static ObjectTerritoriesResult3D analyze3D(
@@ -137,7 +148,9 @@ public final class ObjectTerritories {
                 territoryResult = TerritoryEngine3D.analyze(
                         objects, region, parameters.getEdgeCellPolicy());
                 interactionResult = InteractionEngine.analyze(
-                        territoryResult.getCells(),
+                        summaryCells(
+                                territoryResult.getCells(),
+                                parameters.getEdgeCellPolicy()),
                         typeNames,
                         parameters.getPermutations(),
                         parameters.getSeed());
@@ -287,8 +300,19 @@ public final class ObjectTerritories {
             result.add(DensityWeighting.OBJECT_COUNT);
         }
         if (selection == DensityWeightingSelection.OBJECT_SIZE
+                || selection == DensityWeightingSelection.OBJECT_AREA
                 || selection == DensityWeightingSelection.BOTH) {
             result.add(DensityWeighting.OBJECT_SIZE);
+        }
+        return result;
+    }
+
+    private static <T extends NeighborhoodCell> List<T> summaryCells(
+            List<T> cells, EdgeCellPolicy edgeCellPolicy) {
+        if (edgeCellPolicy == EdgeCellPolicy.INCLUDE_FLAGGED) return cells;
+        ArrayList<T> result = new ArrayList<T>();
+        for (T cell : cells) {
+            if (!cell.isEdgeCell()) result.add(cell);
         }
         return result;
     }

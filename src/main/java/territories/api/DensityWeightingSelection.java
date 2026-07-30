@@ -4,5 +4,12 @@ package territories.api;
 public enum DensityWeightingSelection {
     OBJECT_COUNT,
     OBJECT_SIZE,
-    BOTH
+    BOTH,
+    /**
+     * Compatibility alias for {@link #OBJECT_SIZE}.
+     *
+     * @deprecated Use {@link #OBJECT_SIZE}; in 3D the size is volume.
+     */
+    @Deprecated
+    OBJECT_AREA
 }

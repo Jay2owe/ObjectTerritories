@@ -9,6 +9,8 @@ import territories.core.DensityResult3D;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.HashSet;
+import java.util.Set;
 
 /** Headless-safe CSV and TIFF-stack export for genuine 3D results. */
 public final class ResultExporter3D {
@@ -25,8 +27,11 @@ public final class ResultExporter3D {
         File interactionsDirectory = directory(outputRoot, "Interactions");
         File densityDirectory = directory(outputRoot, "Density");
         File mapsDirectory = directory(outputRoot, "Maps");
+        Set<String> regionNames = new HashSet<String>();
+        Set<String> densityNames = new HashSet<String>();
         for (RegionAnalysisResult3D region : result.getRegions()) {
-            String regionName = safe(region.getRegionName());
+            String regionName = SafeOutputNames.unique(
+                    region.getRegionName(), regionNames);
             saveTable(
                     ResultTables3D.objects(result, region),
                     new File(objectsDirectory, regionName + "_Objects_3D.csv"));
@@ -42,11 +47,15 @@ public final class ResultExporter3D {
                         new File(mapsDirectory, regionName + "_Territories_3D.tif"));
             }
             for (DensityResult3D density : region.getDensityResults()) {
-                String name = regionName + "_" + safe(density.getTypeName())
+                String requestedName = regionName + "_"
+                        + SafeOutputNames.safe(density.getTypeName())
                         + "_" + density.getWeighting().name().toLowerCase(java.util.Locale.ROOT)
                         + "_bw-" + safe(Double.toString(density.getBandwidth()))
-                        + "_Density_3D.tif";
-                saveImage(density.getDensityVolume(), new File(densityDirectory, name));
+                        + "_Density_3D";
+                String name = SafeOutputNames.unique(requestedName, densityNames);
+                saveImage(
+                        density.getDensityVolume(),
+                        new File(densityDirectory, name + ".tif"));
             }
         }
     }
@@ -70,7 +79,6 @@ public final class ResultExporter3D {
     }
 
     private static String safe(String value) {
-        return value.replaceAll("[^A-Za-z0-9._-]+", "_");
+        return SafeOutputNames.safe(value);
     }
 }
-

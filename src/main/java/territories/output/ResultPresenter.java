@@ -12,18 +12,8 @@ import territories.api.RegionAnalysisResult;
 import territories.core.DensityResult;
 import territories.core.TerritoryCell;
 
-import java.awt.Color;
-
 /** Interactive-only display of tables, overlays, and calibrated density maps. */
 public final class ResultPresenter {
-
-    private static final Color[] TYPE_COLORS = {
-            new Color(0, 114, 178),
-            new Color(213, 94, 0),
-            new Color(0, 158, 115),
-            new Color(204, 121, 167),
-            new Color(230, 159, 0)
-    };
 
     private ResultPresenter() {
     }
@@ -65,7 +55,7 @@ public final class ResultPresenter {
                     1.0 / pixelWidth, 1.0 / pixelHeight).transform(cell.getGeometry());
             ShapeRoi roi = new ShapeRoi(writer.toShape(pixels));
             int type = cell.getObject().getTypeIndex();
-            roi.setStrokeColor(TYPE_COLORS[type % TYPE_COLORS.length]);
+            roi.setStrokeColor(TerritoryMapRenderer.colorForType(type));
             roi.setStrokeWidth(cell.isEdgeCell() ? 2.0 : 1.0);
             roi.setName(
                     cell.getObject().getTypeName() + ":" + cell.getObject().getLabel());
@@ -79,4 +69,3 @@ public final class ResultPresenter {
         return Double.isFinite(value) && value > 0.0 ? value : 1.0;
     }
 }
-

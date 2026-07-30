@@ -66,6 +66,16 @@ public class MacroOptionsParserTest {
     }
 
     @Test
+    public void acceptsLegacyObjectAreaWeightingAsSizeAlias() {
+        ObjectTerritoriesMacroOptions parsed = MacroOptionsParser.parse(
+                "label1=[Cells] regions=[C:/regions.zip] density_weighting=object_area");
+
+        assertEquals(
+                DensityWeightingSelection.OBJECT_AREA,
+                parsed.getDensityWeightingSelection());
+    }
+
+    @Test
     public void serialisationRoundTripsAndNormalisesWindowsPath() {
         ObjectTerritoriesMacroOptions parsed = MacroOptionsParser.parse(
                 "label1=[Cells A] regions=[C:\\data folder\\regions.zip]");

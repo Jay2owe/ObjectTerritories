@@ -40,12 +40,57 @@ public class ObjectTerritoriesTest {
         assertEquals(1, result.getRegions().size());
         RegionAnalysisResult field = result.getRegions().get(0);
         assertNotNull(field.getTerritories());
+        assertEquals(8, field.getTerritories().getCells().size());
         assertNotNull(field.getInteractions());
         assertEquals(4, field.getDensityResults().size());
         for (DensityResult density : field.getDensityResults()) {
             assertFalse(density.getDensityMap().isVisible());
         }
         result.closeDensityImages();
+    }
+
+    @SuppressWarnings("deprecation")
+    @Test
+    public void legacyObjectAreaSelectionProducesCanonicalSizeDensity() {
+        ImagePlus labels = labels("Cells", new int[][] {{1, 1}});
+        ObjectTerritoriesResult result = ObjectTerritories.analyze(
+                ObjectTerritoriesParameters.builder()
+                        .addLabelImage(labels)
+                        .addRegion(new Roi(0, 0, 8, 8))
+                        .analysisMode(AnalysisMode.DENSITY)
+                        .densityWeightingSelection(DensityWeightingSelection.OBJECT_AREA)
+                        .build());
+
+        assertEquals(1, result.getRegions().get(0).getDensityResults().size());
+        assertEquals(
+                DensityWeighting.OBJECT_SIZE,
+                result.getRegions().get(0).getDensityResults().get(0).getWeighting());
+        result.closeDensityImages();
+    }
+
+    @Test
+    public void edgeExclusionRemovesIncidentEdgesFromInteractionSummary() {
+        ImagePlus labels = labels("Cells", new int[][] {{2, 4}, {6, 4}});
+        ObjectTerritoriesParameters.Builder base =
+                ObjectTerritoriesParameters.builder()
+                        .addLabelImage(labels)
+                        .addRegion(new Roi(0, 0, 8, 8))
+                        .analysisMode(AnalysisMode.TERRITORIES)
+                        .permutations(10);
+
+        ObjectTerritoriesResult included = ObjectTerritories.analyze(
+                base.edgeCellPolicy(EdgeCellPolicy.INCLUDE_FLAGGED).build());
+        ObjectTerritoriesResult excluded = ObjectTerritories.analyze(
+                base.edgeCellPolicy(EdgeCellPolicy.EXCLUDE_FROM_SUMMARIES).build());
+
+        assertEquals(1, included.getRegions().get(0).getInteractions().getCounts()[0][0]);
+        assertEquals(0, excluded.getRegions().get(0).getInteractions().getCounts()[0][0]);
+        assertEquals(
+                0,
+                excluded.getRegions().get(0).getTerritories()
+                        .getRegularity().getIncludedObjects());
+        included.closeDensityImages();
+        excluded.closeDensityImages();
     }
 
     private static ImagePlus labels(String title, int[][] points) {
@@ -61,4 +106,3 @@ public class ObjectTerritoriesTest {
         return result;
     }
 }
-

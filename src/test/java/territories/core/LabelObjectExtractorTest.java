@@ -2,6 +2,7 @@ package territories.core;
 
 import ij.ImagePlus;
 import ij.measure.Calibration;
+import ij.process.FloatProcessor;
 import ij.process.ShortProcessor;
 import org.junit.Test;
 
@@ -43,5 +44,11 @@ public class LabelObjectExtractorTest {
         ImagePlus stack = ij.IJ.createImage("Labels", "16-bit", 4, 4, 2);
         LabelObjectExtractor.extract(stack, 0, 0);
     }
-}
 
+    @Test(expected = IllegalArgumentException.class)
+    public void rejectsNonFiniteLabelPixels() {
+        FloatProcessor processor = new FloatProcessor(2, 2);
+        processor.setf(1, 1, Float.NaN);
+        LabelObjectExtractor.extract(new ImagePlus("Invalid", processor), 0, 0);
+    }
+}

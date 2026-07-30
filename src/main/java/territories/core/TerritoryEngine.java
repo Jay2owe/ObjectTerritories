@@ -46,8 +46,12 @@ public final class TerritoryEngine {
         }
 
         ArrayList<TerritoryCell> results = new ArrayList<TerritoryCell>(regionObjects.size());
-        for (Geometry component : polygonalComponents(domain)) {
-            List<SpatialObject2D> objects = objectsInside(regionObjects, component);
+        List<Geometry> components = polygonalComponents(domain);
+        List<List<SpatialObject2D>> objectsByComponent =
+                assignObjectsToComponents(regionObjects, components);
+        for (int componentIndex = 0; componentIndex < components.size(); componentIndex++) {
+            Geometry component = components.get(componentIndex);
+            List<SpatialObject2D> objects = objectsByComponent.get(componentIndex);
             if (objects.isEmpty()) continue;
             Geometry[] cells;
             List<List<Integer>> neighbors;
@@ -81,6 +85,32 @@ public final class TerritoryEngine {
         }
         results.sort(Comparator.comparingInt(value -> value.getObject().getIndex()));
         return new TerritoryResult(region.getName(), results, regularity(results, edgePolicy));
+    }
+
+    private static List<List<SpatialObject2D>> assignObjectsToComponents(
+            List<SpatialObject2D> objects, List<Geometry> components) {
+        ArrayList<List<SpatialObject2D>> result =
+                new ArrayList<List<SpatialObject2D>>(components.size());
+        for (int index = 0; index < components.size(); index++) {
+            result.add(new ArrayList<SpatialObject2D>());
+        }
+        for (SpatialObject2D object : objects) {
+            Point point = GEOMETRY_FACTORY.createPoint(
+                    new Coordinate(object.getCentroidX(), object.getCentroidY()));
+            boolean assigned = false;
+            for (int index = 0; index < components.size(); index++) {
+                if (!components.get(index).covers(point)) continue;
+                result.get(index).add(object);
+                assigned = true;
+                break;
+            }
+            if (!assigned) {
+                throw new IllegalStateException(
+                        "admitted object is not covered by a polygonal region component: "
+                                + object.getTypeName() + ":" + object.getLabel());
+            }
+        }
+        return result;
     }
 
     private static List<SpatialObject2D> objectsInside(

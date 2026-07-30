@@ -5,14 +5,17 @@ import ij.measure.Calibration;
 import ij.process.FloatProcessor;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.GeometryCollection;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
+import org.locationtech.jts.geom.Polygon;
 import org.locationtech.jts.geom.prep.PreparedGeometry;
 import org.locationtech.jts.geom.prep.PreparedGeometryFactory;
 import territories.api.DensityBoundaryMode;
 import territories.api.DensityWeighting;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -69,22 +72,30 @@ public final class DensityEngine {
                 ? requestedBandwidthMicrons
                 : automaticBandwidth(objects, pixelWidth, pixelHeight);
 
-        boolean[] mask = rasterMask(
-                preparedDomain, width, height, pixelWidth, pixelHeight);
+        RasterDomain raster = rasterDomain(
+                domain, width, height, pixelWidth, pixelHeight);
         float[] pixels = new float[width * height];
         for (int i = 0; i < pixels.length; i++) {
-            if (!mask[i]) pixels[i] = Float.NaN;
+            if (raster.componentByPixel[i] < 0) pixels[i] = Float.NaN;
         }
 
         ArrayList<Kernel> kernels = new ArrayList<Kernel>(objects.size());
         for (SpatialObject2D object : objects) {
             Kernel kernel = kernel(
-                    object, mask, width, height, pixelWidth, pixelHeight,
+                    object, raster, width, height, pixelWidth, pixelHeight,
                     bandwidth, weighting, boundaryMode);
             if (kernel != null) kernels.add(kernel);
         }
         for (Kernel kernel : kernels) {
-            accumulate(kernel, pixels, mask, width, height, pixelWidth, pixelHeight, bandwidth);
+            accumulate(
+                    kernel,
+                    pixels,
+                    raster.componentByPixel,
+                    width,
+                    height,
+                    pixelWidth,
+                    pixelHeight,
+                    bandwidth);
         }
 
         FloatProcessor processor = new FloatProcessor(width, height, pixels);
@@ -96,7 +107,8 @@ public final class DensityEngine {
         calibration.setUnit(
                 spatialUnit == null || spatialUnit.trim().isEmpty() ? "um" : spatialUnit);
 
-        Map<Integer, Double> localDensity = localDensity(objects, kernels, bandwidth);
+        Map<Integer, Double> localDensity = localDensity(
+                objects, kernels, raster, bandwidth);
         return new DensityResult(
                 region.getName(), typeName, weighting, boundaryMode,
                 bandwidth, image, localDensity);
@@ -117,27 +129,50 @@ public final class DensityEngine {
         return result;
     }
 
-    private static boolean[] rasterMask(
-            PreparedGeometry domain,
+    private static RasterDomain rasterDomain(
+            Geometry domain,
             int width,
             int height,
             double pixelWidth,
             double pixelHeight) {
-        boolean[] result = new boolean[width * height];
-        for (int y = 0; y < height; y++) {
-            double physicalY = (y + 0.5) * pixelHeight;
-            for (int x = 0; x < width; x++) {
-                double physicalX = (x + 0.5) * pixelWidth;
-                result[y * width + x] = domain.covers(GEOMETRY_FACTORY.createPoint(
-                        new Coordinate(physicalX, physicalY)));
+        List<Geometry> geometries = polygonalComponents(domain);
+        ArrayList<PreparedGeometry> prepared =
+                new ArrayList<PreparedGeometry>(geometries.size());
+        int[] componentByPixel = new int[width * height];
+        Arrays.fill(componentByPixel, -1);
+        for (int component = 0; component < geometries.size(); component++) {
+            Geometry geometry = geometries.get(component);
+            PreparedGeometry preparedGeometry = PreparedGeometryFactory.prepare(geometry);
+            prepared.add(preparedGeometry);
+            int minimumX = Math.max(
+                    0, (int) Math.floor(geometry.getEnvelopeInternal().getMinX() / pixelWidth));
+            int maximumX = Math.min(
+                    width - 1,
+                    (int) Math.ceil(geometry.getEnvelopeInternal().getMaxX() / pixelWidth));
+            int minimumY = Math.max(
+                    0, (int) Math.floor(geometry.getEnvelopeInternal().getMinY() / pixelHeight));
+            int maximumY = Math.min(
+                    height - 1,
+                    (int) Math.ceil(geometry.getEnvelopeInternal().getMaxY() / pixelHeight));
+            for (int y = minimumY; y <= maximumY; y++) {
+                double physicalY = (y + 0.5) * pixelHeight;
+                for (int x = minimumX; x <= maximumX; x++) {
+                    int index = y * width + x;
+                    if (componentByPixel[index] >= 0) continue;
+                    double physicalX = (x + 0.5) * pixelWidth;
+                    if (preparedGeometry.covers(GEOMETRY_FACTORY.createPoint(
+                            new Coordinate(physicalX, physicalY)))) {
+                        componentByPixel[index] = component;
+                    }
+                }
             }
         }
-        return result;
+        return new RasterDomain(componentByPixel, prepared);
     }
 
     private static Kernel kernel(
             SpatialObject2D object,
-            boolean[] mask,
+            RasterDomain raster,
             int width,
             int height,
             double pixelWidth,
@@ -146,23 +181,45 @@ public final class DensityEngine {
             DensityWeighting weighting,
             DensityBoundaryMode boundaryMode) {
         Bounds bounds = bounds(object, width, height, pixelWidth, pixelHeight, bandwidth);
+        int component = componentAtObject(object, raster);
         double weight = weighting == DensityWeighting.OBJECT_COUNT ? 1.0 : object.getArea();
+        double supported = gaussianSum(
+                object,
+                bounds,
+                raster.componentByPixel,
+                component,
+                width,
+                pixelWidth,
+                pixelHeight,
+                bandwidth);
+        if (!(supported > 0.0)) {
+            throw unsupportedKernel(object, bandwidth, pixelWidth, pixelHeight);
+        }
         double denominator;
         if (boundaryMode == DensityBoundaryMode.CORRECTED) {
-            double supported = gaussianSum(
-                    object, bounds, mask, width, pixelWidth, pixelHeight, bandwidth);
-            if (supported <= 0.0) return null;
             denominator = supported * pixelWidth * pixelHeight;
         } else {
             denominator = 2.0 * Math.PI * bandwidth * bandwidth;
         }
-        return new Kernel(object, bounds, weight / denominator);
+        return new Kernel(object, bounds, component, weight / denominator);
+    }
+
+    private static IllegalArgumentException unsupportedKernel(
+            SpatialObject2D object,
+            double bandwidth,
+            double pixelWidth,
+            double pixelHeight) {
+        return new IllegalArgumentException(
+                "density kernel for " + object.getTypeName() + ":" + object.getLabel()
+                        + " has no sampled support inside its region at bandwidth "
+                        + bandwidth + "; increase the bandwidth or use finer image/ROI "
+                        + "resolution (pixel size " + pixelWidth + " x " + pixelHeight + ")");
     }
 
     private static void accumulate(
             Kernel kernel,
             float[] pixels,
-            boolean[] mask,
+            int[] components,
             int width,
             int height,
             double pixelWidth,
@@ -174,7 +231,7 @@ public final class DensityEngine {
             double dy = (y + 0.5) * pixelHeight - object.getCentroidY();
             for (int x = kernel.bounds.minimumX; x <= kernel.bounds.maximumX; x++) {
                 int index = y * width + x;
-                if (!mask[index]) continue;
+                if (components[index] != kernel.component) continue;
                 double dx = (x + 0.5) * pixelWidth - object.getCentroidX();
                 double gaussian = Math.exp(-(dx * dx + dy * dy) * inverseTwoBandwidthSquared);
                 pixels[index] += (float) (gaussian * kernel.scale);
@@ -185,7 +242,8 @@ public final class DensityEngine {
     private static double gaussianSum(
             SpatialObject2D object,
             Bounds bounds,
-            boolean[] mask,
+            int[] components,
+            int component,
             int width,
             double pixelWidth,
             double pixelHeight,
@@ -195,7 +253,7 @@ public final class DensityEngine {
         for (int y = bounds.minimumY; y <= bounds.maximumY; y++) {
             double dy = (y + 0.5) * pixelHeight - object.getCentroidY();
             for (int x = bounds.minimumX; x <= bounds.maximumX; x++) {
-                if (!mask[y * width + x]) continue;
+                if (components[y * width + x] != component) continue;
                 double dx = (x + 0.5) * pixelWidth - object.getCentroidX();
                 result += Math.exp(-(dx * dx + dy * dy) * inverseTwoBandwidthSquared);
             }
@@ -204,14 +262,19 @@ public final class DensityEngine {
     }
 
     private static Map<Integer, Double> localDensity(
-            List<SpatialObject2D> objects, List<Kernel> kernels, double bandwidth) {
+            List<SpatialObject2D> objects,
+            List<Kernel> kernels,
+            RasterDomain raster,
+            double bandwidth) {
         LinkedHashMap<Integer, Double> result = new LinkedHashMap<Integer, Double>();
         double inverseTwoBandwidthSquared = 1.0 / (2.0 * bandwidth * bandwidth);
         double radius = KERNEL_RADIUS_IN_SIGMAS * bandwidth;
         for (SpatialObject2D selected : objects) {
             double density = 0.0;
+            int selectedComponent = componentAtObject(selected, raster);
             for (Kernel kernel : kernels) {
                 if (kernel.object.getIndex() == selected.getIndex()) continue;
+                if (kernel.component != selectedComponent) continue;
                 double dx = selected.getCentroidX() - kernel.object.getCentroidX();
                 double dy = selected.getCentroidY() - kernel.object.getCentroidY();
                 if (Math.abs(dx) > radius || Math.abs(dy) > radius) continue;
@@ -221,6 +284,38 @@ public final class DensityEngine {
             result.put(selected.getIndex(), density);
         }
         return result;
+    }
+
+    private static int componentAtObject(
+            SpatialObject2D object, RasterDomain raster) {
+        Point point = GEOMETRY_FACTORY.createPoint(
+                new Coordinate(object.getCentroidX(), object.getCentroidY()));
+        for (int component = 0; component < raster.components.size(); component++) {
+            if (raster.components.get(component).covers(point)) return component;
+        }
+        throw new IllegalStateException(
+                "admitted object is not covered by a polygonal region component: "
+                        + object.getTypeName() + ":" + object.getLabel());
+    }
+
+    private static List<Geometry> polygonalComponents(Geometry geometry) {
+        ArrayList<Geometry> result = new ArrayList<Geometry>();
+        collectPolygonalComponents(geometry, result);
+        return result;
+    }
+
+    private static void collectPolygonalComponents(
+            Geometry geometry, List<Geometry> destination) {
+        if (geometry instanceof Polygon) {
+            destination.add(geometry);
+            return;
+        }
+        if (geometry instanceof GeometryCollection) {
+            GeometryCollection collection = (GeometryCollection) geometry;
+            for (int index = 0; index < collection.getNumGeometries(); index++) {
+                collectPolygonalComponents(collection.getGeometryN(index), destination);
+            }
+        }
     }
 
     static double automaticBandwidth(
@@ -286,14 +381,28 @@ public final class DensityEngine {
         }
     }
 
+    private static final class RasterDomain {
+        private final int[] componentByPixel;
+        private final List<PreparedGeometry> components;
+
+        private RasterDomain(
+                int[] componentByPixel, List<PreparedGeometry> components) {
+            this.componentByPixel = componentByPixel;
+            this.components = components;
+        }
+    }
+
     private static final class Kernel {
         private final SpatialObject2D object;
         private final Bounds bounds;
+        private final int component;
         private final double scale;
 
-        private Kernel(SpatialObject2D object, Bounds bounds, double scale) {
+        private Kernel(
+                SpatialObject2D object, Bounds bounds, int component, double scale) {
             this.object = object;
             this.bounds = bounds;
+            this.component = component;
             this.scale = scale;
         }
     }

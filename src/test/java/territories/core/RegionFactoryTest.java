@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class RegionFactoryTest {
 
@@ -24,6 +25,11 @@ public class RegionFactoryTest {
         assertEquals(2, regions.size());
         assertEquals("SCN", regions.get(0).getName());
         assertEquals(300.0, regions.get(0).getGeometry().getArea(), 1.0e-9);
+        assertEquals(0.0, regions.get(0).getGeometry().getEnvelopeInternal().getMinY(), 0.0);
+        assertEquals(15.0, regions.get(0).getGeometry().getEnvelopeInternal().getMaxY(), 0.0);
+        assertTrue(regions.get(0).getGeometry().covers(
+                new org.locationtech.jts.geom.GeometryFactory().createPoint(
+                        new org.locationtech.jts.geom.Coordinate(1.0, 1.5))));
     }
 
     @Test
@@ -38,5 +44,17 @@ public class RegionFactoryTest {
         assertEquals("All_Regions", regions.get(0).getName());
         assertEquals(75.0, regions.get(0).getGeometry().getArea(), 1.0e-9);
     }
-}
 
+    @Test
+    public void preservesRoiPositionAfterShapeConversion() {
+        Roi roi = new Roi(2, 3, 4, 5);
+
+        SpatialRegion2D region = RegionFactory.create(
+                Arrays.asList(roi), RegionMode.INDEPENDENT, 2.0, 3.0).get(0);
+
+        assertEquals(4.0, region.getGeometry().getEnvelopeInternal().getMinX(), 0.0);
+        assertEquals(12.0, region.getGeometry().getEnvelopeInternal().getMaxX(), 0.0);
+        assertEquals(9.0, region.getGeometry().getEnvelopeInternal().getMinY(), 0.0);
+        assertEquals(24.0, region.getGeometry().getEnvelopeInternal().getMaxY(), 0.0);
+    }
+}

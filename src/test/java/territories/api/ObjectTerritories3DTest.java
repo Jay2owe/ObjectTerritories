@@ -33,7 +33,27 @@ public class ObjectTerritories3DTest {
         RegionAnalysisResult3D region = result.getRegions().get(0);
         assertNotNull(region.getTerritories());
         assertNotNull(region.getInteractions());
+        assertEquals(1, region.getInteractions().getCounts()[0][0]);
         assertEquals(2, region.getDensityResults().size());
+        result.closeGeneratedImages();
+    }
+
+    @Test
+    public void edgeExclusionAlsoFiltersThreeDimensionalInteractions() {
+        ObjectTerritoriesResult3D result = ObjectTerritories.analyze3D(
+                ObjectTerritoriesParameters3D.builder()
+                        .addLabelImage(labels())
+                        .regionMask(mask())
+                        .analysisMode(AnalysisMode.TERRITORIES)
+                        .edgeCellPolicy(EdgeCellPolicy.EXCLUDE_FROM_SUMMARIES)
+                        .permutations(10)
+                        .build());
+
+        RegionAnalysisResult3D region = result.getRegions().get(0);
+        assertEquals(0, region.getInteractions().getCounts()[0][0]);
+        assertEquals(
+                0,
+                region.getTerritories().getRegularity().getIncludedObjects());
         result.closeGeneratedImages();
     }
 
@@ -68,4 +88,3 @@ public class ObjectTerritories3DTest {
         calibration.setUnit("um");
     }
 }
-

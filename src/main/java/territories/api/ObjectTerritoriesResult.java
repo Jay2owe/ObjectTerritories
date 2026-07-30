@@ -12,14 +12,29 @@ public final class ObjectTerritoriesResult {
     private final List<SpatialObject2D> objects;
     private final List<RegionAnalysisResult> regions;
     private final List<String> warnings;
+    private final int imageWidth;
+    private final int imageHeight;
+    private final double pixelWidth;
+    private final double pixelHeight;
+    private final String spatialUnit;
 
     ObjectTerritoriesResult(
             List<SpatialObject2D> objects,
             List<RegionAnalysisResult> regions,
-            List<String> warnings) {
+            List<String> warnings,
+            int imageWidth,
+            int imageHeight,
+            double pixelWidth,
+            double pixelHeight,
+            String spatialUnit) {
         this.objects = Collections.unmodifiableList(new ArrayList<SpatialObject2D>(objects));
         this.regions = Collections.unmodifiableList(new ArrayList<RegionAnalysisResult>(regions));
         this.warnings = Collections.unmodifiableList(new ArrayList<String>(warnings));
+        this.imageWidth = imageWidth;
+        this.imageHeight = imageHeight;
+        this.pixelWidth = pixelWidth;
+        this.pixelHeight = pixelHeight;
+        this.spatialUnit = spatialUnit;
     }
 
     public List<SpatialObject2D> getObjects() {
@@ -34,6 +49,26 @@ public final class ObjectTerritoriesResult {
         return warnings;
     }
 
+    public int getImageWidth() {
+        return imageWidth;
+    }
+
+    public int getImageHeight() {
+        return imageHeight;
+    }
+
+    public double getPixelWidth() {
+        return pixelWidth;
+    }
+
+    public double getPixelHeight() {
+        return pixelHeight;
+    }
+
+    public String getSpatialUnit() {
+        return spatialUnit;
+    }
+
     /** Closes every density image owned by this result. */
     public void closeDensityImages() {
         for (RegionAnalysisResult region : regions) {
@@ -44,4 +79,3 @@ public final class ObjectTerritoriesResult {
         }
     }
 }
-

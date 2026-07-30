@@ -94,6 +94,22 @@ public class TerritoryEngineTest {
         assertTrue(result.getCells().get(1).getNeighborObjectIndices().isEmpty());
     }
 
+    @Test
+    public void pointTouchingComponentsOwnBoundaryObjectOnlyOnce() {
+        Geometry first = rectangle("First", 0.0, 0.0, 1.0, 1.0).getGeometry();
+        Geometry second = rectangle("Second", 1.0, 1.0, 2.0, 2.0).getGeometry();
+        SpatialRegion2D union = new SpatialRegion2D("Point touch", first.union(second));
+
+        TerritoryResult result = TerritoryEngine.analyze(
+                java.util.Collections.singletonList(object(0, 1.0, 1.0)),
+                union,
+                EdgeCellPolicy.INCLUDE_FLAGGED);
+
+        assertEquals(1, result.getCells().size());
+        assertEquals(0, result.getCells().get(0).getObject().getIndex());
+        assertEquals(1.0, result.getCells().get(0).getArea(), 1.0e-8);
+    }
+
     private static SpatialObject2D object(int index, double x, double y) {
         return new SpatialObject2D(index, 0, "Cells", index + 1L, x, y, 1.0);
     }

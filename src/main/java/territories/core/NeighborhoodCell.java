@@ -8,5 +8,6 @@ public interface NeighborhoodCell {
     TypedSpatialObject getSpatialObject();
 
     List<Integer> getNeighborObjectIndices();
-}
 
+    boolean isEdgeCell();
+}

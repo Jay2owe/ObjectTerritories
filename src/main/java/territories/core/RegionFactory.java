@@ -65,8 +65,10 @@ public final class RegionFactory {
         if (pixels == null || pixels.isEmpty()) {
             throw new IllegalArgumentException("ROI '" + roi.getName() + "' has no area");
         }
+        Geometry imageCoordinates = AffineTransformation.scaleInstance(1.0, -1.0)
+                .transform(pixels);
         Geometry positioned = AffineTransformation.translationInstance(
-                shapeRoi.getXBase(), shapeRoi.getYBase()).transform(pixels);
+                shapeRoi.getXBase(), shapeRoi.getYBase()).transform(imageCoordinates);
         Geometry calibrated = AffineTransformation.scaleInstance(pixelWidth, pixelHeight)
                 .transform(positioned);
         if (!calibrated.isValid()) calibrated = calibrated.buffer(0.0);

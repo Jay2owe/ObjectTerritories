@@ -47,6 +47,7 @@ public final class TerritoryCell implements NeighborhoodCell {
         return neighborObjectIndices;
     }
 
+    @Override
     public boolean isEdgeCell() {
         return edgeCell;
     }

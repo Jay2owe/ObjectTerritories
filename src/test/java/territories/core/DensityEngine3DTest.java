@@ -93,6 +93,23 @@ public class DensityEngine3DTest {
         result.getDensityVolume().close();
     }
 
+    @Test
+    public void rejectsBandwidthWithNoSampledVoxelSupport() {
+        try {
+            DensityEngine3D.generate(
+                    Collections.singletonList(object(0, 1.0, 1.0, 1.0, 1.0)),
+                    fullMask(3, 3, 2),
+                    "Cells",
+                    1.0e-12,
+                    DensityWeighting.OBJECT_COUNT,
+                    DensityBoundaryMode.CLIPPED);
+        } catch (IllegalArgumentException error) {
+            assertTrue(error.getMessage().contains("no sampled support"));
+            return;
+        }
+        throw new AssertionError("Expected an unsupported sampled kernel to fail");
+    }
+
     private static double integrated(DensityResult3D result) {
         ImagePlus image = result.getDensityVolume();
         double sum = 0.0;

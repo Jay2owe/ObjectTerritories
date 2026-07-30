@@ -9,6 +9,8 @@ import territories.core.DensityResult;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.HashSet;
+import java.util.Set;
 
 /** Writes the analysis tree without relying on interactive ImageJ windows. */
 public final class ResultExporter {
@@ -22,10 +24,13 @@ public final class ResultExporter {
         File objectsDirectory = directory(outputRoot, "Objects");
         File interactionsDirectory = directory(outputRoot, "Interactions");
         File densityDirectory = directory(outputRoot, "Density");
-        directory(outputRoot, "Maps");
+        File mapsDirectory = directory(outputRoot, "Maps");
+        Set<String> regionNames = new HashSet<String>();
+        Set<String> densityNames = new HashSet<String>();
 
         for (RegionAnalysisResult region : result.getRegions()) {
-            String regionName = safe(region.getRegionName());
+            String regionName = SafeOutputNames.unique(
+                    region.getRegionName(), regionNames);
             saveTable(
                     ResultTables.objects(result, region),
                     new File(objectsDirectory, regionName + "_Objects.csv"));
@@ -37,10 +42,32 @@ public final class ResultExporter {
                         ResultTables.regularity(region),
                         new File(interactionsDirectory, regionName + "_Regularity.csv"));
             }
+            if (region.getTerritories() != null) {
+                ij.ImagePlus map = TerritoryMapRenderer.render(
+                        region,
+                        result.getImageWidth(),
+                        result.getImageHeight(),
+                        result.getPixelWidth(),
+                        result.getPixelHeight(),
+                        result.getSpatialUnit());
+                try {
+                    File destination = new File(
+                            mapsDirectory, regionName + "_Territories.tif");
+                    if (!new FileSaver(map).saveAsTiff(destination.getAbsolutePath())) {
+                        throw new IOException(
+                                "could not save territory map: " + destination);
+                    }
+                } finally {
+                    map.close();
+                    map.flush();
+                }
+            }
             for (DensityResult density : region.getDensityResults()) {
-                String name = regionName + "_" + safe(density.getTypeName())
+                String requestedName = regionName + "_"
+                        + SafeOutputNames.safe(density.getTypeName())
                         + "_" + density.getWeighting().name().toLowerCase(java.util.Locale.ROOT)
                         + "_bw-" + safe(Double.toString(density.getBandwidthMicrons()));
+                String name = SafeOutputNames.unique(requestedName, densityNames);
                 File destination = new File(densityDirectory, name + ".tif");
                 if (!new FileSaver(density.getDensityMap()).saveAsTiff(destination.getAbsolutePath())) {
                     throw new IOException("could not save density map: " + destination);
@@ -60,7 +87,6 @@ public final class ResultExporter {
     }
 
     private static String safe(String value) {
-        return value.replaceAll("[^A-Za-z0-9._-]+", "_");
+        return SafeOutputNames.safe(value);
     }
 }
-
