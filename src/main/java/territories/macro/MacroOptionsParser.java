@@ -55,10 +55,13 @@ public final class MacroOptionsParser {
                 1,
                 "permutations");
         long seed = longValue(tokens.get("seed"), ObjectTerritoriesParameters.DEFAULT_SEED, "seed");
+        String output = tokens.containsKey("output")
+                ? requireSafeValue(tokens.get("output"), "output") : null;
+        boolean hideResults = tokens.containsKey("hide_results");
 
         return new ObjectTerritoriesMacroOptions(
                 labels, regions, mode, regionMode, edgePolicy, weighting,
-                boundary, bandwidth, permutations, seed);
+                boundary, bandwidth, permutations, seed, output, hideResults);
     }
 
     private static Map<String, String> tokenize(String source) {
@@ -71,10 +74,19 @@ public final class MacroOptionsParser {
 
             int keyStart = cursor;
             while (cursor < source.length() && isKeyCharacter(source.charAt(cursor))) cursor++;
-            if (cursor == keyStart || cursor >= source.length() || source.charAt(cursor) != '=') {
-                throw new IllegalArgumentException("expected key=value near: " + source.substring(keyStart));
+            if (cursor == keyStart) {
+                throw new IllegalArgumentException("expected an option near: " + source.substring(keyStart));
             }
             String key = source.substring(keyStart, cursor).toLowerCase(Locale.ROOT);
+            if (cursor == source.length() || Character.isWhitespace(source.charAt(cursor))) {
+                if (values.put(key, "true") != null) {
+                    throw new IllegalArgumentException("duplicate macro option: " + key);
+                }
+                continue;
+            }
+            if (source.charAt(cursor) != '=') {
+                throw new IllegalArgumentException("expected key=value near: " + source.substring(keyStart));
+            }
             cursor++;
             if (cursor >= source.length()) throw new IllegalArgumentException(key + " has no value");
 
@@ -114,7 +126,9 @@ public final class MacroOptionsParser {
                     || key.equals("boundary")
                     || key.equals("bandwidth")
                     || key.equals("permutations")
-                    || key.equals("seed")) {
+                    || key.equals("seed")
+                    || key.equals("output")
+                    || key.equals("hide_results")) {
                 continue;
             }
             throw new IllegalArgumentException("unknown macro option: " + key);

@@ -24,6 +24,8 @@ public final class ObjectTerritoriesMacroOptions {
     private final double bandwidthMicrons;
     private final int permutations;
     private final long seed;
+    private final String outputDirectory;
+    private final boolean hideResults;
 
     ObjectTerritoriesMacroOptions(
             List<String> labelTitles,
@@ -35,7 +37,9 @@ public final class ObjectTerritoriesMacroOptions {
             DensityBoundaryMode densityBoundaryMode,
             double bandwidthMicrons,
             int permutations,
-            long seed) {
+            long seed,
+            String outputDirectory,
+            boolean hideResults) {
         this.labelTitles = Collections.unmodifiableList(new ArrayList<String>(labelTitles));
         this.roiZipPath = roiZipPath;
         this.analysisMode = analysisMode;
@@ -46,6 +50,8 @@ public final class ObjectTerritoriesMacroOptions {
         this.bandwidthMicrons = bandwidthMicrons;
         this.permutations = permutations;
         this.seed = seed;
+        this.outputDirectory = outputDirectory;
+        this.hideResults = hideResults;
     }
 
     public List<String> getLabelTitles() {
@@ -88,6 +94,34 @@ public final class ObjectTerritoriesMacroOptions {
         return seed;
     }
 
+    public String getOutputDirectory() {
+        return outputDirectory;
+    }
+
+    public boolean isHideResults() {
+        return hideResults;
+    }
+
+    public static ObjectTerritoriesMacroOptions create(
+            List<String> labelTitles,
+            String roiZipPath,
+            AnalysisMode analysisMode,
+            RegionMode regionMode,
+            EdgeCellPolicy edgeCellPolicy,
+            DensityWeightingSelection densityWeightingSelection,
+            DensityBoundaryMode densityBoundaryMode,
+            double bandwidthMicrons,
+            int permutations,
+            long seed,
+            String outputDirectory,
+            boolean hideResults) {
+        ObjectTerritoriesMacroOptions options = new ObjectTerritoriesMacroOptions(
+                labelTitles, roiZipPath, analysisMode, regionMode, edgeCellPolicy,
+                densityWeightingSelection, densityBoundaryMode, bandwidthMicrons,
+                permutations, seed, blankToNull(outputDirectory), hideResults);
+        return MacroOptionsParser.parse(options.toMacroOptions());
+    }
+
     /** Serialises complete, replayable ImageJ macro options. */
     public String toMacroOptions() {
         StringBuilder result = new StringBuilder();
@@ -103,6 +137,13 @@ public final class ObjectTerritoriesMacroOptions {
         append(result, "bandwidth", bandwidthMicrons == 0.0 ? "auto" : Double.toString(bandwidthMicrons));
         append(result, "permutations", Integer.toString(permutations));
         append(result, "seed", Long.toString(seed));
+        if (outputDirectory != null) {
+            appendBracketed(result, "output", slashPath(outputDirectory));
+        }
+        if (hideResults) {
+            if (result.length() > 0) result.append(' ');
+            result.append("hide_results");
+        }
         return result.toString();
     }
 
@@ -145,6 +186,12 @@ public final class ObjectTerritoriesMacroOptions {
                 DensityBoundaryMode.CORRECTED,
                 0.0,
                 ObjectTerritoriesParameters.DEFAULT_PERMUTATIONS,
-                ObjectTerritoriesParameters.DEFAULT_SEED);
+                ObjectTerritoriesParameters.DEFAULT_SEED,
+                null,
+                false);
+    }
+
+    private static String blankToNull(String value) {
+        return value == null || value.trim().isEmpty() ? null : value;
     }
 }

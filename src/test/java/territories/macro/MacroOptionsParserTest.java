@@ -28,6 +28,8 @@ public class MacroOptionsParserTest {
         assertEquals(0.0, parsed.getBandwidthMicrons(), 0.0);
         assertEquals(1000, parsed.getPermutations());
         assertEquals(12345L, parsed.getSeed());
+        assertEquals(null, parsed.getOutputDirectory());
+        assertTrue(!parsed.isHideResults());
     }
 
     @Test
@@ -36,7 +38,7 @@ public class MacroOptionsParserTest {
                 "mode=territories label1=A label2=B regions=regions.zip "
                 + "region_mode=union edge_cells=exclude_from_summaries "
                 + "density_weighting=object_area boundary=clipped bandwidth=12.5 "
-                + "permutations=2500 seed=-9");
+                + "permutations=2500 seed=-9 output=[C:/results folder] hide_results");
 
         assertEquals(2, parsed.getLabelTitles().size());
         assertEquals(AnalysisMode.TERRITORIES, parsed.getAnalysisMode());
@@ -49,6 +51,8 @@ public class MacroOptionsParserTest {
         assertEquals(12.5, parsed.getBandwidthMicrons(), 0.0);
         assertEquals(2500, parsed.getPermutations());
         assertEquals(-9L, parsed.getSeed());
+        assertEquals("C:/results folder", parsed.getOutputDirectory());
+        assertTrue(parsed.isHideResults());
     }
 
     @Test
