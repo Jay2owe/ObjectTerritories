@@ -2,7 +2,7 @@ package territories.macro;
 
 import territories.api.AnalysisMode;
 import territories.api.DensityBoundaryMode;
-import territories.api.DensityWeighting;
+import territories.api.DensityWeightingSelection;
 import territories.api.EdgeCellPolicy;
 import territories.api.ObjectTerritoriesParameters;
 import territories.api.RegionMode;
@@ -19,7 +19,7 @@ public final class ObjectTerritoriesMacroOptions {
     private final AnalysisMode analysisMode;
     private final RegionMode regionMode;
     private final EdgeCellPolicy edgeCellPolicy;
-    private final DensityWeighting densityWeighting;
+    private final DensityWeightingSelection densityWeightingSelection;
     private final DensityBoundaryMode densityBoundaryMode;
     private final double bandwidthMicrons;
     private final int permutations;
@@ -31,7 +31,7 @@ public final class ObjectTerritoriesMacroOptions {
             AnalysisMode analysisMode,
             RegionMode regionMode,
             EdgeCellPolicy edgeCellPolicy,
-            DensityWeighting densityWeighting,
+            DensityWeightingSelection densityWeightingSelection,
             DensityBoundaryMode densityBoundaryMode,
             double bandwidthMicrons,
             int permutations,
@@ -41,7 +41,7 @@ public final class ObjectTerritoriesMacroOptions {
         this.analysisMode = analysisMode;
         this.regionMode = regionMode;
         this.edgeCellPolicy = edgeCellPolicy;
-        this.densityWeighting = densityWeighting;
+        this.densityWeightingSelection = densityWeightingSelection;
         this.densityBoundaryMode = densityBoundaryMode;
         this.bandwidthMicrons = bandwidthMicrons;
         this.permutations = permutations;
@@ -68,8 +68,8 @@ public final class ObjectTerritoriesMacroOptions {
         return edgeCellPolicy;
     }
 
-    public DensityWeighting getDensityWeighting() {
-        return densityWeighting;
+    public DensityWeightingSelection getDensityWeightingSelection() {
+        return densityWeightingSelection;
     }
 
     public DensityBoundaryMode getDensityBoundaryMode() {
@@ -98,7 +98,7 @@ public final class ObjectTerritoriesMacroOptions {
         appendBracketed(result, "regions", slashPath(roiZipPath));
         append(result, "region_mode", lower(regionMode));
         append(result, "edge_cells", lower(edgeCellPolicy));
-        append(result, "density_weighting", lower(densityWeighting));
+        append(result, "density_weighting", lower(densityWeightingSelection));
         append(result, "boundary", lower(densityBoundaryMode));
         append(result, "bandwidth", bandwidthMicrons == 0.0 ? "auto" : Double.toString(bandwidthMicrons));
         append(result, "permutations", Integer.toString(permutations));
@@ -141,11 +141,10 @@ public final class ObjectTerritoriesMacroOptions {
                 AnalysisMode.BOTH,
                 RegionMode.INDEPENDENT,
                 EdgeCellPolicy.INCLUDE_FLAGGED,
-                DensityWeighting.OBJECT_COUNT,
+                DensityWeightingSelection.BOTH,
                 DensityBoundaryMode.CORRECTED,
                 0.0,
                 ObjectTerritoriesParameters.DEFAULT_PERMUTATIONS,
                 ObjectTerritoriesParameters.DEFAULT_SEED);
     }
 }
-

@@ -2,7 +2,7 @@ package territories.macro;
 
 import territories.api.AnalysisMode;
 import territories.api.DensityBoundaryMode;
-import territories.api.DensityWeighting;
+import territories.api.DensityWeightingSelection;
 import territories.api.EdgeCellPolicy;
 import territories.api.ObjectTerritoriesParameters;
 import territories.api.RegionMode;
@@ -43,8 +43,9 @@ public final class MacroOptionsParser {
         RegionMode regionMode = enumValue(tokens, "region_mode", RegionMode.class, RegionMode.INDEPENDENT);
         EdgeCellPolicy edgePolicy = enumValue(
                 tokens, "edge_cells", EdgeCellPolicy.class, EdgeCellPolicy.INCLUDE_FLAGGED);
-        DensityWeighting weighting = enumValue(
-                tokens, "density_weighting", DensityWeighting.class, DensityWeighting.OBJECT_COUNT);
+        DensityWeightingSelection weighting = enumValue(
+                tokens, "density_weighting", DensityWeightingSelection.class,
+                DensityWeightingSelection.BOTH);
         DensityBoundaryMode boundary = enumValue(
                 tokens, "boundary", DensityBoundaryMode.class, DensityBoundaryMode.CORRECTED);
         double bandwidth = bandwidth(tokens.get("bandwidth"));
@@ -182,4 +183,3 @@ public final class MacroOptionsParser {
         }
     }
 }
-

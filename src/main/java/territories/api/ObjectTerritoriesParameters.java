@@ -24,7 +24,7 @@ public final class ObjectTerritoriesParameters {
     private final AnalysisMode analysisMode;
     private final RegionMode regionMode;
     private final EdgeCellPolicy edgeCellPolicy;
-    private final DensityWeighting densityWeighting;
+    private final DensityWeightingSelection densityWeightingSelection;
     private final DensityBoundaryMode densityBoundaryMode;
     private final double bandwidthMicrons;
     private final int permutations;
@@ -36,7 +36,7 @@ public final class ObjectTerritoriesParameters {
         this.analysisMode = builder.analysisMode;
         this.regionMode = builder.regionMode;
         this.edgeCellPolicy = builder.edgeCellPolicy;
-        this.densityWeighting = builder.densityWeighting;
+        this.densityWeightingSelection = builder.densityWeightingSelection;
         this.densityBoundaryMode = builder.densityBoundaryMode;
         this.bandwidthMicrons = builder.bandwidthMicrons;
         this.permutations = builder.permutations;
@@ -67,8 +67,8 @@ public final class ObjectTerritoriesParameters {
         return edgeCellPolicy;
     }
 
-    public DensityWeighting getDensityWeighting() {
-        return densityWeighting;
+    public DensityWeightingSelection getDensityWeightingSelection() {
+        return densityWeightingSelection;
     }
 
     public DensityBoundaryMode getDensityBoundaryMode() {
@@ -101,7 +101,8 @@ public final class ObjectTerritoriesParameters {
         private AnalysisMode analysisMode = AnalysisMode.BOTH;
         private RegionMode regionMode = RegionMode.INDEPENDENT;
         private EdgeCellPolicy edgeCellPolicy = EdgeCellPolicy.INCLUDE_FLAGGED;
-        private DensityWeighting densityWeighting = DensityWeighting.OBJECT_COUNT;
+        private DensityWeightingSelection densityWeightingSelection =
+                DensityWeightingSelection.BOTH;
         private DensityBoundaryMode densityBoundaryMode = DensityBoundaryMode.CORRECTED;
         private double bandwidthMicrons;
         private int permutations = DEFAULT_PERMUTATIONS;
@@ -147,8 +148,8 @@ public final class ObjectTerritoriesParameters {
             return this;
         }
 
-        public Builder densityWeighting(DensityWeighting value) {
-            this.densityWeighting = require(value, "densityWeighting");
+        public Builder densityWeightingSelection(DensityWeightingSelection value) {
+            this.densityWeightingSelection = require(value, "densityWeightingSelection");
             return this;
         }
 
@@ -193,4 +194,3 @@ public final class ObjectTerritoriesParameters {
         }
     }
 }
-

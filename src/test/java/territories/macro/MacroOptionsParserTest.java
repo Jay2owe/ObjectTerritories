@@ -3,7 +3,7 @@ package territories.macro;
 import org.junit.Test;
 import territories.api.AnalysisMode;
 import territories.api.DensityBoundaryMode;
-import territories.api.DensityWeighting;
+import territories.api.DensityWeightingSelection;
 import territories.api.EdgeCellPolicy;
 import territories.api.RegionMode;
 
@@ -23,7 +23,7 @@ public class MacroOptionsParserTest {
         assertEquals(AnalysisMode.BOTH, parsed.getAnalysisMode());
         assertEquals(RegionMode.INDEPENDENT, parsed.getRegionMode());
         assertEquals(EdgeCellPolicy.INCLUDE_FLAGGED, parsed.getEdgeCellPolicy());
-        assertEquals(DensityWeighting.OBJECT_COUNT, parsed.getDensityWeighting());
+        assertEquals(DensityWeightingSelection.BOTH, parsed.getDensityWeightingSelection());
         assertEquals(DensityBoundaryMode.CORRECTED, parsed.getDensityBoundaryMode());
         assertEquals(0.0, parsed.getBandwidthMicrons(), 0.0);
         assertEquals(1000, parsed.getPermutations());
@@ -42,7 +42,9 @@ public class MacroOptionsParserTest {
         assertEquals(AnalysisMode.TERRITORIES, parsed.getAnalysisMode());
         assertEquals(RegionMode.UNION, parsed.getRegionMode());
         assertEquals(EdgeCellPolicy.EXCLUDE_FROM_SUMMARIES, parsed.getEdgeCellPolicy());
-        assertEquals(DensityWeighting.OBJECT_AREA, parsed.getDensityWeighting());
+        assertEquals(
+                DensityWeightingSelection.OBJECT_AREA,
+                parsed.getDensityWeightingSelection());
         assertEquals(DensityBoundaryMode.CLIPPED, parsed.getDensityBoundaryMode());
         assertEquals(12.5, parsed.getBandwidthMicrons(), 0.0);
         assertEquals(2500, parsed.getPermutations());
@@ -84,4 +86,3 @@ public class MacroOptionsParserTest {
         }
     }
 }
-
