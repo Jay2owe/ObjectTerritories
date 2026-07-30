@@ -37,7 +37,7 @@ public class MacroOptionsParserTest {
         ObjectTerritoriesMacroOptions parsed = MacroOptionsParser.parse(
                 "mode=territories label1=A label2=B regions=regions.zip "
                 + "region_mode=union edge_cells=exclude_from_summaries "
-                + "density_weighting=object_area boundary=clipped bandwidth=12.5 "
+                + "density_weighting=object_size boundary=clipped bandwidth=12.5 "
                 + "permutations=2500 seed=-9 output=[C:/results folder] hide_results");
 
         assertEquals(2, parsed.getLabelTitles().size());
@@ -45,7 +45,7 @@ public class MacroOptionsParserTest {
         assertEquals(RegionMode.UNION, parsed.getRegionMode());
         assertEquals(EdgeCellPolicy.EXCLUDE_FROM_SUMMARIES, parsed.getEdgeCellPolicy());
         assertEquals(
-                DensityWeightingSelection.OBJECT_AREA,
+                DensityWeightingSelection.OBJECT_SIZE,
                 parsed.getDensityWeightingSelection());
         assertEquals(DensityBoundaryMode.CLIPPED, parsed.getDensityBoundaryMode());
         assertEquals(12.5, parsed.getBandwidthMicrons(), 0.0);
@@ -53,6 +53,16 @@ public class MacroOptionsParserTest {
         assertEquals(-9L, parsed.getSeed());
         assertEquals("C:/results folder", parsed.getOutputDirectory());
         assertTrue(parsed.isHideResults());
+    }
+
+    @Test
+    public void parsesGenuineThreeDimensionalMaskInput() {
+        ObjectTerritoriesMacroOptions parsed = MacroOptionsParser.parse(
+                "label1=[Cells 3D] region_mask=[Brain mask] hide_results");
+
+        assertTrue(parsed.isThreeDimensional());
+        assertEquals("Brain mask", parsed.getRegionMaskTitle());
+        assertEquals(null, parsed.getRoiZipPath());
     }
 
     @Test
@@ -72,6 +82,9 @@ public class MacroOptionsParserTest {
     public void rejectsUnknownAndNonConsecutiveLabels() {
         expectFailure("label1=A regions=R mystery=true", "unknown macro option");
         expectFailure("label1=A label3=C regions=R", "consecutive");
+        expectFailure(
+                "label1=A regions=R region_mask=M",
+                "exactly one");
     }
 
     @Test

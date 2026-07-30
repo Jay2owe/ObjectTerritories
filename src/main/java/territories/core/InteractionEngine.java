@@ -13,7 +13,7 @@ public final class InteractionEngine {
     }
 
     public static InteractionMatrixResult analyze(
-            List<TerritoryCell> cells,
+            List<? extends NeighborhoodCell> cells,
             List<String> typeNames,
             int permutations,
             long seed) {
@@ -30,14 +30,14 @@ public final class InteractionEngine {
         Map<Integer, Integer> localByGlobal = new HashMap<Integer, Integer>();
         int[] observedTypes = new int[cells.size()];
         for (int i = 0; i < cells.size(); i++) {
-            TerritoryCell cell = cells.get(i);
+            NeighborhoodCell cell = cells.get(i);
             if (cell == null) throw new IllegalArgumentException("cells must not contain null");
-            int type = cell.getObject().getTypeIndex();
+            int type = cell.getSpatialObject().getTypeIndex();
             if (type < 0 || type >= typeCount) {
                 throw new IllegalArgumentException("object type index is outside the type-name list");
             }
             observedTypes[i] = type;
-            localByGlobal.put(cell.getObject().getIndex(), i);
+            localByGlobal.put(cell.getSpatialObject().getIndex(), i);
         }
 
         List<Edge> edges = edges(cells, localByGlobal);
@@ -97,10 +97,10 @@ public final class InteractionEngine {
     }
 
     private static List<Edge> edges(
-            List<TerritoryCell> cells, Map<Integer, Integer> localByGlobal) {
+            List<? extends NeighborhoodCell> cells, Map<Integer, Integer> localByGlobal) {
         ArrayList<Edge> result = new ArrayList<Edge>();
         for (int local = 0; local < cells.size(); local++) {
-            int global = cells.get(local).getObject().getIndex();
+            int global = cells.get(local).getSpatialObject().getIndex();
             for (Integer neighborGlobal : cells.get(local).getNeighborObjectIndices()) {
                 Integer neighborLocal = localByGlobal.get(neighborGlobal);
                 if (neighborLocal != null && global < neighborGlobal) {
@@ -141,4 +141,3 @@ public final class InteractionEngine {
         }
     }
 }
-

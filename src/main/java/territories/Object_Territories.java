@@ -13,13 +13,17 @@ import territories.api.DensityWeightingSelection;
 import territories.api.EdgeCellPolicy;
 import territories.api.ObjectTerritories;
 import territories.api.ObjectTerritoriesParameters;
+import territories.api.ObjectTerritoriesParameters3D;
 import territories.api.ObjectTerritoriesResult;
+import territories.api.ObjectTerritoriesResult3D;
 import territories.api.RegionMode;
 import territories.io.RegionRoiLoader;
 import territories.macro.MacroOptionsParser;
 import territories.macro.ObjectTerritoriesMacroOptions;
 import territories.output.ResultExporter;
+import territories.output.ResultExporter3D;
 import territories.output.ResultPresenter;
+import territories.output.ResultPresenter3D;
 import territories.ui.ObjectTerritoriesDialogModel;
 
 import java.awt.GraphicsEnvironment;
@@ -85,6 +89,10 @@ public final class Object_Territories implements PlugIn {
             }
             labels.add(image);
         }
+        if (options.isThreeDimensional()) {
+            execute3D(options, labels, headless);
+            return;
+        }
 
         ObjectTerritoriesParameters parameters = ObjectTerritoriesParameters.builder()
                 .labelImages(labels)
@@ -111,6 +119,40 @@ public final class Object_Territories implements PlugIn {
         }
     }
 
+    private static void execute3D(
+            ObjectTerritoriesMacroOptions options,
+            List<ImagePlus> labels,
+            boolean headless) throws Exception {
+        ImagePlus mask = WindowManager.getImage(options.getRegionMaskTitle());
+        if (mask == null) {
+            throw new IllegalArgumentException(
+                    "3D region-mask image is not open: " + options.getRegionMaskTitle());
+        }
+        ObjectTerritoriesParameters3D parameters =
+                ObjectTerritoriesParameters3D.builder()
+                        .labelImages(labels)
+                        .regionMask(mask)
+                        .analysisMode(options.getAnalysisMode())
+                        .regionMode(options.getRegionMode())
+                        .edgeCellPolicy(options.getEdgeCellPolicy())
+                        .densityWeightingSelection(options.getDensityWeightingSelection())
+                        .densityBoundaryMode(options.getDensityBoundaryMode())
+                        .bandwidth(options.getBandwidthMicrons())
+                        .permutations(options.getPermutations())
+                        .seed(options.getSeed())
+                        .build();
+        ObjectTerritoriesResult3D result = ObjectTerritories.analyze3D(parameters);
+        boolean keepImages = !headless && !options.isHideResults();
+        try {
+            if (options.getOutputDirectory() != null) {
+                ResultExporter3D.save(result, new File(options.getOutputDirectory()));
+            }
+            if (keepImages) ResultPresenter3D.show(result);
+        } finally {
+            if (!keepImages) result.closeGeneratedImages();
+        }
+    }
+
     private static ObjectTerritoriesDialogModel showDialog() {
         String[] imageChoices = openImageChoices();
         if (imageChoices.length == 1) {
@@ -128,7 +170,8 @@ public final class Object_Territories implements PlugIn {
                     imageChoices,
                     i == 0 ? firstDefault : NONE);
         }
-        dialog.addFileField("Region ROI .zip or .roi", "");
+        dialog.addChoice("3D region mask (for stacks)", imageChoices, NONE);
+        dialog.addFileField("2D region ROI .zip or .roi", "");
         dialog.addChoice(
                 "Analysis",
                 new String[] {"Territories and density", "Territories only", "Density only"},
@@ -143,8 +186,8 @@ public final class Object_Territories implements PlugIn {
                 "Include and flag");
         dialog.addChoice(
                 "Density maps",
-                new String[] {"Object count and object area", "Object count only", "Object area only"},
-                "Object count and object area");
+                new String[] {"Object count and object size", "Object count only", "Object size only"},
+                "Object count and object size");
         dialog.addChoice(
                 "Density boundary",
                 new String[] {"Corrected", "Clipped (biased near edges)"},
@@ -163,6 +206,8 @@ public final class Object_Territories implements PlugIn {
             String title = dialog.getNextChoice();
             if (!NONE.equals(title)) titles.add(title);
         }
+        String regionMaskTitle = dialog.getNextChoice();
+        if (NONE.equals(regionMaskTitle)) regionMaskTitle = null;
         String regionPath = dialog.getNextString();
         AnalysisMode analysisMode = analysisMode(dialog.getNextChoiceIndex());
         RegionMode regionMode = dialog.getNextChoiceIndex() == 0
@@ -179,6 +224,21 @@ public final class Object_Territories implements PlugIn {
         boolean showResults = dialog.getNextBoolean();
 
         if (titles.isEmpty()) throw new IllegalArgumentException("select at least one label image");
+        ImagePlus firstLabel = WindowManager.getImage(titles.get(0));
+        boolean threeDimensional = firstLabel != null && firstLabel.getStackSize() > 1;
+        if (threeDimensional && regionMaskTitle == null) {
+            throw new IllegalArgumentException(
+                    "3D label stacks require an open 3D region-mask image");
+        }
+        if (!threeDimensional && regionMaskTitle != null) {
+            throw new IllegalArgumentException(
+                    "a 3D region mask can only be used with 3D label stacks");
+        }
+        if (threeDimensional) {
+            regionPath = null;
+        } else {
+            regionMaskTitle = null;
+        }
         if (!isWhole(permutationValue) || permutationValue < 1 || permutationValue > Integer.MAX_VALUE) {
             throw new IllegalArgumentException("permutations must be a positive whole number");
         }
@@ -188,6 +248,7 @@ public final class Object_Territories implements PlugIn {
         return new ObjectTerritoriesDialogModel(
                 titles,
                 regionPath,
+                regionMaskTitle,
                 analysisMode,
                 regionMode,
                 edgePolicy,
@@ -220,7 +281,7 @@ public final class Object_Territories implements PlugIn {
 
     private static DensityWeightingSelection weighting(int index) {
         if (index == 1) return DensityWeightingSelection.OBJECT_COUNT;
-        if (index == 2) return DensityWeightingSelection.OBJECT_AREA;
+        if (index == 2) return DensityWeightingSelection.OBJECT_SIZE;
         return DensityWeightingSelection.BOTH;
     }
 

@@ -242,6 +242,12 @@ awkward the plugin can ship density-first with territories following.
 
 ## First build (v0.1.0) scope
 
+**Scope override — 2026-07-30:** true voxel-based 3D territories and density
+were subsequently requested for v0.1.0. This supersedes “3D anything” in the
+original out-of-scope sentence below. Three-dimensional inputs use matching
+label stacks plus a positive-integer region-mask stack; they are never silently
+projected into 2D.
+
 In: label + region-ROI input, 2D Voronoi bounded by the region, per-object territory area and
 neighbour counts, interaction matrix with permutation testing, regularity index, edge-cell
 handling, tessellation overlay, 2D KDE with manual and automatic bandwidth, calibrated density maps

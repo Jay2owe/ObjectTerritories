@@ -38,7 +38,14 @@ public final class MacroOptionsParser {
         }
         if (labels.isEmpty()) throw new IllegalArgumentException("label1 is required");
 
-        String regions = requireSafeValue(required(tokens, "regions"), "regions");
+        String regions = tokens.containsKey("regions")
+                ? requireSafeValue(tokens.get("regions"), "regions") : null;
+        String regionMask = tokens.containsKey("region_mask")
+                ? requireSafeValue(tokens.get("region_mask"), "region_mask") : null;
+        if ((regions == null) == (regionMask == null)) {
+            throw new IllegalArgumentException(
+                    "supply exactly one of regions=[ROI file] or region_mask=[open 3D mask]");
+        }
         AnalysisMode mode = enumValue(tokens, "mode", AnalysisMode.class, AnalysisMode.BOTH);
         RegionMode regionMode = enumValue(tokens, "region_mode", RegionMode.class, RegionMode.INDEPENDENT);
         EdgeCellPolicy edgePolicy = enumValue(
@@ -60,7 +67,7 @@ public final class MacroOptionsParser {
         boolean hideResults = tokens.containsKey("hide_results");
 
         return new ObjectTerritoriesMacroOptions(
-                labels, regions, mode, regionMode, edgePolicy, weighting,
+                labels, regions, regionMask, mode, regionMode, edgePolicy, weighting,
                 boundary, bandwidth, permutations, seed, output, hideResults);
     }
 
@@ -119,6 +126,7 @@ public final class MacroOptionsParser {
         for (String key : values.keySet()) {
             if (key.matches("label[1-5]")
                     || key.equals("regions")
+                    || key.equals("region_mask")
                     || key.equals("mode")
                     || key.equals("region_mode")
                     || key.equals("edge_cells")

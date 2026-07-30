@@ -16,6 +16,7 @@ public final class ObjectTerritoriesMacroOptions {
 
     private final List<String> labelTitles;
     private final String roiZipPath;
+    private final String regionMaskTitle;
     private final AnalysisMode analysisMode;
     private final RegionMode regionMode;
     private final EdgeCellPolicy edgeCellPolicy;
@@ -30,6 +31,7 @@ public final class ObjectTerritoriesMacroOptions {
     ObjectTerritoriesMacroOptions(
             List<String> labelTitles,
             String roiZipPath,
+            String regionMaskTitle,
             AnalysisMode analysisMode,
             RegionMode regionMode,
             EdgeCellPolicy edgeCellPolicy,
@@ -42,6 +44,7 @@ public final class ObjectTerritoriesMacroOptions {
             boolean hideResults) {
         this.labelTitles = Collections.unmodifiableList(new ArrayList<String>(labelTitles));
         this.roiZipPath = roiZipPath;
+        this.regionMaskTitle = regionMaskTitle;
         this.analysisMode = analysisMode;
         this.regionMode = regionMode;
         this.edgeCellPolicy = edgeCellPolicy;
@@ -60,6 +63,14 @@ public final class ObjectTerritoriesMacroOptions {
 
     public String getRoiZipPath() {
         return roiZipPath;
+    }
+
+    public String getRegionMaskTitle() {
+        return regionMaskTitle;
+    }
+
+    public boolean isThreeDimensional() {
+        return regionMaskTitle != null;
     }
 
     public AnalysisMode getAnalysisMode() {
@@ -115,8 +126,29 @@ public final class ObjectTerritoriesMacroOptions {
             long seed,
             String outputDirectory,
             boolean hideResults) {
+        return create(
+                labelTitles, roiZipPath, null, analysisMode, regionMode,
+                edgeCellPolicy, densityWeightingSelection, densityBoundaryMode,
+                bandwidthMicrons, permutations, seed, outputDirectory, hideResults);
+    }
+
+    public static ObjectTerritoriesMacroOptions create(
+            List<String> labelTitles,
+            String roiZipPath,
+            String regionMaskTitle,
+            AnalysisMode analysisMode,
+            RegionMode regionMode,
+            EdgeCellPolicy edgeCellPolicy,
+            DensityWeightingSelection densityWeightingSelection,
+            DensityBoundaryMode densityBoundaryMode,
+            double bandwidthMicrons,
+            int permutations,
+            long seed,
+            String outputDirectory,
+            boolean hideResults) {
         ObjectTerritoriesMacroOptions options = new ObjectTerritoriesMacroOptions(
-                labelTitles, roiZipPath, analysisMode, regionMode, edgeCellPolicy,
+                labelTitles, roiZipPath, regionMaskTitle,
+                analysisMode, regionMode, edgeCellPolicy,
                 densityWeightingSelection, densityBoundaryMode, bandwidthMicrons,
                 permutations, seed, blankToNull(outputDirectory), hideResults);
         return MacroOptionsParser.parse(options.toMacroOptions());
@@ -129,7 +161,12 @@ public final class ObjectTerritoriesMacroOptions {
         for (int i = 0; i < labelTitles.size(); i++) {
             appendBracketed(result, "label" + (i + 1), labelTitles.get(i));
         }
-        appendBracketed(result, "regions", slashPath(roiZipPath));
+        if (roiZipPath != null) {
+            appendBracketed(result, "regions", slashPath(roiZipPath));
+        }
+        if (regionMaskTitle != null) {
+            appendBracketed(result, "region_mask", regionMaskTitle);
+        }
         append(result, "region_mode", lower(regionMode));
         append(result, "edge_cells", lower(edgeCellPolicy));
         append(result, "density_weighting", lower(densityWeightingSelection));
@@ -179,6 +216,7 @@ public final class ObjectTerritoriesMacroOptions {
         return new ObjectTerritoriesMacroOptions(
                 labels,
                 regions,
+                null,
                 AnalysisMode.BOTH,
                 RegionMode.INDEPENDENT,
                 EdgeCellPolicy.INCLUDE_FLAGGED,

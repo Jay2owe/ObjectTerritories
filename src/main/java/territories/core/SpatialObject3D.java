@@ -1,7 +1,7 @@
 package territories.core;
 
-/** Immutable calibrated object measurement extracted from a label image. */
-public final class SpatialObject2D implements TypedSpatialObject {
+/** Immutable calibrated object measurement extracted from a 3D label image. */
+public final class SpatialObject3D implements TypedSpatialObject {
 
     private final int index;
     private final int typeIndex;
@@ -9,27 +9,32 @@ public final class SpatialObject2D implements TypedSpatialObject {
     private final long label;
     private final double centroidX;
     private final double centroidY;
-    private final double area;
+    private final double centroidZ;
+    private final double volume;
 
-    public SpatialObject2D(
+    public SpatialObject3D(
             int index,
             int typeIndex,
             String typeName,
             long label,
             double centroidX,
             double centroidY,
-            double area) {
-        if (index < 0) throw new IllegalArgumentException("index must be non-negative");
-        if (typeIndex < 0) throw new IllegalArgumentException("typeIndex must be non-negative");
+            double centroidZ,
+            double volume) {
+        if (index < 0 || typeIndex < 0) {
+            throw new IllegalArgumentException("indices must be non-negative");
+        }
         if (typeName == null || typeName.trim().isEmpty()) {
             throw new IllegalArgumentException("typeName must not be empty");
         }
         if (label <= 0) throw new IllegalArgumentException("label must be positive");
-        if (!Double.isFinite(centroidX) || !Double.isFinite(centroidY)) {
+        if (!Double.isFinite(centroidX)
+                || !Double.isFinite(centroidY)
+                || !Double.isFinite(centroidZ)) {
             throw new IllegalArgumentException("centroid must be finite");
         }
-        if (!Double.isFinite(area) || area <= 0.0) {
-            throw new IllegalArgumentException("area must be positive and finite");
+        if (!Double.isFinite(volume) || volume <= 0.0) {
+            throw new IllegalArgumentException("volume must be positive and finite");
         }
         this.index = index;
         this.typeIndex = typeIndex;
@@ -37,21 +42,26 @@ public final class SpatialObject2D implements TypedSpatialObject {
         this.label = label;
         this.centroidX = centroidX;
         this.centroidY = centroidY;
-        this.area = area;
+        this.centroidZ = centroidZ;
+        this.volume = volume;
     }
 
+    @Override
     public int getIndex() {
         return index;
     }
 
+    @Override
     public int getTypeIndex() {
         return typeIndex;
     }
 
+    @Override
     public String getTypeName() {
         return typeName;
     }
 
+    @Override
     public long getLabel() {
         return label;
     }
@@ -64,7 +74,12 @@ public final class SpatialObject2D implements TypedSpatialObject {
         return centroidY;
     }
 
-    public double getArea() {
-        return area;
+    public double getCentroidZ() {
+        return centroidZ;
+    }
+
+    public double getVolume() {
+        return volume;
     }
 }
+

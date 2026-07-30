@@ -4,7 +4,9 @@ package territories.api;
 public enum DensityWeighting {
     /** Every object contributes one unit, independent of its size. */
     OBJECT_COUNT,
-    /** Every object contributes its calibrated two-dimensional area. */
-    OBJECT_AREA
+    /**
+     * Every object contributes its calibrated size: area in 2D or volume in
+     * 3D.
+     */
+    OBJECT_SIZE
 }
-

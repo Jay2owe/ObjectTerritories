@@ -16,6 +16,7 @@ public final class ObjectTerritoriesDialogModel {
 
     private final List<String> labelTitles;
     private final String regionPath;
+    private final String regionMaskTitle;
     private final AnalysisMode analysisMode;
     private final RegionMode regionMode;
     private final EdgeCellPolicy edgeCellPolicy;
@@ -40,9 +41,30 @@ public final class ObjectTerritoriesDialogModel {
             long seed,
             String outputDirectory,
             boolean showResults) {
+        this(
+                labelTitles, regionPath, null, analysisMode, regionMode,
+                edgeCellPolicy, densityWeightingSelection, densityBoundaryMode,
+                bandwidthMicrons, permutations, seed, outputDirectory, showResults);
+    }
+
+    public ObjectTerritoriesDialogModel(
+            List<String> labelTitles,
+            String regionPath,
+            String regionMaskTitle,
+            AnalysisMode analysisMode,
+            RegionMode regionMode,
+            EdgeCellPolicy edgeCellPolicy,
+            DensityWeightingSelection densityWeightingSelection,
+            DensityBoundaryMode densityBoundaryMode,
+            double bandwidthMicrons,
+            int permutations,
+            long seed,
+            String outputDirectory,
+            boolean showResults) {
         this.labelTitles = Collections.unmodifiableList(
                 new ArrayList<String>(labelTitles));
         this.regionPath = regionPath;
+        this.regionMaskTitle = regionMaskTitle;
         this.analysisMode = analysisMode;
         this.regionMode = regionMode;
         this.edgeCellPolicy = edgeCellPolicy;
@@ -60,6 +82,7 @@ public final class ObjectTerritoriesDialogModel {
         return ObjectTerritoriesMacroOptions.create(
                 labelTitles,
                 regionPath,
+                regionMaskTitle,
                 analysisMode,
                 regionMode,
                 edgeCellPolicy,
@@ -76,4 +99,3 @@ public final class ObjectTerritoriesDialogModel {
         return toMacroOptions().toMacroOptions();
     }
 }
-

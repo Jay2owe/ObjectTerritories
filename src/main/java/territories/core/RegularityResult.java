@@ -30,6 +30,11 @@ public final class RegularityResult {
         return territoryAreaCoefficientOfVariation;
     }
 
+    /** Returns territory-area CV in 2D or territory-volume CV in 3D. */
+    public double getTerritorySizeCoefficientOfVariation() {
+        return territoryAreaCoefficientOfVariation;
+    }
+
     public double getNearestNeighborMean() {
         return nearestNeighborMean;
     }
@@ -42,4 +47,3 @@ public final class RegularityResult {
         return nearestNeighborRegularityRatio;
     }
 }
-

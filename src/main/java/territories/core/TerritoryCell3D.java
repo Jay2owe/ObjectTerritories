@@ -1,32 +1,33 @@
 package territories.core;
 
-import org.locationtech.jts.geom.Geometry;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-/** One bounded Voronoi territory and its measured neighbourhood. */
-public final class TerritoryCell implements NeighborhoodCell {
+/** One voxel-resolved 3D territory and its face-sharing neighbours. */
+public final class TerritoryCell3D implements NeighborhoodCell {
 
-    private final SpatialObject2D object;
-    private final Geometry geometry;
+    private final SpatialObject3D object;
+    private final long voxelCount;
+    private final double volume;
     private final List<Integer> neighborObjectIndices;
     private final boolean edgeCell;
 
-    TerritoryCell(
-            SpatialObject2D object,
-            Geometry geometry,
+    TerritoryCell3D(
+            SpatialObject3D object,
+            long voxelCount,
+            double volume,
             List<Integer> neighborObjectIndices,
             boolean edgeCell) {
         this.object = object;
-        this.geometry = geometry.copy();
+        this.voxelCount = voxelCount;
+        this.volume = volume;
         this.neighborObjectIndices = Collections.unmodifiableList(
                 new ArrayList<Integer>(neighborObjectIndices));
         this.edgeCell = edgeCell;
     }
 
-    public SpatialObject2D getObject() {
+    public SpatialObject3D getObject() {
         return object;
     }
 
@@ -35,14 +36,15 @@ public final class TerritoryCell implements NeighborhoodCell {
         return object;
     }
 
-    public Geometry getGeometry() {
-        return geometry.copy();
+    public long getVoxelCount() {
+        return voxelCount;
     }
 
-    public double getArea() {
-        return geometry.getArea();
+    public double getVolume() {
+        return volume;
     }
 
+    @Override
     public List<Integer> getNeighborObjectIndices() {
         return neighborObjectIndices;
     }
@@ -51,3 +53,4 @@ public final class TerritoryCell implements NeighborhoodCell {
         return edgeCell;
     }
 }
+

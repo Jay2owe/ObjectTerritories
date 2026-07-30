@@ -38,7 +38,7 @@ public class DensityEngineTest {
                 rectangle("Field", 0.0, 0.0, 101.0, 101.0),
                 "Cells",
                 101, 101, 1.0, 1.0, "um", 4.0,
-                DensityWeighting.OBJECT_AREA,
+                DensityWeighting.OBJECT_SIZE,
                 DensityBoundaryMode.CORRECTED);
 
         assertEquals(11.0, integrated(result), 1.0e-4);
@@ -103,4 +103,3 @@ public class DensityEngineTest {
         }));
     }
 }
-
