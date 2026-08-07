@@ -3,7 +3,7 @@
 Object Territories is a Fiji/ImageJ plugin for bounded Voronoi territory analysis,
 neighbourhood interactions, and kernel density maps from labelled objects.
 
-This repository currently contains the in-development 2D and genuine-3D v0.1 build.
+This repository contains the 2D and genuine-3D v0.2 build.
 
 ## Current functionality
 
@@ -22,6 +22,7 @@ This repository currently contains the in-development 2D and genuine-3D v0.1 bui
   in 3D).
 - Leave-one-out local density for every object.
 - Interactive, recorded macro, headless, and public Java API paths.
+- Regex-grouped recursive 2D folder batches with a preview and per-sample manifest.
 - CSV/TIFF auto-save under `Objects/`, `Interactions/`, `Density/`, and `Maps/`.
 
 3D territories are voxel-resolved rather than projected. Physical x/y/z
@@ -34,10 +35,39 @@ depends on image resolution.
 
 ```text
 Plugins > Object Territories
+Plugins > Object Territories Batch...
 ```
 
 JTS (Java Topology Suite) is bundled and internally renamed in the plugin JAR,
 so users do not need to install a separate geometry library.
+
+The folder-batch discovery supplied by `oc3d-core` 0.1.0 is also bundled and
+renamed under `territories.internal.core`. Users still install only the Object
+Territories JAR; neither JTS nor `oc3d-core` should be copied into Fiji separately.
+
+## Folder batch
+
+`Object Territories Batch` groups matching 2D label images by a filename regular
+expression. Select the capture group that represents the label type; all other
+captures identify the sample. For example,
+`(.+)_([^_]+)\.(?:tif|tiff)$` with capture group 2 groups
+`sample01_A.tif` and `sample01_B.tif` as one two-type analysis.
+
+The preview shows every discovered file before processing. Recursive discovery
+is deterministic, avoids directory cycles, and excludes the selected output
+tree so a later run cannot consume its own results. Groups of one to five label
+types run; larger groups are reported as skipped. Each sample is written to its
+own output folder and every outcome is recorded in the batch manifest.
+
+The current batch path is deliberately 2D and applies one selected `.roi` or ROI
+`.zip` region set to every sample. The existing command and Java API continue to
+support genuine 3D runs one at a time. Use ImageJ's Macro Recorder while running
+the batch command to capture its complete replayable options.
+
+The same workflow is available to Java callers through
+`territories.batch.ObjectTerritoriesBatchParameters`,
+`ObjectTerritoriesBatchRunner.preview(...)`, and
+`ObjectTerritoriesBatchRunner.run(...)`.
 
 ## ImageJ macros
 
@@ -118,3 +148,18 @@ For 3D, use `ObjectTerritoriesParameters3D` and
 defines independent labelled volumes or their union.
 
 See `FIRST_BUILD_PLAN.md` for the full product scope.
+
+## Building with the shared core
+
+The plugin declares `io.github.jay2owe:oc3d-core:0.1.0`. Because that release is
+not fetched from a public Maven repository, a clean build must first check out
+the immutable `v0.1.0` core tag and install it into the same Maven repository:
+
+```text
+mvn -f ../oc3d-core/pom.xml clean install
+mvn clean verify
+```
+
+The GitHub Actions build performs those steps from fresh checkouts. `verify`
+also opens the packaged plugin through an isolated class loader to prove that
+the private core and JTS classes are present while ImageJ itself is not bundled.

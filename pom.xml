@@ -14,7 +14,7 @@
 
   <groupId>io.github.jay2owe</groupId>
   <artifactId>Object_Territories</artifactId>
-  <version>0.1.0-SNAPSHOT</version>
+  <version>0.2.0</version>
 
   <name>Object Territories</name>
   <description>Bounded Voronoi territories, neighbourhood enrichment, and density maps for labelled objects in Fiji.</description>
@@ -89,6 +89,7 @@
     <maven.compiler.release>8</maven.compiler.release>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <jts.version>1.19.0</jts.version>
+    <oc3d-core.version>0.1.0</oc3d-core.version>
     <license.licenseName>bsd_3</license.licenseName>
     <license.copyrightOwners>Jamie Malcolm</license.copyrightOwners>
   </properties>
@@ -105,6 +106,18 @@
       <version>${jts.version}</version>
     </dependency>
 
+    <!--
+      Shared batch-folder and regular-expression discovery. The core is
+      compiled into this plugin's JAR under territories.internal.core, so Fiji
+      users still install one self-contained file and cannot collide with a
+      different core version embedded by another plugin.
+    -->
+    <dependency>
+      <groupId>io.github.jay2owe</groupId>
+      <artifactId>oc3d-core</artifactId>
+      <version>${oc3d-core.version}</version>
+    </dependency>
+
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
@@ -114,6 +127,18 @@
 
   <build>
     <finalName>Object_Territories-${project.version}</finalName>
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+      </resource>
+      <resource>
+        <directory>${project.basedir}</directory>
+        <includes>
+          <include>LICENSE</include>
+        </includes>
+        <targetPath>META-INF</targetPath>
+      </resource>
+    </resources>
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -130,12 +155,17 @@
               <artifactSet>
                 <includes>
                   <include>org.locationtech.jts:jts-core</include>
+                  <include>io.github.jay2owe:oc3d-core</include>
                 </includes>
               </artifactSet>
               <relocations>
                 <relocation>
                   <pattern>org.locationtech.jts</pattern>
                   <shadedPattern>territories.internal.shaded.jts</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>sc.fiji.oc3d.core</pattern>
+                  <shadedPattern>territories.internal.core</shadedPattern>
                 </relocation>
               </relocations>
               <filters>
@@ -148,10 +178,36 @@
                     <exclude>META-INF/*.RSA</exclude>
                   </excludes>
                 </filter>
+                <filter>
+                  <artifact>io.github.jay2owe:oc3d-core</artifact>
+                  <excludes>
+                    <exclude>META-INF/MANIFEST.MF</exclude>
+                    <exclude>META-INF/maven/**</exclude>
+                    <exclude>META-INF/*.SF</exclude>
+                    <exclude>META-INF/*.DSA</exclude>
+                    <exclude>META-INF/*.RSA</exclude>
+                  </excludes>
+                </filter>
               </filters>
             </configuration>
           </execution>
         </executions>
+      </plugin>
+      <plugin>
+        <artifactId>maven-jar-plugin</artifactId>
+        <configuration>
+          <!-- SCM manifest values change even when compiled classes do not. -->
+          <forceCreation>true</forceCreation>
+        </configuration>
+      </plugin>
+      <plugin>
+        <artifactId>maven-failsafe-plugin</artifactId>
+        <configuration>
+          <systemPropertyVariables>
+            <territories.project.basedir>${project.basedir}</territories.project.basedir>
+            <territories.project.jar>${project.build.directory}/${project.build.finalName}.jar</territories.project.jar>
+          </systemPropertyVariables>
+        </configuration>
       </plugin>
     </plugins>
   </build>

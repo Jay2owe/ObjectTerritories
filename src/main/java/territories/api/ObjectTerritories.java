@@ -221,7 +221,7 @@ public final class ObjectTerritories {
             if (Math.abs(calibration.xOrigin) > CALIBRATION_TOLERANCE
                     || Math.abs(calibration.yOrigin) > CALIBRATION_TOLERANCE) {
                 throw new IllegalArgumentException(
-                        "non-zero calibration origins are not supported in version 0.1");
+                        "non-zero calibration origins are not supported in version 0.2");
             }
             String name = image.getTitle();
             if (name == null || name.trim().isEmpty() || !names.add(name)) {
@@ -288,7 +288,7 @@ public final class ObjectTerritories {
                 || Math.abs(calibration.yOrigin) > CALIBRATION_TOLERANCE
                 || Math.abs(calibration.zOrigin) > CALIBRATION_TOLERANCE) {
             throw new IllegalArgumentException(
-                    "non-zero calibration origins are not supported in version 0.1");
+                    "non-zero calibration origins are not supported in version 0.2");
         }
     }
 

@@ -1,26 +1,23 @@
-package territories.api;
+package territories.batch;
 
-import ij.ImagePlus;
-import ij.gui.Roi;
+import territories.api.AnalysisMode;
+import territories.api.DensityBoundaryMode;
+import territories.api.DensityWeightingSelection;
+import territories.api.EdgeCellPolicy;
+import territories.api.ObjectTerritoriesParameters;
+import territories.api.RegionMode;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.io.File;
 
-/**
- * Immutable inputs and scientific settings for an Object Territories analysis.
- *
- * <p>The API does not mutate the supplied images or ROIs. Version 0.2 accepts
- * one-slice label images; the contract leaves dimensional expansion to a future
- * release without changing the result types.
- */
-public final class ObjectTerritoriesParameters {
+/** Immutable configuration for a two-dimensional Object Territories folder batch. */
+public final class ObjectTerritoriesBatchParameters {
 
-    public static final int DEFAULT_PERMUTATIONS = 1000;
-    public static final long DEFAULT_SEED = 12345L;
-
-    private final List<ImagePlus> labelImages;
-    private final List<Roi> regions;
+    private final File inputFolder;
+    private final String filenameRegex;
+    private final int typeCaptureGroup;
+    private final boolean recursive;
+    private final File regionSource;
+    private final File outputDirectory;
     private final AnalysisMode analysisMode;
     private final RegionMode regionMode;
     private final EdgeCellPolicy edgeCellPolicy;
@@ -30,9 +27,13 @@ public final class ObjectTerritoriesParameters {
     private final int permutations;
     private final long seed;
 
-    private ObjectTerritoriesParameters(Builder builder) {
-        this.labelImages = immutableCopy(builder.labelImages);
-        this.regions = immutableCopy(builder.regions);
+    private ObjectTerritoriesBatchParameters(Builder builder) {
+        this.inputFolder = builder.inputFolder;
+        this.filenameRegex = builder.filenameRegex;
+        this.typeCaptureGroup = builder.typeCaptureGroup;
+        this.recursive = builder.recursive;
+        this.regionSource = builder.regionSource;
+        this.outputDirectory = builder.outputDirectory;
         this.analysisMode = builder.analysisMode;
         this.regionMode = builder.regionMode;
         this.edgeCellPolicy = builder.edgeCellPolicy;
@@ -43,16 +44,38 @@ public final class ObjectTerritoriesParameters {
         this.seed = builder.seed;
     }
 
-    public static Builder builder() {
-        return new Builder();
+    public static Builder builder(
+            File inputFolder,
+            String filenameRegex,
+            int typeCaptureGroup,
+            File regionSource,
+            File outputDirectory) {
+        return new Builder(
+                inputFolder, filenameRegex, typeCaptureGroup, regionSource, outputDirectory);
     }
 
-    public List<ImagePlus> getLabelImages() {
-        return labelImages;
+    public File getInputFolder() {
+        return inputFolder;
     }
 
-    public List<Roi> getRegions() {
-        return regions;
+    public String getFilenameRegex() {
+        return filenameRegex;
+    }
+
+    public int getTypeCaptureGroup() {
+        return typeCaptureGroup;
+    }
+
+    public boolean isRecursive() {
+        return recursive;
+    }
+
+    public File getRegionSource() {
+        return regionSource;
+    }
+
+    public File getOutputDirectory() {
+        return outputDirectory;
     }
 
     public AnalysisMode getAnalysisMode() {
@@ -75,10 +98,6 @@ public final class ObjectTerritoriesParameters {
         return densityBoundaryMode;
     }
 
-    /**
-     * Returns the manual bandwidth in microns, or {@code 0} for automatic
-     * bandwidth selection.
-     */
     public double getBandwidthMicrons() {
         return bandwidthMicrons;
     }
@@ -91,13 +110,13 @@ public final class ObjectTerritoriesParameters {
         return seed;
     }
 
-    private static <T> List<T> immutableCopy(List<T> source) {
-        return Collections.unmodifiableList(new ArrayList<T>(source));
-    }
-
     public static final class Builder {
-        private List<ImagePlus> labelImages = new ArrayList<ImagePlus>();
-        private List<Roi> regions = new ArrayList<Roi>();
+        private final File inputFolder;
+        private final String filenameRegex;
+        private final int typeCaptureGroup;
+        private final File regionSource;
+        private final File outputDirectory;
+        private boolean recursive = true;
         private AnalysisMode analysisMode = AnalysisMode.BOTH;
         private RegionMode regionMode = RegionMode.INDEPENDENT;
         private EdgeCellPolicy edgeCellPolicy = EdgeCellPolicy.INCLUDE_FLAGGED;
@@ -105,31 +124,24 @@ public final class ObjectTerritoriesParameters {
                 DensityWeightingSelection.BOTH;
         private DensityBoundaryMode densityBoundaryMode = DensityBoundaryMode.CORRECTED;
         private double bandwidthMicrons;
-        private int permutations = DEFAULT_PERMUTATIONS;
-        private long seed = DEFAULT_SEED;
+        private int permutations = ObjectTerritoriesParameters.DEFAULT_PERMUTATIONS;
+        private long seed = ObjectTerritoriesParameters.DEFAULT_SEED;
 
-        private Builder() {
+        private Builder(
+                File inputFolder,
+                String filenameRegex,
+                int typeCaptureGroup,
+                File regionSource,
+                File outputDirectory) {
+            this.inputFolder = inputFolder;
+            this.filenameRegex = filenameRegex;
+            this.typeCaptureGroup = typeCaptureGroup;
+            this.regionSource = regionSource;
+            this.outputDirectory = outputDirectory;
         }
 
-        public Builder labelImages(List<ImagePlus> value) {
-            this.labelImages = requireList(value, "labelImages");
-            return this;
-        }
-
-        public Builder addLabelImage(ImagePlus value) {
-            if (value == null) throw new IllegalArgumentException("label image must not be null");
-            this.labelImages.add(value);
-            return this;
-        }
-
-        public Builder regions(List<Roi> value) {
-            this.regions = requireList(value, "regions");
-            return this;
-        }
-
-        public Builder addRegion(Roi value) {
-            if (value == null) throw new IllegalArgumentException("region ROI must not be null");
-            this.regions.add(value);
+        public Builder recursive(boolean value) {
+            this.recursive = value;
             return this;
         }
 
@@ -160,14 +172,17 @@ public final class ObjectTerritoriesParameters {
 
         public Builder bandwidthMicrons(double value) {
             if (!Double.isFinite(value) || value < 0.0) {
-                throw new IllegalArgumentException("bandwidthMicrons must be finite and at least zero");
+                throw new IllegalArgumentException(
+                        "bandwidthMicrons must be finite and at least zero");
             }
             this.bandwidthMicrons = value;
             return this;
         }
 
         public Builder permutations(int value) {
-            if (value < 1) throw new IllegalArgumentException("permutations must be at least 1");
+            if (value < 1) {
+                throw new IllegalArgumentException("permutations must be at least 1");
+            }
             this.permutations = value;
             return this;
         }
@@ -177,15 +192,8 @@ public final class ObjectTerritoriesParameters {
             return this;
         }
 
-        public ObjectTerritoriesParameters build() {
-            return new ObjectTerritoriesParameters(this);
-        }
-
-        private static <T> ArrayList<T> requireList(List<T> value, String name) {
-            if (value == null) throw new IllegalArgumentException(name + " must not be null");
-            ArrayList<T> copy = new ArrayList<T>(value);
-            if (copy.contains(null)) throw new IllegalArgumentException(name + " must not contain null");
-            return copy;
+        public ObjectTerritoriesBatchParameters build() {
+            return new ObjectTerritoriesBatchParameters(this);
         }
 
         private static <T> T require(T value, String name) {
