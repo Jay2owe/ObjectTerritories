@@ -154,6 +154,7 @@
         <directory>${project.basedir}</directory>
         <includes>
           <include>LICENSE</include>
+          <include>NOTICE</include>
         </includes>
         <targetPath>META-INF</targetPath>
       </resource>
@@ -230,6 +231,18 @@
                     <exclude>META-INF/*.SF</exclude>
                     <exclude>META-INF/*.DSA</exclude>
                     <exclude>META-INF/*.RSA</exclude>
+                    <!--
+                      territories-core carries the JTS notice on its own
+                      resource path so that a consumer shading it cannot forget
+                      the attribution. This plugin does not need that service:
+                      it declares jts-core directly and already ships an
+                      identical notice from its own src/main/resources. Taking
+                      the core's copy as well is a byte-for-byte duplicate that
+                      only produces a shade overlap warning on every build.
+                      Consumers that reach JTS solely through this core must
+                      NOT add this exclude.
+                    -->
+                    <exclude>META-INF/licenses/**</exclude>
                   </excludes>
                 </filter>
                 <filter>
