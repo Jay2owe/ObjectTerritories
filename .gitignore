@@ -11,3 +11,6 @@
 Thumbs.db
 desktop.ini
 
+
+# Internal working documents are not part of the public repository.
+/FIRST_BUILD_PLAN.md
