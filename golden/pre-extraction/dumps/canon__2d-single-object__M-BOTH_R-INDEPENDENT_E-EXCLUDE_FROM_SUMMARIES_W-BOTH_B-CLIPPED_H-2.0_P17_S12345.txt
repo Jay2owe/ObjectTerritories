@@ -1,0 +1,20 @@
+case 2d-single-object M-BOTH_R-INDEPENDENT_E-EXCLUDE_FROM_SUMMARIES_W-BOTH_B-CLIPPED_H-2.0_P17_S12345
+image 24 24 3ff0000000000000 3ff0000000000000 unit=[pixel]
+warnings 1
+  warning[0] [Images are not spatially calibrated; distances and areas are in pixels.]
+objects 1
+  object 0 type=0 name=[Cells] label=1 cx=4028000000000000 cy=4028000000000000 area=4010000000000000
+regions 1
+  region[0] [Field]
+    territories [Field] cells=1
+      cell object=0 label=1 area=4082000000000000 edge=true neighbors={} geometry=9b1d1d7132ccec7ccae279524f9e12fb141890d0ca750e0842349f5142faf18d
+      regularity included=0 sizeCv=7ff8000000000000 areaCv=7ff8000000000000 nnMean=7ff8000000000000 nnSd=7ff8000000000000 nnRatio=7ff8000000000000
+    interactions types=1 permutations=17 seed=12345
+      pair [Cells] [Cells] observed=0 expected=0000000000000000 z=0000000000000000 p=3ff0000000000000
+    densities 2
+      density region=[Field] type=[Cells] weighting=OBJECT_COUNT boundary=CLIPPED bandwidth=4000000000000000
+        loo 1 0=0000000000000000
+        map title=[Cells_Field_Density] w=24 h=24 d=1 cal=3ff0000000000000,3ff0000000000000,3ff0000000000000 unit=[pixel] finite=576 nan=0 min=0000000000000000 max=3fa3233780000000 sum=3fefe8bf03ff4800 sha256=83e554fbb26bdb22b26b77e0d54f1f14aa2580dda230dfa7405b4636100ec92e
+      density region=[Field] type=[Cells] weighting=OBJECT_SIZE boundary=CLIPPED bandwidth=4000000000000000
+        loo 1 0=0000000000000000
+        map title=[Cells_Field_Density] w=24 h=24 d=1 cal=3ff0000000000000,3ff0000000000000,3ff0000000000000 unit=[pixel] finite=576 nan=0 min=0000000000000000 max=3fc3233780000000 sum=400fe8bf03ff4800 sha256=5b8b7206632e70688765557e793ad59ffa3bd767063d61d053f5d4d470376c88

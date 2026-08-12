@@ -1,0 +1,53 @@
+case 2d-three-types-calibrated M-BOTH_R-INDEPENDENT_E-INCLUDE_FLAGGED_W-BOTH_B-CORRECTED_H-auto_P17_S12345
+image 30 26 3fd4cccccccccccd 3fd4cccccccccccd unit=[micron]
+warnings 0
+objects 8
+  object 0 type=0 name=[Type A] label=1 cx=3ff4cccccccccccd cy=3ff4cccccccccccd area=3fdb0a3d70a3d70b
+  object 1 type=0 name=[Type A] label=2 cx=4020400000000000 cy=3ff4cccccccccccd area=3fdb0a3d70a3d70b
+  object 2 type=0 name=[Type A] label=3 cx=4010e66666666667 cy=400f333333333334 area=3fdb0a3d70a3d70b
+  object 3 type=1 name=[Type B] label=1 cx=3ffa000000000000 cy=401a000000000000 area=3fdb0a3d70a3d70b
+  object 4 type=1 name=[Type B] label=2 cx=4020400000000000 cy=401a000000000000 area=3fdb0a3d70a3d70b
+  object 5 type=2 name=[Type C] label=1 cx=4014cccccccccccd cy=3ff4cccccccccccd area=3fdb0a3d70a3d70b
+  object 6 type=2 name=[Type C] label=3 cx=401de66666666667 cy=400f333333333334 area=3fdb0a3d70a3d70b
+  object 7 type=2 name=[Type C] label=2 cx=4014cccccccccccd cy=401b4ccccccccccd area=3fdb0a3d70a3d70b
+regions 1
+  region[0] [Cortex]
+    territories [Cortex] cells=8
+      cell object=0 label=1 area=4021f4c67009a33d edge=true neighbors={2,3,5} geometry=d10c0e121c9f1bde918ef1f723577e1009df85399419315acee62600b60a3700
+      cell object=1 label=2 area=4019cfe666666668 edge=true neighbors={5,6} geometry=7ea723f9c71945bce77b8d746158ddabf83fbf232db4aa376005d7b917032c7d
+      cell object=2 label=3 area=40248fd61c82e950 edge=false neighbors={0,3,5,6,7} geometry=951d5ae4ab5d191e2ba63b5dae2f56818b4d9d891e57101fec9096b5da6b0158
+      cell object=3 label=1 area=4026b31df16f1b52 edge=true neighbors={0,2,7} geometry=6ed33805a32d2142a718ff57ef94ec4887651035e2a23654a4bddc86bb8f9709
+      cell object=4 label=2 area=402068e21c3aac24 edge=true neighbors={6,7} geometry=ad3c27cff24e53a089ab5ef0c635a19ba171b0a51acd5c9ee50ff8049a23d71e
+      cell object=5 label=1 area=401ea6ab851eb852 edge=true neighbors={0,1,2,6} geometry=bd111610cb3dccf2fba5197f6a0638a442e1d4a8a45c3c03a40b8228f007cbf7
+      cell object=6 label=3 area=4021f220c2d635b2 edge=true neighbors={1,2,4,5,7} geometry=e5eef96255f63017e3939e12b273fc56024c255f518285a7d7e418b622d67cd8
+      cell object=7 label=2 area=402227bc3c8d0fe5 edge=true neighbors={2,3,4,6} geometry=d2aebc2b1c7a2b28df940a6cbff485ff070635ee9e251fda8ca40e8c9acbe82d
+      regularity included=8 sizeCv=3fc5c66500ccca93 areaCv=3fc5c66500ccca93 nnMean=400806c235af17db nnSd=3fde49b96c4748e5 nnRatio=4019626d6be1c3df
+    interactions types=3 permutations=17 seed=12345
+      pair [Type A] [Type A] observed=1 expected=3ff9696969696969 z=bfe7abd75f941763 p=3fe38e38e38e38e4
+      pair [Type A] [Type B] observed=2 expected=400a5a5a5a5a5a5a z=bffad47aeff8794c p=3fcc71c71c71c71c
+      pair [Type A] [Type C] observed=6 expected=4010b4b4b4b4b4b5 z=3ff2d0e84be79de2 p=3fdc71c71c71c71c
+      pair [Type B] [Type A] observed=2 expected=400a5a5a5a5a5a5a z=bffad47aeff8794c p=3fcc71c71c71c71c
+      pair [Type B] [Type B] observed=0 expected=3fd6969696969697 z=bfe6ed8ca0d4337b p=3ff0000000000000
+      pair [Type B] [Type C] observed=3 expected=4009696969696969 z=bfc3f84f1ca51937 p=3ff0000000000000
+      pair [Type C] [Type A] observed=6 expected=4010b4b4b4b4b4b5 z=3ff2d0e84be79de2 p=3fdc71c71c71c71c
+      pair [Type C] [Type B] observed=3 expected=4009696969696969 z=bfc3f84f1ca51937 p=3ff0000000000000
+      pair [Type C] [Type C] observed=2 expected=3ff6969696969697 z=3fea6d484c997040 p=3fe0000000000000
+    densities 6
+      density region=[Cortex] type=[Type A] weighting=OBJECT_COUNT boundary=CORRECTED bandwidth=4000678e88c304eb
+        loo 3 0=3f7ba1ff1943bfff 1=3f690cc74851f550 2=3f93240dd3908111
+        map title=[Type_A_Cortex_Density] w=30 h=26 d=1 cal=3fd4cccccccccccd,3fd4cccccccccccd,3ff0000000000000 unit=[micron] finite=672 nan=108 min=3f32c77bc0000000 max=3fb6d095a0000000 sum=403c670180f9e000 sha256=d2eb5a456ceff3bc0497e39bb9fe27759fa19f400058b3dffcb5ac5a53913aa8
+      density region=[Cortex] type=[Type A] weighting=OBJECT_SIZE boundary=CORRECTED bandwidth=4000678e88c304eb
+        loo 3 0=3f675986eb1bcf0b 1=3f552acc3bd49d60 2=3f802c8baeee9605
+        map title=[Type_A_Cortex_Density] w=30 h=26 d=1 cal=3fd4cccccccccccd,3fd4cccccccccccd,3ff0000000000000 unit=[micron] finite=672 nan=108 min=3f1fbca5a0000000 max=3fa3474b20000000 sum=4028000000ad9000 sha256=98997bd0acba2896fe3f3d0ab2476cb98e773b26ddd91c93dfc184c25c6ace6c
+      density region=[Cortex] type=[Type B] weighting=OBJECT_COUNT boundary=CORRECTED bandwidth=400061046ac2ed10
+        loo 2 3=0000000000000000 4=0000000000000000
+        map title=[Type_B_Cortex_Density] w=30 h=26 d=1 cal=3fd4cccccccccccd,3fd4cccccccccccd,3ff0000000000000 unit=[micron] finite=672 nan=108 min=3f40705b40000000 max=3fb0d88540000000 sum=4032ef565745c000 sha256=a7543206940a0a8ff8f42bdeb6d024ebe6dbc1ccc76b48ffe0ac7460d2620fef
+      density region=[Cortex] type=[Type B] weighting=OBJECT_SIZE boundary=CORRECTED bandwidth=400061046ac2ed10
+        loo 2 3=0000000000000000 4=0000000000000000
+        map title=[Type_B_Cortex_Density] w=30 h=26 d=1 cal=3fd4cccccccccccd,3fd4cccccccccccd,3ff0000000000000 unit=[micron] finite=672 nan=108 min=3f2bc81f40000000 max=3f9c782900000000 sum=4020000001a3e000 sha256=250c6d59d5463e29acc18c68119986f6a2c2071360cbd5c0a999ba60229f2138
+      density region=[Cortex] type=[Type C] weighting=OBJECT_COUNT boundary=CORRECTED bandwidth=3ffb299d3787ac74
+        loo 3 5=3f80b77a6dd93d6a 6=3f90ce1f152459d3 7=3f787c0353d7501a
+        map title=[Type_C_Cortex_Density] w=30 h=26 d=1 cal=3fd4cccccccccccd,3fd4cccccccccccd,3ff0000000000000 unit=[micron] finite=672 nan=108 min=3f4ba0d1a0000000 max=3fb6ead780000000 sum=403c670185be8000 sha256=be0b44c5a9f61cd7a60753ad9b9282b27270f6f76084793668865cf0068571ae
+      density region=[Cortex] type=[Type C] weighting=OBJECT_SIZE boundary=CORRECTED bandwidth=3ffb299d3787ac74
+        loo 3 5=3f6c405177158913 6=3f7c6695cf3ffe36 7=3f64b078925d9e92
+        map title=[Type_C_Cortex_Density] w=30 h=26 d=1 cal=3fd4cccccccccccd,3fd4cccccccccccd,3ff0000000000000 unit=[micron] finite=672 nan=108 min=3f37588840000000 max=3fa35d7b40000000 sum=4027ffffffd80000 sha256=c1b0a9dcfe778a677a4d3699bc95e8ea9e99212c4c027d7d31c963aa2d4a2698

@@ -1,0 +1,26 @@
+case 2d-three-types-calibrated M-DENSITY_R-UNION_E-INCLUDE_FLAGGED_W-OBJECT_AREA_B-CORRECTED_H-2.0_P17_S12345
+image 30 26 3fd4cccccccccccd 3fd4cccccccccccd unit=[micron]
+warnings 0
+objects 8
+  object 0 type=0 name=[Type A] label=1 cx=3ff4cccccccccccd cy=3ff4cccccccccccd area=3fdb0a3d70a3d70b
+  object 1 type=0 name=[Type A] label=2 cx=4020400000000000 cy=3ff4cccccccccccd area=3fdb0a3d70a3d70b
+  object 2 type=0 name=[Type A] label=3 cx=4010e66666666667 cy=400f333333333334 area=3fdb0a3d70a3d70b
+  object 3 type=1 name=[Type B] label=1 cx=3ffa000000000000 cy=401a000000000000 area=3fdb0a3d70a3d70b
+  object 4 type=1 name=[Type B] label=2 cx=4020400000000000 cy=401a000000000000 area=3fdb0a3d70a3d70b
+  object 5 type=2 name=[Type C] label=1 cx=4014cccccccccccd cy=3ff4cccccccccccd area=3fdb0a3d70a3d70b
+  object 6 type=2 name=[Type C] label=3 cx=401de66666666667 cy=400f333333333334 area=3fdb0a3d70a3d70b
+  object 7 type=2 name=[Type C] label=2 cx=4014cccccccccccd cy=401b4ccccccccccd area=3fdb0a3d70a3d70b
+regions 1
+  region[0] [All_Regions]
+    territories absent
+    interactions absent
+    densities 3
+      density region=[All_Regions] type=[Type A] weighting=OBJECT_SIZE boundary=CORRECTED bandwidth=4000000000000000
+        loo 3 0=3f66205bf9e2d0c3 1=3f534302e27b7b9e 2=3f7e352a804fad8f
+        map title=[Type_A_All_Regions_Density] w=30 h=26 d=1 cal=3fd4cccccccccccd,3fd4cccccccccccd,3ff0000000000000 unit=[micron] finite=672 nan=108 min=3f199534a0000000 max=3fa3da8420000000 sum=402800000144f000 sha256=3d4c1c56430ecf061616d69ed64e4efa24bea7665dd7bd65443e0603e85091c6
+      density region=[All_Regions] type=[Type B] weighting=OBJECT_SIZE boundary=CORRECTED bandwidth=4000000000000000
+        loo 2 3=0000000000000000 4=0000000000000000
+        map title=[Type_B_All_Regions_Density] w=30 h=26 d=1 cal=3fd4cccccccccccd,3fd4cccccccccccd,3ff0000000000000 unit=[micron] finite=672 nan=108 min=3f25fd5d40000000 max=3f9d5a7da0000000 sum=401fffffffe7c000 sha256=a6c74930f81be863d94d5d08d8ffd99c6b84dc5aefe0543d0cade76d12eed9c1
+      density region=[All_Regions] type=[Type C] weighting=OBJECT_SIZE boundary=CORRECTED bandwidth=4000000000000000
+        loo 3 5=3f75b75752365c41 6=3f841e042a92fdf3 7=3f71f058f2e6d280
+        map title=[Type_C_All_Regions_Density] w=30 h=26 d=1 cal=3fd4cccccccccccd,3fd4cccccccccccd,3ff0000000000000 unit=[micron] finite=672 nan=108 min=3f53018e40000000 max=3fa1a35c80000000 sum=40280000010d0000 sha256=da8f5e9e033533e495992141db954f0dca4e4bf1ac4bffc68b967f3b5d4c927f

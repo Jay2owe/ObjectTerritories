@@ -1,0 +1,23 @@
+case 3d-two-types M-TERRITORIES_R-INDEPENDENT_E-INCLUDE_FLAGGED_W-BOTH_B-CORRECTED_H-auto_P1_S12345
+warnings 1
+  warning[0] [Stacks are not spatially calibrated; distances, areas, and volumes use pixels.]
+objects 4
+  object 0 type=0 name=[Cells A] label=1 cx=4010000000000000 cy=4010000000000000 cz=4000000000000000 volume=4020000000000000
+  object 1 type=0 name=[Cells A] label=2 cx=4030000000000000 cy=4014000000000000 cz=4008000000000000 volume=4020000000000000
+  object 2 type=1 name=[Cells B] label=1 cx=4014000000000000 cy=4030000000000000 cz=4000000000000000 volume=4020000000000000
+  object 3 type=1 name=[Cells B] label=2 cx=4030000000000000 cy=4030000000000000 cz=4010000000000000 volume=4020000000000000
+regions 1
+  region[0] [Mask]
+    territories [Mask] cells=4
+      cell object=0 label=1 voxels=483 volume=407e300000000000 edge=true neighbors={1,2}
+      cell object=1 label=2 voxels=523 volume=4080580000000000 edge=true neighbors={0,2,3}
+      cell object=2 label=1 voxels=512 volume=4080000000000000 edge=true neighbors={0,1,3}
+      cell object=3 label=2 voxels=426 volume=407aa00000000000 edge=true neighbors={1,2}
+      regularity included=4 sizeCv=3fb6de1c5bae69a6 areaCv=3fb6de1c5bae69a6 nnMean=4026a80520d29ee2 nnSd=3fdeb5fd0943c1c6 nnRatio=40379b7ab1da8617
+      labels title=[Mask_Territories_3D] w=20 h=20 d=6 cal=3ff0000000000000,3ff0000000000000,3ff0000000000000 unit=[pixel] finite=2400 nan=0 min=0000000000000000 max=4010000000000000 sum=40b2a10000000000 sha256=79ac616950ea0db8208d1d8d13337e5d827b66a855ea121144a6924a7a6b1124
+    interactions types=2 permutations=1 seed=12345
+      pair [Cells A] [Cells A] observed=1 expected=0000000000000000 z=7ff8000000000000 p=3fe0000000000000
+      pair [Cells A] [Cells B] observed=3 expected=4010000000000000 z=7ff8000000000000 p=3fe0000000000000
+      pair [Cells B] [Cells A] observed=3 expected=4010000000000000 z=7ff8000000000000 p=3fe0000000000000
+      pair [Cells B] [Cells B] observed=1 expected=3ff0000000000000 z=7ff8000000000000 p=3ff0000000000000
+    densities 0

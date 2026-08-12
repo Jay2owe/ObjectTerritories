@@ -1,0 +1,1 @@
+java.lang.IllegalArgumentException: region ROI must not be null

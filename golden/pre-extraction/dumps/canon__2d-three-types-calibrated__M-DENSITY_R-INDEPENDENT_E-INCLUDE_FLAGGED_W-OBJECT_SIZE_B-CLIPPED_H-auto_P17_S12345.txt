@@ -1,0 +1,26 @@
+case 2d-three-types-calibrated M-DENSITY_R-INDEPENDENT_E-INCLUDE_FLAGGED_W-OBJECT_SIZE_B-CLIPPED_H-auto_P17_S12345
+image 30 26 3fd4cccccccccccd 3fd4cccccccccccd unit=[micron]
+warnings 0
+objects 8
+  object 0 type=0 name=[Type A] label=1 cx=3ff4cccccccccccd cy=3ff4cccccccccccd area=3fdb0a3d70a3d70b
+  object 1 type=0 name=[Type A] label=2 cx=4020400000000000 cy=3ff4cccccccccccd area=3fdb0a3d70a3d70b
+  object 2 type=0 name=[Type A] label=3 cx=4010e66666666667 cy=400f333333333334 area=3fdb0a3d70a3d70b
+  object 3 type=1 name=[Type B] label=1 cx=3ffa000000000000 cy=401a000000000000 area=3fdb0a3d70a3d70b
+  object 4 type=1 name=[Type B] label=2 cx=4020400000000000 cy=401a000000000000 area=3fdb0a3d70a3d70b
+  object 5 type=2 name=[Type C] label=1 cx=4014cccccccccccd cy=3ff4cccccccccccd area=3fdb0a3d70a3d70b
+  object 6 type=2 name=[Type C] label=3 cx=401de66666666667 cy=400f333333333334 area=3fdb0a3d70a3d70b
+  object 7 type=2 name=[Type C] label=2 cx=4014cccccccccccd cy=401b4ccccccccccd area=3fdb0a3d70a3d70b
+regions 1
+  region[0] [Cortex]
+    territories absent
+    interactions absent
+    densities 3
+      density region=[Cortex] type=[Type A] weighting=OBJECT_SIZE boundary=CLIPPED bandwidth=4000678e88c304eb
+        loo 3 0=3f65336884f2184f 1=3f5338197b8b940e 2=3f6ecf7542b7e256
+        map title=[Type_A_Cortex_Density] w=30 h=26 d=1 cal=3fd4cccccccccccd,3fd4cccccccccccd,3ff0000000000000 unit=[micron] finite=672 nan=108 min=3f1cd0ed20000000 max=3f9561f500000000 sum=401e0193d355e000 sha256=95302c97c5276eb7765e56bea646bc89d21715b720157ffc3f5a3027f678d675
+      density region=[Cortex] type=[Type B] weighting=OBJECT_SIZE boundary=CLIPPED bandwidth=400061046ac2ed10
+        loo 2 3=0000000000000000 4=0000000000000000
+        map title=[Type_B_Cortex_Density] w=30 h=26 d=1 cal=3fd4cccccccccccd,3fd4cccccccccccd,3ff0000000000000 unit=[micron] finite=672 nan=108 min=3f20118640000000 max=3f9075ac60000000 sum=401281e5261cc000 sha256=08239860b070d49cdf9e9418c62f1eceaca639a4c7082e0ea0fbcac52e4739a2
+      density region=[Cortex] type=[Type C] weighting=OBJECT_SIZE boundary=CLIPPED bandwidth=3ffb299d3787ac74
+        loo 3 5=3f681a0ce42b37ab 6=3f74e04b18b6fa6e 7=3f61a6894d42bd32
+        map title=[Type_C_Cortex_Density] w=30 h=26 d=1 cal=3fd4cccccccccccd,3fd4cccccccccccd,3ff0000000000000 unit=[micron] finite=672 nan=108 min=3f314492a0000000 max=3f9e5802a0000000 sum=4022adcbc7288000 sha256=6a0624698d9b0e55f3adfbb0cc5c4ca9e4fc852c2ef37af4c7800172e84df22d

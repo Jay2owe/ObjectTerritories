@@ -1,0 +1,1 @@
+java.lang.IllegalArgumentException: region geometry must have non-empty area

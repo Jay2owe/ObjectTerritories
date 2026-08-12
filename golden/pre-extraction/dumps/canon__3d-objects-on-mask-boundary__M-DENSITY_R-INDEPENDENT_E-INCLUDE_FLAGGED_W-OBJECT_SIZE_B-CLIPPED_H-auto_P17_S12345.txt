@@ -1,0 +1,16 @@
+case 3d-objects-on-mask-boundary M-DENSITY_R-INDEPENDENT_E-INCLUDE_FLAGGED_W-OBJECT_SIZE_B-CLIPPED_H-auto_P17_S12345
+warnings 1
+  warning[0] [Stacks are not spatially calibrated; distances, areas, and volumes use pixels.]
+objects 4
+  object 0 type=0 name=[Cells] label=1 cx=3ff0000000000000 cy=3ff0000000000000 cz=3ff0000000000000 volume=4020000000000000
+  object 1 type=0 name=[Cells] label=2 cx=402e000000000000 cy=3ff0000000000000 cz=3ff0000000000000 volume=4020000000000000
+  object 2 type=0 name=[Cells] label=3 cx=3ff0000000000000 cy=402e000000000000 cz=4014000000000000 volume=4020000000000000
+  object 3 type=0 name=[Cells] label=4 cx=402e000000000000 cy=402e000000000000 cz=4014000000000000 volume=4020000000000000
+regions 1
+  region[0] [Mask]
+    territories absent
+    interactions absent
+    densities 1
+      density region=[Mask] type=[Cells] weighting=OBJECT_SIZE boundary=CLIPPED bandwidth=40143533da18071f
+        loo 4 0=3f236395324fc4ab 1=3f236395324fc4ab 2=3f236395324fc4ab 3=3f236395324fc4ab
+        volume title=[Cells_Mask_Density_3D] w=16 h=16 d=6 cal=3ff0000000000000,3ff0000000000000,3ff0000000000000 unit=[pixel] finite=1536 nan=0 min=3f5e759ce0000000 max=3f70b753c0000000 sum=4011cff6af4e0000 sha256=fbe861b15b8df2fcacaabcde9d8c945a0e31894a5138f7901b939b2894f8d212

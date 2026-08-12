@@ -1,0 +1,1 @@
+java.lang.IllegalArgumentException: region ROI 'Far' lies entirely outside the image

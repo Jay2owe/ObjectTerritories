@@ -4,7 +4,7 @@ import ij.io.FileSaver;
 import ij.measure.ResultsTable;
 import territories.api.ObjectTerritoriesResult3D;
 import territories.api.RegionAnalysisResult3D;
-import territories.core.DensityResult3D;
+import sc.fiji.territories.core.DensityResult3D;
 
 import java.io.File;
 import java.io.IOException;
@@ -39,6 +39,8 @@ public final class ResultExporter3D {
                 saveTable(
                         ResultTables3D.interactions(region),
                         new File(interactionsDirectory, regionName + "_Interactions_3D.csv"));
+            }
+            if (region.getTerritories() != null) {
                 saveTable(
                         ResultTables3D.regularity(region),
                         new File(interactionsDirectory, regionName + "_Regularity_3D.csv"));

@@ -1,0 +1,25 @@
+case 3d-anisotropic M-BOTH_R-INDEPENDENT_E-EXCLUDE_FROM_SUMMARIES_W-BOTH_B-CLIPPED_H-2.0_P17_S12345
+warnings 0
+objects 4
+  object 0 type=0 name=[Cells] label=1 cx=3fe999999999999a cy=3fe999999999999a cz=3ff8000000000000 volume=3fc47ae147ae147c
+  object 1 type=0 name=[Cells] label=2 cx=4006666666666667 cy=3ff0000000000000 cz=3ff8000000000000 volume=3fc47ae147ae147c
+  object 2 type=0 name=[Cells] label=3 cx=3ff0000000000000 cy=4006666666666667 cz=400c000000000000 volume=3fc47ae147ae147c
+  object 3 type=0 name=[Cells] label=4 cx=4006666666666667 cy=4006666666666667 cz=400c000000000000 volume=3fc47ae147ae147c
+regions 1
+  region[0] [Mask]
+    territories [Mask] cells=4
+      cell object=0 label=1 voxels=393 volume=402f70a3d70a3d72 edge=true neighbors={1,2}
+      cell object=1 label=2 voxels=435 volume=4031666666666667 edge=true neighbors={0,2,3}
+      cell object=2 label=3 voxels=448 volume=4031eb851eb851ec edge=true neighbors={0,1,3}
+      cell object=3 label=4 voxels=344 volume=402b851eb851eb87 edge=true neighbors={1,2}
+      regularity included=0 sizeCv=7ff8000000000000 areaCv=7ff8000000000000 nnMean=7ff8000000000000 nnSd=7ff8000000000000 nnRatio=7ff8000000000000
+      labels title=[Mask_Territories_3D] w=18 h=18 d=5 cal=3fc999999999999a,3fc999999999999a,3ff0000000000000 unit=[micron] finite=1620 nan=0 min=3ff0000000000000 max=4010000000000000 sum=40af1e0000000000 sha256=98a058979271926c47caed903af903658c4de673bfacbe58811d5750deec5471
+    interactions types=1 permutations=17 seed=12345
+      pair [Cells] [Cells] observed=0 expected=0000000000000000 z=0000000000000000 p=3ff0000000000000
+    densities 2
+      density region=[Mask] type=[Cells] weighting=OBJECT_COUNT boundary=CLIPPED bandwidth=4000000000000000
+        loo 4 0=3f8362e286322e97 1=3f84c55bd4455f5a 2=3f852d47472ea8a0 3=3f850b30175239ab
+        volume title=[Cells_Mask_Density_3D] w=18 h=18 d=5 cal=3fc999999999999a,3fc999999999999a,3ff0000000000000 unit=[micron] finite=1620 nan=0 min=3f7c3b34e0000000 max=3f96df5580000000 sum=4038c8dfe1780000 sha256=8c5111ebc26c6aa42c92e0f93e3f64c3ba1b380ca2de8f48529bacbb6a73e211
+      density region=[Mask] type=[Cells] weighting=OBJECT_SIZE boundary=CLIPPED bandwidth=4000000000000000
+        loo 4 0=3f58d07e1c693168 1=3f5a963819f26593 2=3f5b1b3c8412c35e 3=3f5aef99b7737d06
+        volume title=[Cells_Mask_Density_3D] w=18 h=18 d=5 cal=3fc999999999999a,3fc999999999999a,3ff0000000000000 unit=[micron] finite=1620 nan=0 min=3f52116980000000 max=3f6d46d3a0000000 sum=400fb97077e40000 sha256=c3e764c2e2c275239517bcd5bded5e4c2c99df2294c70317a4aab142491fb67d

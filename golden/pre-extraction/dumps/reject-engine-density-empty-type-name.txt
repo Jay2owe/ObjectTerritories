@@ -1,0 +1,1 @@
+java.lang.IllegalArgumentException: type name must not be empty

@@ -1,0 +1,14 @@
+case 2d-single-object M-TERRITORIES_R-UNION_E-EXCLUDE_FROM_SUMMARIES_W-BOTH_B-CORRECTED_H-auto_P101_S7
+image 24 24 3ff0000000000000 3ff0000000000000 unit=[pixel]
+warnings 1
+  warning[0] [Images are not spatially calibrated; distances and areas are in pixels.]
+objects 1
+  object 0 type=0 name=[Cells] label=1 cx=4028000000000000 cy=4028000000000000 area=4010000000000000
+regions 1
+  region[0] [All_Regions]
+    territories [All_Regions] cells=1
+      cell object=0 label=1 area=4082000000000000 edge=true neighbors={} geometry=9b1d1d7132ccec7ccae279524f9e12fb141890d0ca750e0842349f5142faf18d
+      regularity included=0 sizeCv=7ff8000000000000 areaCv=7ff8000000000000 nnMean=7ff8000000000000 nnSd=7ff8000000000000 nnRatio=7ff8000000000000
+    interactions types=1 permutations=101 seed=7
+      pair [Cells] [Cells] observed=0 expected=0000000000000000 z=0000000000000000 p=3ff0000000000000
+    densities 0

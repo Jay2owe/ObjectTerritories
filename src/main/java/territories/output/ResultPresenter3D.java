@@ -4,7 +4,7 @@ import ij.IJ;
 import ij.ImagePlus;
 import territories.api.ObjectTerritoriesResult3D;
 import territories.api.RegionAnalysisResult3D;
-import territories.core.DensityResult3D;
+import sc.fiji.territories.core.DensityResult3D;
 
 /** Interactive display for volumetric territory and density stacks. */
 public final class ResultPresenter3D {
@@ -21,6 +21,8 @@ public final class ResultPresenter3D {
             if (region.getInteractions() != null) {
                 ResultTables3D.interactions(region)
                         .show("Object Territories 3D Interactions" + suffix);
+            }
+            if (region.getTerritories() != null) {
                 ResultTables3D.regularity(region)
                         .show("Object Territories 3D Regularity" + suffix);
                 ImagePlus territories = region.getTerritories().getTerritoryLabels();

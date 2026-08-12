@@ -1,0 +1,26 @@
+case 2d-disjoint-regions M-TERRITORIES_R-INDEPENDENT_E-INCLUDE_FLAGGED_W-BOTH_B-CORRECTED_H-auto_P1_S12345
+image 40 20 3ff0000000000000 3ff0000000000000 unit=[pixel]
+warnings 1
+  warning[0] [Images are not spatially calibrated; distances and areas are in pixels.]
+objects 4
+  object 0 type=0 name=[Cells] label=1 cx=4010000000000000 cy=4014000000000000 area=4010000000000000
+  object 1 type=0 name=[Cells] label=3 cx=403c000000000000 cy=4014000000000000 area=4010000000000000
+  object 2 type=0 name=[Cells] label=2 cx=4028000000000000 cy=402a000000000000 area=4010000000000000
+  object 3 type=0 name=[Cells] label=4 cx=4041800000000000 cy=402a000000000000 area=4010000000000000
+regions 2
+  region[0] [West]
+    territories [West] cells=2
+      cell object=0 label=1 area=4061ffffffffffff edge=true neighbors={2} geometry=2d6eec461c04b87db345937ea86317184addf4e40bf4b08a4ec2dee3e8d86bd9
+      cell object=2 label=2 area=4066000000000001 edge=true neighbors={0} geometry=c19ba2fbe6bec565836c19d677ff9135c525d15388e91fa3e65f99f466717639
+      regularity included=2 sizeCv=3fc21a1851ff6313 areaCv=3fc21a1851ff6313 nnMean=4026a09e667f3bcd nnSd=0000000000000000 nnRatio=7ff0000000000000
+    interactions types=1 permutations=1 seed=12345
+      pair [Cells] [Cells] observed=1 expected=3ff0000000000000 z=7ff8000000000000 p=3ff0000000000000
+    densities 0
+  region[1] [East]
+    territories [East] cells=2
+      cell object=1 label=3 area=4061200000000000 edge=true neighbors={3} geometry=e986ec8040e167656aa01f51a04162a89fce027c64e3f3d18bbad6b4d29bac95
+      cell object=3 label=4 area=4066dfffffffffff edge=true neighbors={1} geometry=c737819050907d2f6c758edbbf07367642b0d3abae573c8d8ff79a23321588eb
+      regularity included=2 sizeCv=3fca0582f5df1e5a areaCv=3fca0582f5df1e5a nnMean=402542a278d2d036 nnSd=0000000000000000 nnRatio=7ff0000000000000
+    interactions types=1 permutations=1 seed=12345
+      pair [Cells] [Cells] observed=1 expected=3ff0000000000000 z=7ff8000000000000 p=3ff0000000000000
+    densities 0

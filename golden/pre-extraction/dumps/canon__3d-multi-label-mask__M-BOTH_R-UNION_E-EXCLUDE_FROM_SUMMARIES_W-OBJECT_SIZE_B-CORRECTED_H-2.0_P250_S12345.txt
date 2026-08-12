@@ -1,0 +1,29 @@
+case 3d-multi-label-mask M-BOTH_R-UNION_E-EXCLUDE_FROM_SUMMARIES_W-OBJECT_SIZE_B-CORRECTED_H-2.0_P250_S12345
+warnings 1
+  warning[0] [Stacks are not spatially calibrated; distances, areas, and volumes use pixels.]
+objects 4
+  object 0 type=0 name=[Cells A] label=1 cx=4010000000000000 cy=4010000000000000 cz=4000000000000000 volume=4020000000000000
+  object 1 type=0 name=[Cells A] label=2 cx=4032000000000000 cy=4014000000000000 cz=4000000000000000 volume=4020000000000000
+  object 2 type=1 name=[Cells B] label=1 cx=4018000000000000 cy=4026000000000000 cz=4008000000000000 volume=4020000000000000
+  object 3 type=1 name=[Cells B] label=2 cx=4033000000000000 cy=4026000000000000 cz=4008000000000000 volume=4020000000000000
+regions 1
+  region[0] [Mask_Union]
+    territories [Mask_Union] cells=4
+      cell object=0 label=1 voxels=486 volume=407e600000000000 edge=true neighbors={1,2}
+      cell object=1 label=2 voxels=624 volume=4083800000000000 edge=true neighbors={0,2,3}
+      cell object=2 label=1 voxels=666 volume=4084d00000000000 edge=true neighbors={0,1,3}
+      cell object=3 label=2 voxels=528 volume=4080800000000000 edge=true neighbors={1,2}
+      regularity included=0 sizeCv=7ff8000000000000 areaCv=7ff8000000000000 nnMean=7ff8000000000000 nnSd=7ff8000000000000 nnRatio=7ff8000000000000
+      labels title=[Mask_Union_Territories_3D] w=24 h=16 d=6 cal=3ff0000000000000,3ff0000000000000,3ff0000000000000 unit=[pixel] finite=2304 nan=0 min=3ff0000000000000 max=4010000000000000 sum=40b6d40000000000 sha256=fdb26848143192d51371692f68d209d9ef8d6d218816d3447d31cce206e1cf0e
+    interactions types=2 permutations=250 seed=12345
+      pair [Cells A] [Cells A] observed=0 expected=0000000000000000 z=0000000000000000 p=3ff0000000000000
+      pair [Cells A] [Cells B] observed=0 expected=0000000000000000 z=0000000000000000 p=3ff0000000000000
+      pair [Cells B] [Cells A] observed=0 expected=0000000000000000 z=0000000000000000 p=3ff0000000000000
+      pair [Cells B] [Cells B] observed=0 expected=0000000000000000 z=0000000000000000 p=3ff0000000000000
+    densities 2
+      density region=[Mask_Union] type=[Cells A] weighting=OBJECT_SIZE boundary=CORRECTED bandwidth=4000000000000000
+        loo 2 0=0000000000000000 1=0000000000000000
+        volume title=[Cells_A_Mask_Union_Density_3D] w=24 h=16 d=6 cal=3ff0000000000000,3ff0000000000000,3ff0000000000000 unit=[pixel] finite=2304 nan=0 min=0000000000000000 max=3fb2cfb120000000 sum=402fffffff7df790 sha256=7316bcf4f992c7cd04108d083f47d5c3feb69250d6ca1e4c71bbade6f52b0985
+      density region=[Mask_Union] type=[Cells B] weighting=OBJECT_SIZE boundary=CORRECTED bandwidth=4000000000000000
+        loo 2 2=0000000000000000 3=0000000000000000
+        volume title=[Cells_B_Mask_Union_Density_3D] w=24 h=16 d=6 cal=3ff0000000000000,3ff0000000000000,3ff0000000000000 unit=[pixel] finite=2304 nan=0 min=0000000000000000 max=3fb13e0520000000 sum=40300000028e7800 sha256=f5fd0750a3a5842d63eaa747418bc6fe8209ecdc2b4a08336950520366567fa6

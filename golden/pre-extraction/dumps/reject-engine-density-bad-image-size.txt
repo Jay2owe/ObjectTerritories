@@ -1,0 +1,1 @@
+java.lang.IllegalArgumentException: density image dimensions are invalid

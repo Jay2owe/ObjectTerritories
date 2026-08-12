@@ -1,0 +1,16 @@
+case 3d-disjoint-mask-components M-DENSITY_R-INDEPENDENT_E-INCLUDE_FLAGGED_W-OBJECT_COUNT_B-CORRECTED_H-auto_P17_S12345
+warnings 1
+  warning[0] [Stacks are not spatially calibrated; distances, areas, and volumes use pixels.]
+objects 4
+  object 0 type=0 name=[Cells] label=1 cx=4008000000000000 cy=4010000000000000 cz=4000000000000000 volume=4020000000000000
+  object 1 type=0 name=[Cells] label=3 cx=4034000000000000 cy=4010000000000000 cz=4000000000000000 volume=4020000000000000
+  object 2 type=0 name=[Cells] label=2 cx=401c000000000000 cy=401c000000000000 cz=4000000000000000 volume=4020000000000000
+  object 3 type=0 name=[Cells] label=4 cx=4037000000000000 cy=401c000000000000 cz=4000000000000000 volume=4020000000000000
+regions 1
+  region[0] [Mask]
+    territories absent
+    interactions absent
+    densities 1
+      density region=[Mask] type=[Cells] weighting=OBJECT_COUNT boundary=CORRECTED bandwidth=400919f016daa408
+        loo 4 0=3f5363b8b3d1113b 1=3f5baacaf1fb1a55 2=3f543774173f346d 3=3f5b150e36995a46
+        volume title=[Cells_Mask_Density_3D] w=26 h=12 d=6 cal=3ff0000000000000,3ff0000000000000,3ff0000000000000 unit=[pixel] finite=1440 nan=432 min=3f25586520000000 max=3f7ad3b260000000 sum=40100000011b0000 sha256=1ac41810fa189ab63915d8a6374080e5aef174288bb7745a01cde8f85ec1d34c

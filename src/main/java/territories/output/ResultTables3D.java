@@ -1,14 +1,14 @@
 package territories.output;
 
 import ij.measure.ResultsTable;
-import territories.api.DensityWeighting;
+import sc.fiji.territories.core.DensityWeighting;
 import territories.api.ObjectTerritoriesResult3D;
 import territories.api.RegionAnalysisResult3D;
-import territories.core.DensityResult3D;
-import territories.core.InteractionMatrixResult;
-import territories.core.RegularityResult;
-import territories.core.SpatialObject3D;
-import territories.core.TerritoryCell3D;
+import sc.fiji.territories.core.DensityResult3D;
+import sc.fiji.territories.core.InteractionMatrixResult;
+import sc.fiji.territories.core.RegularityResult;
+import sc.fiji.territories.core.SpatialObject3D;
+import sc.fiji.territories.core.TerritoryCell3D;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -23,7 +23,7 @@ public final class ResultTables3D {
 
     public static ResultsTable objects(
             ObjectTerritoriesResult3D complete, RegionAnalysisResult3D region) {
-        ResultsTable table = new ResultsTable();
+        ResultsTable table = ResultTables.newTable();
         Map<Integer, TerritoryCell3D> cells = new HashMap<Integer, TerritoryCell3D>();
         if (region.getTerritories() != null) {
             for (TerritoryCell3D cell : region.getTerritories().getCells()) {
@@ -71,11 +71,12 @@ public final class ResultTables3D {
                 table.addValue("Local_Size_Density_LOO", sizeDensity.get(object.getIndex()));
             }
         }
+        ResultTables.applyExportPrecision(table);
         return table;
     }
 
     public static ResultsTable interactions(RegionAnalysisResult3D region) {
-        ResultsTable table = new ResultsTable();
+        ResultsTable table = ResultTables.newTable();
         InteractionMatrixResult interactions = region.getInteractions();
         if (interactions == null) return table;
         List<String> types = interactions.getTypes();
@@ -97,11 +98,12 @@ public final class ResultTables3D {
                 table.addValue("Seed", Long.toString(interactions.getSeed()));
             }
         }
+        ResultTables.applyExportPrecision(table);
         return table;
     }
 
     public static ResultsTable regularity(RegionAnalysisResult3D region) {
-        ResultsTable table = new ResultsTable();
+        ResultsTable table = ResultTables.newTable();
         if (region.getTerritories() == null) return table;
         RegularityResult regularity = region.getTerritories().getRegularity();
         table.incrementCounter();
@@ -113,6 +115,7 @@ public final class ResultTables3D {
         table.addValue("NN_Mean_3D", regularity.getNearestNeighborMean());
         table.addValue("NN_SD_3D", regularity.getNearestNeighborStandardDeviation());
         table.addValue("NN_Mean_Over_SD_3D", regularity.getNearestNeighborRegularityRatio());
+        ResultTables.applyExportPrecision(table);
         return table;
     }
 

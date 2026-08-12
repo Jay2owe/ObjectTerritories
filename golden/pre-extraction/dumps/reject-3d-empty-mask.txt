@@ -1,0 +1,1 @@
+java.lang.IllegalArgumentException: 3D region mask contains no positive voxels

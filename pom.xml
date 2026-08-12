@@ -90,6 +90,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <jts.version>1.19.0</jts.version>
     <oc3d-core.version>0.1.0</oc3d-core.version>
+    <territories-core.version>0.1.0</territories-core.version>
     <license.licenseName>bsd_3</license.licenseName>
     <license.copyrightOwners>Jamie Malcolm</license.copyrightOwners>
   </properties>
@@ -98,6 +99,24 @@
     <dependency>
       <groupId>net.imagej</groupId>
       <artifactId>ij</artifactId>
+    </dependency>
+
+    <!--
+      The territory, density and interaction engine. Shaded into this JAR and
+      relocated, never installed by the user as a separate artifact — see the
+      shade plugin below. Compile scope, not `provided`: the class files must
+      end up inside the shipped JAR, because a bare Fiji has never heard of
+      territories-core and the whole point of the pattern is that it never
+      has to.
+
+      It brings JTS transitively; the explicit declaration below pins the
+      same version so this plugin and the core can never resolve different
+      geometry builds.
+    -->
+    <dependency>
+      <groupId>io.github.jay2owe</groupId>
+      <artifactId>territories-core</artifactId>
+      <version>${territories-core.version}</version>
     </dependency>
 
     <dependency>
@@ -156,6 +175,7 @@
                 <includes>
                   <include>org.locationtech.jts:jts-core</include>
                   <include>io.github.jay2owe:oc3d-core</include>
+                  <include>io.github.jay2owe:territories-core</include>
                 </includes>
               </artifactSet>
               <relocations>
@@ -167,12 +187,46 @@
                   <pattern>sc.fiji.oc3d.core</pattern>
                   <shadedPattern>territories.internal.core</shadedPattern>
                 </relocation>
+                <!--
+                  The engine lands back on the package name it has always had
+                  in the shipped JAR, deliberately, and NOT under
+                  territories.internal.* .
+
+                  territories.internal.core is already oc3d-core's landing
+                  ground, so it is not available. More importantly, the engine
+                  is not internal here: ObjectTerritoriesResult.getObjects(),
+                  RegionAnalysisResult.getTerritories() and the rest are
+                  documented public API and return these very types. Landing
+                  them on territories.core keeps every published signature in
+                  this JAR byte-identical to 0.2.0 — extraction moves no
+                  output, including the API surface.
+
+                  The collision rule the pattern exists to enforce still
+                  holds: territories.* is this plugin's own namespace, so no
+                  other JAR can carry these names. Every other consumer
+                  relocates sc.fiji.territories.core into its own namespace
+                  instead (Colocalization Suite uses ocs.internal.territories).
+                -->
+                <relocation>
+                  <pattern>sc.fiji.territories.core</pattern>
+                  <shadedPattern>territories.core</shadedPattern>
+                </relocation>
               </relocations>
               <filters>
                 <filter>
                   <artifact>org.locationtech.jts:jts-core</artifact>
                   <excludes>
                     <exclude>META-INF/MANIFEST.MF</exclude>
+                    <exclude>META-INF/*.SF</exclude>
+                    <exclude>META-INF/*.DSA</exclude>
+                    <exclude>META-INF/*.RSA</exclude>
+                  </excludes>
+                </filter>
+                <filter>
+                  <artifact>io.github.jay2owe:territories-core</artifact>
+                  <excludes>
+                    <exclude>META-INF/MANIFEST.MF</exclude>
+                    <exclude>META-INF/maven/**</exclude>
                     <exclude>META-INF/*.SF</exclude>
                     <exclude>META-INF/*.DSA</exclude>
                     <exclude>META-INF/*.RSA</exclude>
@@ -198,6 +252,15 @@
         <configuration>
           <!-- SCM manifest values change even when compiled classes do not. -->
           <forceCreation>true</forceCreation>
+        </configuration>
+      </plugin>
+      <plugin>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <systemPropertyVariables>
+            <!-- The equivalence harness reads and writes golden/pre-extraction. -->
+            <territories.project.basedir>${project.basedir}</territories.project.basedir>
+          </systemPropertyVariables>
         </configuration>
       </plugin>
       <plugin>

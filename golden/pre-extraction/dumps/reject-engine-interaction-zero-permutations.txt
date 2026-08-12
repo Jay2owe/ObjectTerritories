@@ -1,0 +1,1 @@
+java.lang.IllegalArgumentException: permutations must be at least 1

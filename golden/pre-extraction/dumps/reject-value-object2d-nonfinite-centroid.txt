@@ -1,0 +1,1 @@
+java.lang.IllegalArgumentException: centroid must be finite

@@ -7,7 +7,7 @@ import org.locationtech.jts.awt.ShapeWriter;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.util.AffineTransformation;
 import territories.api.RegionAnalysisResult;
-import territories.core.TerritoryCell;
+import sc.fiji.territories.core.TerritoryCell;
 
 import java.awt.BasicStroke;
 import java.awt.Color;

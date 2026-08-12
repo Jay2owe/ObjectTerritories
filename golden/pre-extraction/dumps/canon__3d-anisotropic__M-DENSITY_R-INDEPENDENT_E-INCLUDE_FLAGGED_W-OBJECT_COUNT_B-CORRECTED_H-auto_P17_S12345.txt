@@ -1,0 +1,15 @@
+case 3d-anisotropic M-DENSITY_R-INDEPENDENT_E-INCLUDE_FLAGGED_W-OBJECT_COUNT_B-CORRECTED_H-auto_P17_S12345
+warnings 0
+objects 4
+  object 0 type=0 name=[Cells] label=1 cx=3fe999999999999a cy=3fe999999999999a cz=3ff8000000000000 volume=3fc47ae147ae147c
+  object 1 type=0 name=[Cells] label=2 cx=4006666666666667 cy=3ff0000000000000 cz=3ff8000000000000 volume=3fc47ae147ae147c
+  object 2 type=0 name=[Cells] label=3 cx=3ff0000000000000 cy=4006666666666667 cz=400c000000000000 volume=3fc47ae147ae147c
+  object 3 type=0 name=[Cells] label=4 cx=4006666666666667 cy=4006666666666667 cz=400c000000000000 volume=3fc47ae147ae147c
+regions 1
+  region[0] [Mask]
+    territories absent
+    interactions absent
+    densities 1
+      density region=[Mask] type=[Cells] weighting=OBJECT_COUNT boundary=CORRECTED bandwidth=3ff0000000000000
+        loo 4 0=3f90162a091700ff 1=3f9261a62c39dd43 2=3f98b03d2d8c3639 3=3f97dcaff570c606
+        volume title=[Cells_Mask_Density_3D] w=18 h=18 d=5 cal=3fc999999999999a,3fc999999999999a,3ff0000000000000 unit=[micron] finite=1620 nan=0 min=3f5efcb840000000 max=3fc2797520000000 sum=40590000018a8000 sha256=0e39628141774b73aa51f897595ac30ef8c95e8f705bae36e1498a3f31077b6d

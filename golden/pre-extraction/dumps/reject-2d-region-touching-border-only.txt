@@ -1,0 +1,1 @@
+java.lang.IllegalArgumentException: region ROI 'Edge' meets the image only along its border and encloses no pixels

@@ -1,0 +1,18 @@
+case 2d-single-type-grid M-DENSITY_R-INDEPENDENT_E-INCLUDE_FLAGGED_W-OBJECT_SIZE_B-CLIPPED_H-auto_P17_S12345
+image 32 32 3ff0000000000000 3ff0000000000000 unit=[pixel]
+warnings 1
+  warning[0] [Images are not spatially calibrated; distances and areas are in pixels.]
+objects 5
+  object 0 type=0 name=[Cells] label=1 cx=4016000000000000 cy=4016000000000000 area=4022000000000000
+  object 1 type=0 name=[Cells] label=2 cx=4035800000000000 cy=401a000000000000 area=4022000000000000
+  object 2 type=0 name=[Cells] label=5 cx=402d000000000000 cy=402d000000000000 area=4022000000000000
+  object 3 type=0 name=[Cells] label=4 cx=4036800000000000 cy=4035800000000000 area=4022000000000000
+  object 4 type=0 name=[Cells] label=3 cx=401a000000000000 cy=4036800000000000 area=4022000000000000
+regions 1
+  region[0] [Field]
+    territories absent
+    interactions absent
+    densities 1
+      density region=[Field] type=[Cells] weighting=OBJECT_SIZE boundary=CLIPPED bandwidth=40188749e030de66
+        loo 5 0=3f7aa13200dda40e 1=3f87ea9dabd2650e 2=3f9cfff4f21f2b98 3=3f87d7855aa45f4c 4=3f829003147fb1bc
+        map title=[Cells_Field_Density] w=32 h=32 d=1 cal=3ff0000000000000,3ff0000000000000,3ff0000000000000 unit=[pixel] finite=1024 nan=0 min=3f6c4330c0000000 max=3fb1263400000000 sum=4042b51cbfa50000 sha256=9a4e42c467b4c54c9dfb075cc095511ddeb5d0223d89efb02aef5eca173cfef7

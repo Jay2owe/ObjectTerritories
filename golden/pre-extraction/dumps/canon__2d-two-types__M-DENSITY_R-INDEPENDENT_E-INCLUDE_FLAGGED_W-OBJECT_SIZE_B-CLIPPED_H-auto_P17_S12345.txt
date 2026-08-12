@@ -1,0 +1,24 @@
+case 2d-two-types M-DENSITY_R-INDEPENDENT_E-INCLUDE_FLAGGED_W-OBJECT_SIZE_B-CLIPPED_H-auto_P17_S12345
+image 32 32 3ff0000000000000 3ff0000000000000 unit=[pixel]
+warnings 1
+  warning[0] [Images are not spatially calibrated; distances and areas are in pixels.]
+objects 8
+  object 0 type=0 name=[Cells A] label=1 cx=4012000000000000 cy=4012000000000000 area=4022000000000000
+  object 1 type=0 name=[Cells A] label=2 cx=4039800000000000 cy=4016000000000000 area=4022000000000000
+  object 2 type=0 name=[Cells A] label=3 cx=401e000000000000 cy=4039800000000000 area=4022000000000000
+  object 3 type=0 name=[Cells A] label=4 cx=403a000000000000 cy=403a000000000000 area=4010000000000000
+  object 4 type=1 name=[Cells B] label=1 cx=402f000000000000 cy=401e000000000000 area=4022000000000000
+  object 5 type=1 name=[Cells B] label=2 cx=4021000000000000 cy=402f000000000000 area=4022000000000000
+  object 6 type=1 name=[Cells B] label=3 cx=4037800000000000 cy=4030800000000000 area=4022000000000000
+  object 7 type=1 name=[Cells B] label=4 cx=4030800000000000 cy=4038800000000000 area=4022000000000000
+regions 1
+  region[0] [Field]
+    territories absent
+    interactions absent
+    densities 2
+      density region=[Field] type=[Cells A] weighting=OBJECT_SIZE boundary=CLIPPED bandwidth=40229e86e4815577
+        loo 4 0=3f64f549e2087e9e 1=3f61f82e58cf1a22 2=3f6483f91e7d576e 3=3f6f64531dddfb8e
+        map title=[Cells_A_Field_Density] w=32 h=32 d=1 cal=3ff0000000000000,3ff0000000000000,3ff0000000000000 unit=[pixel] finite=1024 nan=0 min=3f785556c0000000 max=3f948f9e20000000 sum=40309e2e3c420000 sha256=29844af724b7f6b077d937cba15c6f35f51021f4b82e778f41e200b520efd44c
+      density region=[Field] type=[Cells B] weighting=OBJECT_SIZE boundary=CLIPPED bandwidth=4014c74170c2ddee
+        loo 4 4=3f84cc5acc38ecd9 5=3f8672dbee179697 6=3f8672dbee179696 7=3f84cc5acc38ecd9
+        map title=[Cells_B_Field_Density] w=32 h=32 d=1 cal=3ff0000000000000,3ff0000000000000,3ff0000000000000 unit=[pixel] finite=1024 nan=0 min=3f3578a140000000 max=3fb194ede0000000 sum=4040d4eba618c000 sha256=75d031bf5f030925bfd035358f1342ec1f8e6004486f624bb687f15ab43d8785

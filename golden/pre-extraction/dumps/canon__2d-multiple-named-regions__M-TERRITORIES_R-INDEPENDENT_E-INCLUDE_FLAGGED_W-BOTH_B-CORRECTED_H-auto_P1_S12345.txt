@@ -1,0 +1,40 @@
+case 2d-multiple-named-regions M-TERRITORIES_R-INDEPENDENT_E-INCLUDE_FLAGGED_W-BOTH_B-CORRECTED_H-auto_P1_S12345
+image 40 24 3ff0000000000000 3ff0000000000000 unit=[pixel]
+warnings 1
+  warning[0] [Images are not spatially calibrated; distances and areas are in pixels.]
+objects 8
+  object 0 type=0 name=[Cells A] label=1 cx=4010000000000000 cy=4014000000000000 area=4010000000000000
+  object 1 type=0 name=[Cells A] label=3 cx=4039000000000000 cy=4014000000000000 area=4010000000000000
+  object 2 type=0 name=[Cells A] label=2 cx=402a000000000000 cy=4018000000000000 area=4010000000000000
+  object 3 type=0 name=[Cells A] label=4 cx=4041800000000000 cy=401c000000000000 area=4010000000000000
+  object 4 type=1 name=[Cells B] label=1 cx=401c000000000000 cy=4030000000000000 area=4010000000000000
+  object 5 type=1 name=[Cells B] label=3 cx=403d000000000000 cy=4030000000000000 area=4010000000000000
+  object 6 type=1 name=[Cells B] label=2 cx=4031000000000000 cy=4031000000000000 area=4010000000000000
+  object 7 type=1 name=[Cells B] label=4 cx=4042000000000000 cy=4032000000000000 area=4010000000000000
+regions 2
+  region[0] [Left]
+    territories [Left] cells=4
+      cell object=0 label=1 area=405734e38e38e38e edge=true neighbors={2,4} geometry=a9b4852f77b84a31599cf8cc0785452b001def52ecab46ad4552fcd8933b0396
+      cell object=2 label=2 area=405fdd524ef11e7e edge=true neighbors={0,4,6} geometry=b2354224cf3d8963a96998d2bfb17d72f5ddcd5f8049e638da2b0da3727fd159
+      cell object=4 label=1 area=4063592d14ee4a11 edge=true neighbors={0,2,6} geometry=591ab3f77cbd1a0688a61a4d7624c51dc9885b7b59e51777d65a9bf2a91b9b7b
+      cell object=6 label=2 area=405a3b6ff8f969d3 edge=true neighbors={2,4} geometry=f9371fafc8ed6c4c3141b16e5ffaf40a2be7091f5d68783b66bfc4c5eb80b94a
+      regularity included=4 sizeCv=3fcd17152fcb5f36 areaCv=3fcd17152fcb5f36 nnMean=40231af25e7e910a nnSd=3fe25f986588a898 nnRatio=4030a3266637e181
+    interactions types=2 permutations=1 seed=12345
+      pair [Cells A] [Cells A] observed=1 expected=0000000000000000 z=7ff8000000000000 p=3fe0000000000000
+      pair [Cells A] [Cells B] observed=3 expected=4010000000000000 z=7ff8000000000000 p=3fe0000000000000
+      pair [Cells B] [Cells A] observed=3 expected=4010000000000000 z=7ff8000000000000 p=3fe0000000000000
+      pair [Cells B] [Cells B] observed=1 expected=3ff0000000000000 z=7ff8000000000000 p=3ff0000000000000
+    densities 0
+  region[1] [Right]
+    territories [Right] cells=4
+      cell object=1 label=3 area=405ca7a401185e30 edge=true neighbors={3,5} geometry=25c0842d835e4a15266da132d55e0e0a10e6f6b36f6e989f877c0eda90c39e7b
+      cell object=3 label=4 area=405d85a304c399b5 edge=true neighbors={1,5,7} geometry=4c474c0fcd0ff316162fab02593f1bbbf59eee9ee8a515eb3db9359386db3cc2
+      cell object=5 label=3 area=406384dde28a1a66 edge=true neighbors={1,3,7} geometry=1a9506ae96746c458739a56c49945d6b47e769633e8ae1ac25ed592cebc6fc67
+      cell object=7 label=4 area=4056c8fd350fd34f edge=true neighbors={3,5} geometry=47893b05425cbe8b1d20e7eb1774c5c71a77d275ebe1d08e68ac73801c84db2a
+      regularity included=4 sizeCv=3fccb43d2ab20660 areaCv=3fccb43d2ab20660 nnMean=40217a67f7a6d6f5 nnSd=3ffaf46590dbc35a nnRatio=4014bfeac2645391
+    interactions types=2 permutations=1 seed=12345
+      pair [Cells A] [Cells A] observed=1 expected=0000000000000000 z=7ff8000000000000 p=3fe0000000000000
+      pair [Cells A] [Cells B] observed=3 expected=4010000000000000 z=7ff8000000000000 p=3fe0000000000000
+      pair [Cells B] [Cells A] observed=3 expected=4010000000000000 z=7ff8000000000000 p=3fe0000000000000
+      pair [Cells B] [Cells B] observed=1 expected=3ff0000000000000 z=7ff8000000000000 p=3ff0000000000000
+    densities 0

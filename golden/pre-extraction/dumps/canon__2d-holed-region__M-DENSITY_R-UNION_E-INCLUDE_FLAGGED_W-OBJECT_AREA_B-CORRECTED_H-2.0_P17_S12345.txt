@@ -1,0 +1,18 @@
+case 2d-holed-region M-DENSITY_R-UNION_E-INCLUDE_FLAGGED_W-OBJECT_AREA_B-CORRECTED_H-2.0_P17_S12345
+image 32 32 3ff0000000000000 3ff0000000000000 unit=[pixel]
+warnings 1
+  warning[0] [Images are not spatially calibrated; distances and areas are in pixels.]
+objects 5
+  object 0 type=0 name=[Cells] label=1 cx=4010000000000000 cy=4010000000000000 area=4010000000000000
+  object 1 type=0 name=[Cells] label=5 cx=4030000000000000 cy=4010000000000000 area=4010000000000000
+  object 2 type=0 name=[Cells] label=2 cx=403b000000000000 cy=4010000000000000 area=4010000000000000
+  object 3 type=0 name=[Cells] label=3 cx=4010000000000000 cy=403b000000000000 area=4010000000000000
+  object 4 type=0 name=[Cells] label=4 cx=403b000000000000 cy=403b000000000000 area=4010000000000000
+regions 1
+  region[0] [All_Regions]
+    territories absent
+    interactions absent
+    densities 1
+      density region=[All_Regions] type=[Cells] weighting=OBJECT_SIZE boundary=CORRECTED bandwidth=4000000000000000
+        loo 5 0=0000000000000000 1=0000000000000000 2=0000000000000000 3=0000000000000000 4=0000000000000000
+        map title=[Cells_All_Regions_Density] w=32 h=32 d=1 cal=3ff0000000000000,3ff0000000000000,3ff0000000000000 unit=[pixel] finite=960 nan=64 min=0000000000000000 max=3fc4006720000000 sum=4033fffffe712600 sha256=f9523dedc22d180b66c06772d043ff92fc2a92071dbabbd736eca497a3002905

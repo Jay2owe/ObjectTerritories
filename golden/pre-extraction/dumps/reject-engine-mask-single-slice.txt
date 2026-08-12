@@ -1,0 +1,1 @@
+java.lang.IllegalArgumentException: 3D region mask must be one stack with at least two z slices

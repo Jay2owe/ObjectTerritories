@@ -1,0 +1,1 @@
+java.lang.IllegalArgumentException: analysisMode must not be null

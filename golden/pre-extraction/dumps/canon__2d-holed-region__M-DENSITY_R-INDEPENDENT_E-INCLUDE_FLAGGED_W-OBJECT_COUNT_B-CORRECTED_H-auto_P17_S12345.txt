@@ -1,0 +1,18 @@
+case 2d-holed-region M-DENSITY_R-INDEPENDENT_E-INCLUDE_FLAGGED_W-OBJECT_COUNT_B-CORRECTED_H-auto_P17_S12345
+image 32 32 3ff0000000000000 3ff0000000000000 unit=[pixel]
+warnings 1
+  warning[0] [Images are not spatially calibrated; distances and areas are in pixels.]
+objects 5
+  object 0 type=0 name=[Cells] label=1 cx=4010000000000000 cy=4010000000000000 area=4010000000000000
+  object 1 type=0 name=[Cells] label=5 cx=4030000000000000 cy=4010000000000000 area=4010000000000000
+  object 2 type=0 name=[Cells] label=2 cx=403b000000000000 cy=4010000000000000 area=4010000000000000
+  object 3 type=0 name=[Cells] label=3 cx=4010000000000000 cy=403b000000000000 area=4010000000000000
+  object 4 type=0 name=[Cells] label=4 cx=403b000000000000 cy=403b000000000000 area=4010000000000000
+regions 1
+  region[0] [Ring]
+    territories absent
+    interactions absent
+    densities 1
+      density region=[Ring] type=[Cells] weighting=OBJECT_COUNT boundary=CORRECTED bandwidth=40226e00ec49cbf7
+        loo 5 0=3f5db6ffc0854d6f 1=3f70f7806cd1b3fd 2=3f6090bca5498530 3=3f3d4ebd8040b83c 4=3f3de7610a368d12
+        map title=[Cells_Ring_Density] w=32 h=32 d=1 cal=3ff0000000000000,3ff0000000000000,3ff0000000000000 unit=[pixel] finite=960 nan=64 min=3f6ab28c20000000 max=3f7eb37180000000 sum=4013fffffefc0000 sha256=ca9e3c2d4cf9c791c4fdc5344bda16cddf75c0bf39176bd692e9dff588ba463a

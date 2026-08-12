@@ -1,0 +1,35 @@
+case 2d-three-types-calibrated M-TERRITORIES_R-UNION_E-EXCLUDE_FROM_SUMMARIES_W-BOTH_B-CORRECTED_H-auto_P101_S7
+image 30 26 3fd4cccccccccccd 3fd4cccccccccccd unit=[micron]
+warnings 0
+objects 8
+  object 0 type=0 name=[Type A] label=1 cx=3ff4cccccccccccd cy=3ff4cccccccccccd area=3fdb0a3d70a3d70b
+  object 1 type=0 name=[Type A] label=2 cx=4020400000000000 cy=3ff4cccccccccccd area=3fdb0a3d70a3d70b
+  object 2 type=0 name=[Type A] label=3 cx=4010e66666666667 cy=400f333333333334 area=3fdb0a3d70a3d70b
+  object 3 type=1 name=[Type B] label=1 cx=3ffa000000000000 cy=401a000000000000 area=3fdb0a3d70a3d70b
+  object 4 type=1 name=[Type B] label=2 cx=4020400000000000 cy=401a000000000000 area=3fdb0a3d70a3d70b
+  object 5 type=2 name=[Type C] label=1 cx=4014cccccccccccd cy=3ff4cccccccccccd area=3fdb0a3d70a3d70b
+  object 6 type=2 name=[Type C] label=3 cx=401de66666666667 cy=400f333333333334 area=3fdb0a3d70a3d70b
+  object 7 type=2 name=[Type C] label=2 cx=4014cccccccccccd cy=401b4ccccccccccd area=3fdb0a3d70a3d70b
+regions 1
+  region[0] [All_Regions]
+    territories [All_Regions] cells=8
+      cell object=0 label=1 area=4021f4c67009a33d edge=true neighbors={2,3,5} geometry=d10c0e121c9f1bde918ef1f723577e1009df85399419315acee62600b60a3700
+      cell object=1 label=2 area=4019cfe666666668 edge=true neighbors={5,6} geometry=7ea723f9c71945bce77b8d746158ddabf83fbf232db4aa376005d7b917032c7d
+      cell object=2 label=3 area=40248fd61c82e950 edge=false neighbors={0,3,5,6,7} geometry=951d5ae4ab5d191e2ba63b5dae2f56818b4d9d891e57101fec9096b5da6b0158
+      cell object=3 label=1 area=4026b31df16f1b52 edge=true neighbors={0,2,7} geometry=6ed33805a32d2142a718ff57ef94ec4887651035e2a23654a4bddc86bb8f9709
+      cell object=4 label=2 area=402068e21c3aac24 edge=true neighbors={6,7} geometry=ad3c27cff24e53a089ab5ef0c635a19ba171b0a51acd5c9ee50ff8049a23d71e
+      cell object=5 label=1 area=401ea6ab851eb852 edge=true neighbors={0,1,2,6} geometry=bd111610cb3dccf2fba5197f6a0638a442e1d4a8a45c3c03a40b8228f007cbf7
+      cell object=6 label=3 area=4021f220c2d635b2 edge=true neighbors={1,2,4,5,7} geometry=e5eef96255f63017e3939e12b273fc56024c255f518285a7d7e418b622d67cd8
+      cell object=7 label=2 area=402227bc3c8d0fe5 edge=true neighbors={2,3,4,6} geometry=d2aebc2b1c7a2b28df940a6cbff485ff070635ee9e251fda8ca40e8c9acbe82d
+      regularity included=1 sizeCv=7ff8000000000000 areaCv=7ff8000000000000 nnMean=400636e38e7be7a2 nnSd=7ff8000000000000 nnRatio=7ff8000000000000
+    interactions types=3 permutations=101 seed=7
+      pair [Type A] [Type A] observed=0 expected=0000000000000000 z=0000000000000000 p=3ff0000000000000
+      pair [Type A] [Type B] observed=0 expected=0000000000000000 z=0000000000000000 p=3ff0000000000000
+      pair [Type A] [Type C] observed=0 expected=0000000000000000 z=0000000000000000 p=3ff0000000000000
+      pair [Type B] [Type A] observed=0 expected=0000000000000000 z=0000000000000000 p=3ff0000000000000
+      pair [Type B] [Type B] observed=0 expected=0000000000000000 z=0000000000000000 p=3ff0000000000000
+      pair [Type B] [Type C] observed=0 expected=0000000000000000 z=0000000000000000 p=3ff0000000000000
+      pair [Type C] [Type A] observed=0 expected=0000000000000000 z=0000000000000000 p=3ff0000000000000
+      pair [Type C] [Type B] observed=0 expected=0000000000000000 z=0000000000000000 p=3ff0000000000000
+      pair [Type C] [Type C] observed=0 expected=0000000000000000 z=0000000000000000 p=3ff0000000000000
+    densities 0

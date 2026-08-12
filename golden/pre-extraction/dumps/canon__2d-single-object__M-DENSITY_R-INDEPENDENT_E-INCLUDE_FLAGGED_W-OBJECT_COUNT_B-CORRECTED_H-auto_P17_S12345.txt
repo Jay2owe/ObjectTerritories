@@ -1,0 +1,14 @@
+case 2d-single-object M-DENSITY_R-INDEPENDENT_E-INCLUDE_FLAGGED_W-OBJECT_COUNT_B-CORRECTED_H-auto_P17_S12345
+image 24 24 3ff0000000000000 3ff0000000000000 unit=[pixel]
+warnings 1
+  warning[0] [Images are not spatially calibrated; distances and areas are in pixels.]
+objects 1
+  object 0 type=0 name=[Cells] label=1 cx=4028000000000000 cy=4028000000000000 area=4010000000000000
+regions 1
+  region[0] [Field]
+    territories absent
+    interactions absent
+    densities 1
+      density region=[Field] type=[Cells] weighting=OBJECT_COUNT boundary=CORRECTED bandwidth=4008000000000000
+        loo 1 0=0000000000000000
+        map title=[Cells_Field_Density] w=24 h=24 d=1 cal=3ff0000000000000,3ff0000000000000,3ff0000000000000 unit=[pixel] finite=576 nan=0 min=0000000000000000 max=3f91ac0d80000000 sum=3ff00000008e4300 sha256=0df3c1997740af82889f351924317a79a82f495cc815dadd8202a4d46946c55f

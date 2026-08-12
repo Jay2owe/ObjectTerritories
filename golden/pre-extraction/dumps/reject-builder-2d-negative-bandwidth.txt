@@ -1,0 +1,1 @@
+java.lang.IllegalArgumentException: bandwidthMicrons must be finite and at least zero

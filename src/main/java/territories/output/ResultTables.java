@@ -3,13 +3,13 @@ package territories.output;
 import ij.measure.ResultsTable;
 import territories.api.ObjectTerritoriesResult;
 import territories.api.RegionAnalysisResult;
-import territories.api.DensityWeighting;
-import territories.core.DensityResult;
-import territories.core.InteractionMatrixResult;
-import territories.core.RegularityResult;
-import territories.core.SpatialObject2D;
-import territories.core.TerritoryCell;
-import territories.core.TerritoryResult;
+import sc.fiji.territories.core.DensityWeighting;
+import sc.fiji.territories.core.DensityResult;
+import sc.fiji.territories.core.InteractionMatrixResult;
+import sc.fiji.territories.core.RegularityResult;
+import sc.fiji.territories.core.SpatialObject2D;
+import sc.fiji.territories.core.TerritoryCell;
+import sc.fiji.territories.core.TerritoryResult;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -19,12 +19,67 @@ import java.util.Map;
 /** Builds standalone ImageJ tables without showing global result windows. */
 public final class ResultTables {
 
+    /**
+     * ImageJ's {@link ResultsTable} formats values with three decimal places by
+     * default, which silently truncates calibrated densities and areas in both
+     * saved CSVs and displayed tables. Nine is the highest precision the
+     * ImageJ formatter honours.
+     */
+    static final int EXPORT_PRECISION = 9;
+
+    /**
+     * Nine decimal places keep at least seven significant digits down to 1e-3.
+     * Below that, fixed-point formatting starts discarding them — a calibrated
+     * density of 6.3e-8 would be written as "0.000000063" — so such columns are
+     * switched to scientific notation, which ImageJ selects for negative digits.
+     */
+    private static final double SCIENTIFIC_THRESHOLD = 1.0e-3;
+
+    /**
+     * ImageJ also abandons fixed-point above this magnitude, falling back to
+     * three decimals — four significant digits. Volumes in nm^3 reach it
+     * easily, so such columns need the same treatment as tiny ones.
+     */
+    private static final double LARGE_VALUE_THRESHOLD = 999999999999.0;
+
     private ResultTables() {
+    }
+
+    static ResultsTable newTable() {
+        ResultsTable table = new ResultsTable();
+        table.setPrecision(EXPORT_PRECISION);
+        return table;
+    }
+
+    /**
+     * Chooses a per-column format that preserves the analysed values. Columns
+     * holding text (stored as NaN) and columns of comfortably large values keep
+     * ImageJ's readable fixed-point rendering.
+     */
+    static void applyExportPrecision(ResultsTable table) {
+        int lastColumn = table.getLastColumn();
+        int rows = table.getCounter();
+        for (int column = 0; column <= lastColumn; column++) {
+            if (table.getColumnHeading(column) == null) continue;
+            double smallest = Double.POSITIVE_INFINITY;
+            double largest = 0.0;
+            for (int row = 0; row < rows; row++) {
+                double value = table.getValueAsDouble(column, row);
+                if (!Double.isFinite(value) || value == 0.0) continue;
+                smallest = Math.min(smallest, Math.abs(value));
+                largest = Math.max(largest, Math.abs(value));
+            }
+            boolean tooSmall = Double.isFinite(smallest) && smallest < SCIENTIFIC_THRESHOLD;
+            boolean tooLarge = largest > LARGE_VALUE_THRESHOLD;
+            if (tooSmall || tooLarge) {
+                table.setDecimalPlaces(column, -EXPORT_PRECISION);
+            }
+        }
     }
 
     public static ResultsTable objects(
             ObjectTerritoriesResult complete, RegionAnalysisResult region) {
-        ResultsTable table = new ResultsTable();
+        ResultsTable table = newTable();
         Map<Integer, TerritoryCell> cells = new HashMap<Integer, TerritoryCell>();
         TerritoryResult territories = region.getTerritories();
         if (territories != null) {
@@ -71,11 +126,12 @@ public final class ResultTables {
                 table.addValue("Local_Size_Density_LOO", areaDensity.get(object.getIndex()));
             }
         }
+        applyExportPrecision(table);
         return table;
     }
 
     public static ResultsTable interactions(RegionAnalysisResult region) {
-        ResultsTable table = new ResultsTable();
+        ResultsTable table = newTable();
         InteractionMatrixResult interactions = region.getInteractions();
         if (interactions == null) return table;
         List<String> types = interactions.getTypes();
@@ -97,11 +153,12 @@ public final class ResultTables {
                 table.addValue("Seed", Long.toString(interactions.getSeed()));
             }
         }
+        applyExportPrecision(table);
         return table;
     }
 
     public static ResultsTable regularity(RegionAnalysisResult region) {
-        ResultsTable table = new ResultsTable();
+        ResultsTable table = newTable();
         if (region.getTerritories() == null) return table;
         RegularityResult regularity = region.getTerritories().getRegularity();
         table.incrementCounter();
@@ -113,6 +170,7 @@ public final class ResultTables {
         table.addValue("NN_Mean", regularity.getNearestNeighborMean());
         table.addValue("NN_SD", regularity.getNearestNeighborStandardDeviation());
         table.addValue("NN_Mean_Over_SD", regularity.getNearestNeighborRegularityRatio());
+        applyExportPrecision(table);
         return table;
     }
 

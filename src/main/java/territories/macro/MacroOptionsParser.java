@@ -64,7 +64,7 @@ public final class MacroOptionsParser {
         long seed = longValue(tokens.get("seed"), ObjectTerritoriesParameters.DEFAULT_SEED, "seed");
         String output = tokens.containsKey("output")
                 ? requireSafeValue(tokens.get("output"), "output") : null;
-        boolean hideResults = tokens.containsKey("hide_results");
+        boolean hideResults = flag(tokens.get("hide_results"), "hide_results");
 
         return new ObjectTerritoriesMacroOptions(
                 labels, regions, regionMask, mode, regionMode, edgePolicy, weighting,
@@ -116,6 +116,29 @@ public final class MacroOptionsParser {
             }
         }
         return values;
+    }
+
+    /**
+     * Reads a checkbox option. ImageJ records a ticked box as a bare key, which
+     * the tokenizer stores as "true"; an explicit value is honoured so that
+     * {@code hide_results=false} does not silently mean the opposite.
+     */
+    private static boolean flag(String value, String key) {
+        if (value == null) return false;
+        String normalized = value.trim().toLowerCase(Locale.ROOT);
+        if (normalized.equals("true")
+                || normalized.equals("1")
+                || normalized.equals("yes")
+                || normalized.equals("on")) {
+            return true;
+        }
+        if (normalized.equals("false")
+                || normalized.equals("0")
+                || normalized.equals("no")
+                || normalized.equals("off")) {
+            return false;
+        }
+        throw new IllegalArgumentException(key + " must be true or false");
     }
 
     private static boolean isKeyCharacter(char value) {

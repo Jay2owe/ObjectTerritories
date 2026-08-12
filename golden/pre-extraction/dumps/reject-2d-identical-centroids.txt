@@ -1,0 +1,1 @@
+java.lang.IllegalArgumentException: objects Cells A:1 and Cells B:1 have identical centroids; a Voronoi territory is undefined

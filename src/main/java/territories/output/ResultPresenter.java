@@ -9,8 +9,8 @@ import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.util.AffineTransformation;
 import territories.api.ObjectTerritoriesResult;
 import territories.api.RegionAnalysisResult;
-import territories.core.DensityResult;
-import territories.core.TerritoryCell;
+import sc.fiji.territories.core.DensityResult;
+import sc.fiji.territories.core.TerritoryCell;
 
 /** Interactive-only display of tables, overlays, and calibrated density maps. */
 public final class ResultPresenter {
@@ -25,6 +25,8 @@ public final class ResultPresenter {
             ResultTables.objects(result, region).show("Object Territories Objects" + suffix);
             if (region.getInteractions() != null) {
                 ResultTables.interactions(region).show("Object Territories Interactions" + suffix);
+            }
+            if (region.getTerritories() != null) {
                 ResultTables.regularity(region).show("Object Territories Regularity" + suffix);
                 showTerritoryOverlay(region, referenceImage);
             }

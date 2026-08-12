@@ -1,0 +1,25 @@
+case 2d-all-objects-one-type-dense M-DENSITY_R-INDEPENDENT_E-INCLUDE_FLAGGED_W-OBJECT_COUNT_B-CORRECTED_H-auto_P17_S12345
+image 30 30 3ff0000000000000 3ff0000000000000 unit=[pixel]
+warnings 1
+  warning[0] [Images are not spatially calibrated; distances and areas are in pixels.]
+objects 12
+  object 0 type=0 name=[Cells] label=1 cx=4010000000000000 cy=4010000000000000 area=4010000000000000
+  object 1 type=0 name=[Cells] label=2 cx=4026000000000000 cy=4010000000000000 area=4010000000000000
+  object 2 type=0 name=[Cells] label=3 cx=4032000000000000 cy=4010000000000000 area=4010000000000000
+  object 3 type=0 name=[Cells] label=4 cx=4039000000000000 cy=4010000000000000 area=4010000000000000
+  object 4 type=0 name=[Cells] label=5 cx=4010000000000000 cy=4028000000000000 area=4010000000000000
+  object 5 type=0 name=[Cells] label=7 cx=4033000000000000 cy=4028000000000000 area=4010000000000000
+  object 6 type=0 name=[Cells] label=6 cx=4028000000000000 cy=402a000000000000 area=4010000000000000
+  object 7 type=0 name=[Cells] label=8 cx=403a000000000000 cy=402a000000000000 area=4010000000000000
+  object 8 type=0 name=[Cells] label=9 cx=4010000000000000 cy=4035000000000000 area=4010000000000000
+  object 9 type=0 name=[Cells] label=11 cx=4033000000000000 cy=4035000000000000 area=4010000000000000
+  object 10 type=0 name=[Cells] label=10 cx=4026000000000000 cy=4036000000000000 area=4010000000000000
+  object 11 type=0 name=[Cells] label=12 cx=403a000000000000 cy=4036000000000000 area=4010000000000000
+regions 1
+  region[0] [Field]
+    territories absent
+    interactions absent
+    densities 1
+      density region=[Field] type=[Cells] weighting=OBJECT_COUNT boundary=CORRECTED bandwidth=40150f8102cffdc2
+        loo 12 0=3f7935d714d5bcec 1=3f84efe1461a6f36 2=3f84fab2805dbf08 3=3f78cd18a8b7fdc6 4=3f80d4eb5f55c83a 5=3f897a731eec0078 6=3f875e07020757d0 7=3f8013be2b354845 8=3f746f0cf536946e 9=3f81410ad56c3556 10=3f7e231b7bdd2d09 11=3f7387f0fdf62354
+        map title=[Cells_Field_Density] w=30 h=30 d=1 cal=3ff0000000000000,3ff0000000000000,3ff0000000000000 unit=[pixel] finite=900 nan=0 min=3f60654c00000000 max=3f93e39940000000 sum=4028000001a40000 sha256=155089025f2481e87fb9ff90cb16cc98f80dca55e14aa757658249e1af368b50

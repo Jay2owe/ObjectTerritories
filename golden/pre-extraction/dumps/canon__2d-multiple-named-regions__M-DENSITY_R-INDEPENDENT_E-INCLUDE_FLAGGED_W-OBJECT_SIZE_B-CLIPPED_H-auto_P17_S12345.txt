@@ -1,0 +1,34 @@
+case 2d-multiple-named-regions M-DENSITY_R-INDEPENDENT_E-INCLUDE_FLAGGED_W-OBJECT_SIZE_B-CLIPPED_H-auto_P17_S12345
+image 40 24 3ff0000000000000 3ff0000000000000 unit=[pixel]
+warnings 1
+  warning[0] [Images are not spatially calibrated; distances and areas are in pixels.]
+objects 8
+  object 0 type=0 name=[Cells A] label=1 cx=4010000000000000 cy=4014000000000000 area=4010000000000000
+  object 1 type=0 name=[Cells A] label=3 cx=4039000000000000 cy=4014000000000000 area=4010000000000000
+  object 2 type=0 name=[Cells A] label=2 cx=402a000000000000 cy=4018000000000000 area=4010000000000000
+  object 3 type=0 name=[Cells A] label=4 cx=4041800000000000 cy=401c000000000000 area=4010000000000000
+  object 4 type=1 name=[Cells B] label=1 cx=401c000000000000 cy=4030000000000000 area=4010000000000000
+  object 5 type=1 name=[Cells B] label=3 cx=403d000000000000 cy=4030000000000000 area=4010000000000000
+  object 6 type=1 name=[Cells B] label=2 cx=4031000000000000 cy=4031000000000000 area=4010000000000000
+  object 7 type=1 name=[Cells B] label=4 cx=4042000000000000 cy=4032000000000000 area=4010000000000000
+regions 2
+  region[0] [Left]
+    territories absent
+    interactions absent
+    densities 2
+      density region=[Left] type=[Cells A] weighting=OBJECT_SIZE boundary=CLIPPED bandwidth=400932cbb7f0cf2e
+        loo 2 0=3f50dd83208978d2 2=3f50dd83208978d2
+        map title=[Cells_A_Left_Density] w=40 h=24 d=1 cal=3ff0000000000000,3ff0000000000000,3ff0000000000000 unit=[pixel] finite=480 nan=480 min=0000000000000000 max=3fb07182e0000000 sum=401ceb00d237d100 sha256=c292a244810774817149fe766e41d35a2735a5db5099ae9f1e72c19012f801ff
+      density region=[Left] type=[Cells B] weighting=OBJECT_SIZE boundary=CLIPPED bandwidth=400bb7e017227d7f
+        loo 2 4=3f49e27249ae253e 6=3f49e27249ae253e
+        map title=[Cells_B_Left_Density] w=40 h=24 d=1 cal=3ff0000000000000,3ff0000000000000,3ff0000000000000 unit=[pixel] finite=480 nan=480 min=0000000000000000 max=3fab37ee60000000 sum=401c1b9bb41def00 sha256=e42388308c9b8d4e6a18f68bd6591600851ec94e09330051b110606b2dad71ad
+  region[1] [Right]
+    territories absent
+    interactions absent
+    densities 2
+      density region=[Right] type=[Cells A] weighting=OBJECT_SIZE boundary=CLIPPED bandwidth=400e3cf476542bd1
+        loo 2 1=3f532bb328f35aea 3=3f532bb328f35aea
+        map title=[Cells_A_Right_Density] w=40 h=24 d=1 cal=3ff0000000000000,3ff0000000000000,3ff0000000000000 unit=[pixel] finite=480 nan=480 min=0000000000000000 max=3fa750b100000000 sum=401b39166c22b100 sha256=bf694fcf7e6892f93b7c051f110a87c2ea6aac4f5786ba55696d5a4287a559be
+      density region=[Right] type=[Cells B] weighting=OBJECT_SIZE boundary=CLIPPED bandwidth=4006adb758bf20dc
+        loo 2 5=3f67fe724c494868 7=3f67fe724c494868
+        map title=[Cells_B_Right_Density] w=40 h=24 d=1 cal=3ff0000000000000,3ff0000000000000,3ff0000000000000 unit=[pixel] finite=480 nan=480 min=0000000000000000 max=3fb4ee6700000000 sum=401e6be5caf43100 sha256=41e41304569078b5e016418002d571b3d33d66e7cca108b92c00946c477a965d

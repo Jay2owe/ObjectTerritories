@@ -1,0 +1,26 @@
+case 2d-oval-region M-BOTH_R-UNION_E-INCLUDE_FLAGGED_W-BOTH_B-CORRECTED_H-auto_P17_S12345
+image 32 32 3ff0000000000000 3ff0000000000000 unit=[pixel]
+warnings 1
+  warning[0] [Images are not spatially calibrated; distances and areas are in pixels.]
+objects 4
+  object 0 type=0 name=[Cells] label=1 cx=4030000000000000 cy=401c000000000000 area=4010000000000000
+  object 1 type=0 name=[Cells] label=2 cx=4022000000000000 cy=4030000000000000 area=4010000000000000
+  object 2 type=0 name=[Cells] label=3 cx=4037000000000000 cy=4030000000000000 area=4010000000000000
+  object 3 type=0 name=[Cells] label=4 cx=4030000000000000 cy=4037000000000000 area=4010000000000000
+regions 1
+  region[0] [All_Regions]
+    territories [All_Regions] cells=4
+      cell object=0 label=1 area=4061955555555555 edge=true neighbors={1,2} geometry=028f22f0956aaf1eacec8a24f8e28c0a4fe787731be789254e7a068444fd9ad0
+      cell object=1 label=2 area=4064155555555557 edge=true neighbors={0,2,3} geometry=27a5de2289139d84f856e53ec07be48553e7f65132c5a0c363e0277f00637448
+      cell object=2 label=3 area=4064155555555556 edge=true neighbors={0,1,3} geometry=316e9b6afae007a39d929fc906fe8eb57f790c93283a0f85b1f6650f1fc8fb9b
+      cell object=3 label=4 area=4063400000000000 edge=true neighbors={1,2} geometry=cc48aef4e10585ac3861c20ffbeeafc1e571ed18ddd624c4eb2df2d34dd703bc
+      regularity included=4 sizeCv=3faf58682c76a07d areaCv=3faf58682c76a07d nnMean=40248cd4a23003f9 nnSd=3fe809411015f4bf nnRatio=402b5be43775837a
+    interactions types=1 permutations=17 seed=12345
+      pair [Cells] [Cells] observed=5 expected=4014000000000000 z=0000000000000000 p=3ff0000000000000
+    densities 2
+      density region=[All_Regions] type=[Cells] weighting=OBJECT_COUNT boundary=CORRECTED bandwidth=40137b66cfcc0280
+        loo 4 0=3f50158f9e3cc574 1=3f5ac3bc57f5add8 2=3f5ac3713c2f2dc7 3=3f5f92d9288a2ae0
+        map title=[Cells_All_Regions_Density] w=32 h=32 d=1 cal=3ff0000000000000,3ff0000000000000,3ff0000000000000 unit=[pixel] finite=616 nan=408 min=3f603b1600000000 max=3f8539f700000000 sum=4010000001980000 sha256=1e779095983d99d8c7d723d2f3b0d162ab226571ad90c362a9129faf8b56635b
+      density region=[All_Regions] type=[Cells] weighting=OBJECT_SIZE boundary=CORRECTED bandwidth=40137b66cfcc0280
+        loo 4 0=3f70158f9e3cc574 1=3f7ac3bc57f5add8 2=3f7ac3713c2f2dc7 3=3f7f92d9288a2ae0
+        map title=[Cells_All_Regions_Density] w=32 h=32 d=1 cal=3ff0000000000000,3ff0000000000000,3ff0000000000000 unit=[pixel] finite=616 nan=408 min=3f803b1600000000 max=3fa539f700000000 sum=4030000001980000 sha256=b5c51985e863148f9a95079c79359c797b78df7359023f9283be71687aa4da71

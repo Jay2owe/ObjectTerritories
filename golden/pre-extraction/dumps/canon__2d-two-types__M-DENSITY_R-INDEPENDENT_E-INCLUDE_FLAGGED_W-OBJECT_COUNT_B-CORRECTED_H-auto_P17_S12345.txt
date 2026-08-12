@@ -1,0 +1,24 @@
+case 2d-two-types M-DENSITY_R-INDEPENDENT_E-INCLUDE_FLAGGED_W-OBJECT_COUNT_B-CORRECTED_H-auto_P17_S12345
+image 32 32 3ff0000000000000 3ff0000000000000 unit=[pixel]
+warnings 1
+  warning[0] [Images are not spatially calibrated; distances and areas are in pixels.]
+objects 8
+  object 0 type=0 name=[Cells A] label=1 cx=4012000000000000 cy=4012000000000000 area=4022000000000000
+  object 1 type=0 name=[Cells A] label=2 cx=4039800000000000 cy=4016000000000000 area=4022000000000000
+  object 2 type=0 name=[Cells A] label=3 cx=401e000000000000 cy=4039800000000000 area=4022000000000000
+  object 3 type=0 name=[Cells A] label=4 cx=403a000000000000 cy=403a000000000000 area=4010000000000000
+  object 4 type=1 name=[Cells B] label=1 cx=402f000000000000 cy=401e000000000000 area=4022000000000000
+  object 5 type=1 name=[Cells B] label=2 cx=4021000000000000 cy=402f000000000000 area=4022000000000000
+  object 6 type=1 name=[Cells B] label=3 cx=4037800000000000 cy=4030800000000000 area=4022000000000000
+  object 7 type=1 name=[Cells B] label=4 cx=4030800000000000 cy=4038800000000000 area=4022000000000000
+regions 1
+  region[0] [Field]
+    territories absent
+    interactions absent
+    densities 2
+      density region=[Field] type=[Cells A] weighting=OBJECT_COUNT boundary=CORRECTED bandwidth=40229e86e4815577
+        loo 4 0=3f40bece338d7756 1=3f455e379dbd8ab0 2=3f4a9bac3a1b3140 3=3f487a46342801ac
+        map title=[Cells_A_Field_Density] w=32 h=32 d=1 cal=3ff0000000000000,3ff0000000000000,3ff0000000000000 unit=[pixel] finite=1024 nan=0 min=3f6089de40000000 max=3f72d3d300000000 sum=400fffffff780000 sha256=4bb175c536c28beee24a84e55113cf22620d008f21d4acf7073b455664167cb7
+      density region=[Field] type=[Cells B] weighting=OBJECT_COUNT boundary=CORRECTED bandwidth=4014c74170c2ddee
+        loo 4 4=3f5386696b7aa37f 5=3f5591dce534bcf9 6=3f55924a448a6afe 7=3f5386f661f89f41
+        map title=[Cells_B_Field_Density] w=32 h=32 d=1 cal=3ff0000000000000,3ff0000000000000,3ff0000000000000 unit=[pixel] finite=1024 nan=0 min=3f0472b500000000 max=3f80c5d500000000 sum=4010000000126000 sha256=95ffe7edf45876cd0998c1af106cd3b9314ac0ab1f7169914e8ba87292386fe1

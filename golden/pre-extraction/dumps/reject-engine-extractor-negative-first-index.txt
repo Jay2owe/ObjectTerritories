@@ -1,0 +1,1 @@
+java.lang.IllegalArgumentException: firstObjectIndex must be non-negative

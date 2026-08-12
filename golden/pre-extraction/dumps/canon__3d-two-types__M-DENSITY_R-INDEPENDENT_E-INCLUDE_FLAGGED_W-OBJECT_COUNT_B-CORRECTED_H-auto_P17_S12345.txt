@@ -1,0 +1,19 @@
+case 3d-two-types M-DENSITY_R-INDEPENDENT_E-INCLUDE_FLAGGED_W-OBJECT_COUNT_B-CORRECTED_H-auto_P17_S12345
+warnings 1
+  warning[0] [Stacks are not spatially calibrated; distances, areas, and volumes use pixels.]
+objects 4
+  object 0 type=0 name=[Cells A] label=1 cx=4010000000000000 cy=4010000000000000 cz=4000000000000000 volume=4020000000000000
+  object 1 type=0 name=[Cells A] label=2 cx=4030000000000000 cy=4014000000000000 cz=4008000000000000 volume=4020000000000000
+  object 2 type=1 name=[Cells B] label=1 cx=4014000000000000 cy=4030000000000000 cz=4000000000000000 volume=4020000000000000
+  object 3 type=1 name=[Cells B] label=2 cx=4030000000000000 cy=4030000000000000 cz=4010000000000000 volume=4020000000000000
+regions 1
+  region[0] [Mask]
+    territories absent
+    interactions absent
+    densities 2
+      density region=[Mask] type=[Cells A] weighting=OBJECT_COUNT boundary=CORRECTED bandwidth=4007e8ee3717d373
+        loo 2 0=0000000000000000 1=0000000000000000
+        volume title=[Cells_A_Mask_Density_3D] w=20 h=20 d=6 cal=3ff0000000000000,3ff0000000000000,3ff0000000000000 unit=[pixel] finite=1944 nan=456 min=0000000000000000 max=3f73ead060000000 sum=3fffffffff8de400 sha256=84db06d1543d663197de0d5df412f137ed6f63ac3b84204f379a11d4e650ea24
+      density region=[Mask] type=[Cells B] weighting=OBJECT_COUNT boundary=CORRECTED bandwidth=400633b8a0df4459
+        loo 2 2=0000000000000000 3=0000000000000000
+        volume title=[Cells_B_Mask_Density_3D] w=20 h=20 d=6 cal=3ff0000000000000,3ff0000000000000,3ff0000000000000 unit=[pixel] finite=1944 nan=456 min=0000000000000000 max=3f76986c80000000 sum=3ffffffffffb4000 sha256=62425c82592dcbdbfe7507d6ea2ff1b6489f805e9984bf60911a18e549c5b3fb

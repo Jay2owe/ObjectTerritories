@@ -1,0 +1,1 @@
+java.lang.IllegalArgumentException: label image 'Cells' contains a non-positive or non-integer label at (2, 3, 1): 2.5

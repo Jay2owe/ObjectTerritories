@@ -1,7 +1,7 @@
 package territories.api;
 
-import territories.core.DensityResult3D;
-import territories.core.SpatialObject3D;
+import sc.fiji.territories.core.DensityResult3D;
+import sc.fiji.territories.core.SpatialObject3D;
 
 import java.util.ArrayList;
 import java.util.Collections;

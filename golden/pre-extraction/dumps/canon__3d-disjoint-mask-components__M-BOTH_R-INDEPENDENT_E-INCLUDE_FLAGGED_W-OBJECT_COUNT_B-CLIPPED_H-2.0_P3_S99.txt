@@ -1,0 +1,23 @@
+case 3d-disjoint-mask-components M-BOTH_R-INDEPENDENT_E-INCLUDE_FLAGGED_W-OBJECT_COUNT_B-CLIPPED_H-2.0_P3_S99
+warnings 1
+  warning[0] [Stacks are not spatially calibrated; distances, areas, and volumes use pixels.]
+objects 4
+  object 0 type=0 name=[Cells] label=1 cx=4008000000000000 cy=4010000000000000 cz=4000000000000000 volume=4020000000000000
+  object 1 type=0 name=[Cells] label=3 cx=4034000000000000 cy=4010000000000000 cz=4000000000000000 volume=4020000000000000
+  object 2 type=0 name=[Cells] label=2 cx=401c000000000000 cy=401c000000000000 cz=4000000000000000 volume=4020000000000000
+  object 3 type=0 name=[Cells] label=4 cx=4037000000000000 cy=401c000000000000 cz=4000000000000000 volume=4020000000000000
+regions 1
+  region[0] [Mask]
+    territories [Mask] cells=4
+      cell object=0 label=1 voxels=342 volume=4075600000000000 edge=true neighbors={2}
+      cell object=1 label=3 voxels=390 volume=4078600000000000 edge=true neighbors={3}
+      cell object=2 label=2 voxels=378 volume=4077a00000000000 edge=true neighbors={0}
+      cell object=3 label=4 voxels=330 volume=4074a00000000000 edge=true neighbors={1}
+      regularity included=4 sizeCv=3fb4503abf6a24d7 areaCv=3fb4503abf6a24d7 nnMean=40127c3b666fb66c nnSd=3fdbfc181758f5ab nnRatio=40252336bacb5ce9
+      labels title=[Mask_Territories_3D] w=26 h=12 d=6 cal=3ff0000000000000,3ff0000000000000,3ff0000000000000 unit=[pixel] finite=1872 nan=0 min=0000000000000000 max=4010000000000000 sum=40abf00000000000 sha256=e335dcbb33b46548ea964e5caa9cf9c97c9fa64b9649d8453e23ce0637c1b0d7
+    interactions types=1 permutations=3 seed=99
+      pair [Cells] [Cells] observed=2 expected=4000000000000000 z=0000000000000000 p=3ff0000000000000
+    densities 1
+      density region=[Mask] type=[Cells] weighting=OBJECT_COUNT boundary=CLIPPED bandwidth=4000000000000000
+        loo 4 0=3f36da7531d52d84 1=3f4b694263476e3d 2=3f36da7531d52d84 3=3f4b694263476e3d
+        volume title=[Cells_Mask_Density_3D] w=26 h=12 d=6 cal=3ff0000000000000,3ff0000000000000,3ff0000000000000 unit=[pixel] finite=1440 nan=432 min=0000000000000000 max=3f821a1fe0000000 sum=40088196ca798400 sha256=4856b13926a8480d54c047e992c486a23d51f38ec0f2d469b126a1417e9c76f7

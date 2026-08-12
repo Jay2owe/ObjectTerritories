@@ -1,0 +1,14 @@
+case 2d-single-object M-DENSITY_R-UNION_E-INCLUDE_FLAGGED_W-OBJECT_AREA_B-CORRECTED_H-2.0_P17_S12345
+image 24 24 3ff0000000000000 3ff0000000000000 unit=[pixel]
+warnings 1
+  warning[0] [Images are not spatially calibrated; distances and areas are in pixels.]
+objects 1
+  object 0 type=0 name=[Cells] label=1 cx=4028000000000000 cy=4028000000000000 area=4010000000000000
+regions 1
+  region[0] [All_Regions]
+    territories absent
+    interactions absent
+    densities 1
+      density region=[All_Regions] type=[Cells] weighting=OBJECT_SIZE boundary=CORRECTED bandwidth=4000000000000000
+        loo 1 0=0000000000000000
+        map title=[Cells_All_Regions_Density] w=24 h=24 d=1 cal=3ff0000000000000,3ff0000000000000,3ff0000000000000 unit=[pixel] finite=576 nan=0 min=0000000000000000 max=3fc33129e0000000 sum=40100000006d7c00 sha256=0a7e2453d0107e8e80c231fb3131eff675277fdad31e7b5481cb094d7cae84ba

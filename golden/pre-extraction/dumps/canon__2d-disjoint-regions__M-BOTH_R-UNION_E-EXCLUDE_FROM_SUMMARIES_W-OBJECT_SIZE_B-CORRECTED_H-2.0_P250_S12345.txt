@@ -1,0 +1,23 @@
+case 2d-disjoint-regions M-BOTH_R-UNION_E-EXCLUDE_FROM_SUMMARIES_W-OBJECT_SIZE_B-CORRECTED_H-2.0_P250_S12345
+image 40 20 3ff0000000000000 3ff0000000000000 unit=[pixel]
+warnings 1
+  warning[0] [Images are not spatially calibrated; distances and areas are in pixels.]
+objects 4
+  object 0 type=0 name=[Cells] label=1 cx=4010000000000000 cy=4014000000000000 area=4010000000000000
+  object 1 type=0 name=[Cells] label=3 cx=403c000000000000 cy=4014000000000000 area=4010000000000000
+  object 2 type=0 name=[Cells] label=2 cx=4028000000000000 cy=402a000000000000 area=4010000000000000
+  object 3 type=0 name=[Cells] label=4 cx=4041800000000000 cy=402a000000000000 area=4010000000000000
+regions 1
+  region[0] [All_Regions]
+    territories [All_Regions] cells=4
+      cell object=0 label=1 area=4061ffffffffffff edge=true neighbors={2} geometry=2d6eec461c04b87db345937ea86317184addf4e40bf4b08a4ec2dee3e8d86bd9
+      cell object=1 label=3 area=4061200000000000 edge=true neighbors={3} geometry=e986ec8040e167656aa01f51a04162a89fce027c64e3f3d18bbad6b4d29bac95
+      cell object=2 label=2 area=4066000000000001 edge=true neighbors={0} geometry=c19ba2fbe6bec565836c19d677ff9135c525d15388e91fa3e65f99f466717639
+      cell object=3 label=4 area=4066dfffffffffff edge=true neighbors={1} geometry=c737819050907d2f6c758edbbf07367642b0d3abae573c8d8ff79a23321588eb
+      regularity included=0 sizeCv=7ff8000000000000 areaCv=7ff8000000000000 nnMean=7ff8000000000000 nnSd=7ff8000000000000 nnRatio=7ff8000000000000
+    interactions types=1 permutations=250 seed=12345
+      pair [Cells] [Cells] observed=0 expected=0000000000000000 z=0000000000000000 p=3ff0000000000000
+    densities 1
+      density region=[All_Regions] type=[Cells] weighting=OBJECT_SIZE boundary=CORRECTED bandwidth=4000000000000000
+        loo 4 0=0000000000000000 1=0000000000000000 2=0000000000000000 3=0000000000000000
+        map title=[Cells_All_Regions_Density] w=40 h=20 d=1 cal=3ff0000000000000,3ff0000000000000,3ff0000000000000 unit=[pixel] finite=640 nan=160 min=0000000000000000 max=3fc3aea7c0000000 sum=402ffffffb0c9800 sha256=950af8b0b800102aaaec2a959d61bd4818149098d1e220873e78ac899cba8823

@@ -1,0 +1,24 @@
+case 2d-disjoint-regions M-DENSITY_R-INDEPENDENT_E-INCLUDE_FLAGGED_W-OBJECT_COUNT_B-CORRECTED_H-auto_P17_S12345
+image 40 20 3ff0000000000000 3ff0000000000000 unit=[pixel]
+warnings 1
+  warning[0] [Images are not spatially calibrated; distances and areas are in pixels.]
+objects 4
+  object 0 type=0 name=[Cells] label=1 cx=4010000000000000 cy=4014000000000000 area=4010000000000000
+  object 1 type=0 name=[Cells] label=3 cx=403c000000000000 cy=4014000000000000 area=4010000000000000
+  object 2 type=0 name=[Cells] label=2 cx=4028000000000000 cy=402a000000000000 area=4010000000000000
+  object 3 type=0 name=[Cells] label=4 cx=4041800000000000 cy=402a000000000000 area=4010000000000000
+regions 2
+  region[0] [West]
+    territories absent
+    interactions absent
+    densities 1
+      density region=[West] type=[Cells] weighting=OBJECT_COUNT boundary=CORRECTED bandwidth=401428a2f98d728b
+        loo 2 0=3f4741c91d918191 2=3f4953e0ae3dd36a
+        map title=[Cells_West_Density] w=40 h=20 d=1 cal=3ff0000000000000,3ff0000000000000,3ff0000000000000 unit=[pixel] finite=320 nan=480 min=3f3a813b80000000 max=3f85735be0000000 sum=4000000000a80000 sha256=4b649fe1b7e346e7d7ace9b5862779c13bf5aa4f9eedc11af23fa4ea02cb8bdd
+  region[1] [East]
+    territories absent
+    interactions absent
+    densities 1
+      density region=[East] type=[Cells] weighting=OBJECT_COUNT boundary=CORRECTED bandwidth=4012e618c9f49b62
+        loo 2 1=3f47af3364eef764 3=3f4b4fd736cf8132
+        map title=[Cells_East_Density] w=40 h=20 d=1 cal=3ff0000000000000,3ff0000000000000,3ff0000000000000 unit=[pixel] finite=320 nan=480 min=3f38418780000000 max=3f8742ada0000000 sum=4000000000240000 sha256=06b25b123650d97c477b6abc03e81b1ebb79e1ad6e9e8e87ac54b8e3c77dd3a0

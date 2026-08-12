@@ -55,6 +55,30 @@ public class MacroOptionsParserTest {
         assertTrue(parsed.isHideResults());
     }
 
+    /**
+     * ImageJ records a ticked checkbox as a bare key, but a user writing the
+     * value out explicitly must get what they asked for.
+     */
+    @Test
+    public void honoursExplicitCheckboxValues() {
+        assertTrue(MacroOptionsParser.parse(
+                "label1=A regions=r.zip hide_results").isHideResults());
+        assertTrue(MacroOptionsParser.parse(
+                "label1=A regions=r.zip hide_results=true").isHideResults());
+        assertTrue(!MacroOptionsParser.parse(
+                "label1=A regions=r.zip hide_results=false").isHideResults());
+        assertTrue(!MacroOptionsParser.parse(
+                "label1=A regions=r.zip hide_results=no").isHideResults());
+        assertTrue(!MacroOptionsParser.parse(
+                "label1=A regions=r.zip").isHideResults());
+        try {
+            MacroOptionsParser.parse("label1=A regions=r.zip hide_results=maybe");
+            fail("expected an unparseable checkbox value to be rejected");
+        } catch (IllegalArgumentException expected) {
+            assertTrue(expected.getMessage(), expected.getMessage().contains("hide_results"));
+        }
+    }
+
     @Test
     public void parsesGenuineThreeDimensionalMaskInput() {
         ObjectTerritoriesMacroOptions parsed = MacroOptionsParser.parse(

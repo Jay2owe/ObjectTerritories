@@ -1,0 +1,16 @@
+case 2d-anisotropic-calibration M-DENSITY_R-INDEPENDENT_E-INCLUDE_FLAGGED_W-OBJECT_COUNT_B-CORRECTED_H-auto_P17_S12345
+image 28 28 3fe0000000000000 3ffc000000000000 unit=[micron]
+warnings 0
+objects 4
+  object 0 type=0 name=[Cells] label=1 cx=4004000000000000 cy=4021800000000000 area=400c000000000000
+  object 1 type=0 name=[Cells] label=2 cx=4026000000000000 cy=4025000000000000 area=400c000000000000
+  object 2 type=0 name=[Cells] label=3 cx=4008000000000000 cy=4042600000000000 area=400c000000000000
+  object 3 type=0 name=[Cells] label=4 cx=4025000000000000 cy=4043400000000000 area=400c000000000000
+regions 1
+  region[0] [Field]
+    territories absent
+    interactions absent
+    densities 1
+      density region=[Field] type=[Cells] weighting=OBJECT_COUNT boundary=CORRECTED bandwidth=40208768e78f4387
+        loo 4 0=3f66427bceef017b 1=3f67f42d73da334f 2=3f6880bc5ac65fd7 3=3f6827b072c8309c
+        map title=[Cells_Field_Density] w=28 h=28 d=1 cal=3fe0000000000000,3ffc000000000000,3ff0000000000000 unit=[micron] finite=784 nan=0 min=3f66945bc0000000 max=3f817841c0000000 sum=4012492492380000 sha256=b37f2fe8f784eff180cf7d3fafc007f11fb44c62a1be194c917d451a6d23dd82

@@ -1,0 +1,24 @@
+case 2d-multiple-named-regions M-DENSITY_R-UNION_E-INCLUDE_FLAGGED_W-OBJECT_AREA_B-CORRECTED_H-2.0_P17_S12345
+image 40 24 3ff0000000000000 3ff0000000000000 unit=[pixel]
+warnings 1
+  warning[0] [Images are not spatially calibrated; distances and areas are in pixels.]
+objects 8
+  object 0 type=0 name=[Cells A] label=1 cx=4010000000000000 cy=4014000000000000 area=4010000000000000
+  object 1 type=0 name=[Cells A] label=3 cx=4039000000000000 cy=4014000000000000 area=4010000000000000
+  object 2 type=0 name=[Cells A] label=2 cx=402a000000000000 cy=4018000000000000 area=4010000000000000
+  object 3 type=0 name=[Cells A] label=4 cx=4041800000000000 cy=401c000000000000 area=4010000000000000
+  object 4 type=1 name=[Cells B] label=1 cx=401c000000000000 cy=4030000000000000 area=4010000000000000
+  object 5 type=1 name=[Cells B] label=3 cx=403d000000000000 cy=4030000000000000 area=4010000000000000
+  object 6 type=1 name=[Cells B] label=2 cx=4031000000000000 cy=4031000000000000 area=4010000000000000
+  object 7 type=1 name=[Cells B] label=4 cx=4042000000000000 cy=4032000000000000 area=4010000000000000
+regions 1
+  region[0] [All_Regions]
+    territories absent
+    interactions absent
+    densities 2
+      density region=[All_Regions] type=[Cells A] weighting=OBJECT_SIZE boundary=CORRECTED bandwidth=4000000000000000
+        loo 4 0=0000000000000000 1=0000000000000000 2=0000000000000000 3=0000000000000000
+        map title=[Cells_A_All_Regions_Density] w=40 h=24 d=1 cal=3ff0000000000000,3ff0000000000000,3ff0000000000000 unit=[pixel] finite=960 nan=0 min=0000000000000000 max=3fc3aea7c0000000 sum=4030000000b0b700 sha256=8c2ac2ab5789580743832183ebd7e4565f228717f3d4e7d2ae00362468b9dedb
+      density region=[All_Regions] type=[Cells B] weighting=OBJECT_SIZE boundary=CORRECTED bandwidth=4000000000000000
+        loo 4 4=0000000000000000 5=0000000000000000 6=0000000000000000 7=0000000000000000
+        map title=[Cells_B_All_Regions_Density] w=40 h=24 d=1 cal=3ff0000000000000,3ff0000000000000,3ff0000000000000 unit=[pixel] finite=960 nan=0 min=0000000000000000 max=3fc3b61b20000000 sum=4030000000fe1700 sha256=78053fb0631b1036abfd8f51a59dff615fc58504d261ddefc6641f63d2cbe1a4

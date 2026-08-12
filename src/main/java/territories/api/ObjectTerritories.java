@@ -2,25 +2,25 @@ package territories.api;
 
 import ij.ImagePlus;
 import ij.measure.Calibration;
-import territories.core.DensityEngine;
-import territories.core.DensityResult;
-import territories.core.DensityEngine3D;
-import territories.core.DensityResult3D;
-import territories.core.InteractionEngine;
-import territories.core.InteractionMatrixResult;
-import territories.core.LabelObjectExtractor;
-import territories.core.LabelObjectExtractor3D;
-import territories.core.NeighborhoodCell;
-import territories.core.RegionFactory;
-import territories.core.SpatialObject2D;
-import territories.core.SpatialObject3D;
-import territories.core.SpatialRegion2D;
-import territories.core.RegionMask3D;
-import territories.core.RegionMaskFactory3D;
-import territories.core.TerritoryEngine;
-import territories.core.TerritoryEngine3D;
-import territories.core.TerritoryResult;
-import territories.core.TerritoryResult3D;
+import sc.fiji.territories.core.DensityEngine;
+import sc.fiji.territories.core.DensityResult;
+import sc.fiji.territories.core.DensityEngine3D;
+import sc.fiji.territories.core.DensityResult3D;
+import sc.fiji.territories.core.InteractionEngine;
+import sc.fiji.territories.core.InteractionMatrixResult;
+import sc.fiji.territories.core.LabelObjectExtractor;
+import sc.fiji.territories.core.LabelObjectExtractor3D;
+import sc.fiji.territories.core.NeighborhoodCell;
+import sc.fiji.territories.core.RegionFactory;
+import sc.fiji.territories.core.SpatialObject2D;
+import sc.fiji.territories.core.SpatialObject3D;
+import sc.fiji.territories.core.SpatialRegion2D;
+import sc.fiji.territories.core.RegionMask3D;
+import sc.fiji.territories.core.RegionMaskFactory3D;
+import sc.fiji.territories.core.TerritoryEngine;
+import sc.fiji.territories.core.TerritoryEngine3D;
+import sc.fiji.territories.core.TerritoryResult;
+import sc.fiji.territories.core.TerritoryResult3D;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -63,7 +63,9 @@ public final class ObjectTerritories {
         }
 
         List<SpatialRegion2D> regions = RegionFactory.create(
-                parameters.getRegions(), parameters.getRegionMode(), pixelWidth, pixelHeight);
+                parameters.getRegions(), EngineOptions.engine(parameters.getRegionMode()),
+                pixelWidth, pixelHeight,
+                reference.getWidth(), reference.getHeight());
         ArrayList<RegionAnalysisResult> analyses =
                 new ArrayList<RegionAnalysisResult>(regions.size());
         for (SpatialRegion2D region : regions) {
@@ -71,7 +73,7 @@ public final class ObjectTerritories {
             InteractionMatrixResult interactionResult = null;
             if (parameters.getAnalysisMode() != AnalysisMode.DENSITY) {
                 territoryResult = TerritoryEngine.analyze(
-                        objects, region, parameters.getEdgeCellPolicy());
+                        objects, region, EngineOptions.engine(parameters.getEdgeCellPolicy()));
                 interactionResult = InteractionEngine.analyze(
                         summaryCells(
                                 territoryResult.getCells(),
@@ -96,8 +98,8 @@ public final class ObjectTerritories {
                                 pixelHeight,
                                 unit,
                                 parameters.getBandwidthMicrons(),
-                                weighting,
-                                parameters.getDensityBoundaryMode()));
+                                EngineOptions.engine(weighting),
+                                EngineOptions.engine(parameters.getDensityBoundaryMode())));
                     }
                 }
             }
@@ -137,7 +139,7 @@ public final class ObjectTerritories {
         }
 
         List<RegionMask3D> regions = RegionMaskFactory3D.create(
-                parameters.getRegionMask(), parameters.getRegionMode());
+                parameters.getRegionMask(), EngineOptions.engine(parameters.getRegionMode()));
         assertReasonable3DOutputMemory(parameters, regions.size(), typeNames.size());
         ArrayList<RegionAnalysisResult3D> analyses =
                 new ArrayList<RegionAnalysisResult3D>(regions.size());
@@ -146,7 +148,7 @@ public final class ObjectTerritories {
             InteractionMatrixResult interactionResult = null;
             if (parameters.getAnalysisMode() != AnalysisMode.DENSITY) {
                 territoryResult = TerritoryEngine3D.analyze(
-                        objects, region, parameters.getEdgeCellPolicy());
+                        objects, region, EngineOptions.engine(parameters.getEdgeCellPolicy()));
                 interactionResult = InteractionEngine.analyze(
                         summaryCells(
                                 territoryResult.getCells(),
@@ -166,8 +168,8 @@ public final class ObjectTerritories {
                                 region,
                                 typeName,
                                 parameters.getBandwidth(),
-                                weighting,
-                                parameters.getDensityBoundaryMode()));
+                                EngineOptions.engine(weighting),
+                                EngineOptions.engine(parameters.getDensityBoundaryMode())));
                     }
                 }
             }

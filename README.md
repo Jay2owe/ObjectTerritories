@@ -42,8 +42,11 @@ JTS (Java Topology Suite) is bundled and internally renamed in the plugin JAR,
 so users do not need to install a separate geometry library.
 
 The folder-batch discovery supplied by `oc3d-core` 0.1.0 is also bundled and
-renamed under `territories.internal.core`. Users still install only the Object
-Territories JAR; neither JTS nor `oc3d-core` should be copied into Fiji separately.
+renamed under `territories.internal.core`. The analysis engine itself lives in
+`io.github.jay2owe:territories-core` 0.1.0 and is bundled under
+`territories.core`, the package it has always occupied here. Users still
+install only the Object Territories JAR; none of JTS, `oc3d-core` or
+`territories-core` should be copied into Fiji separately.
 
 ## Folder batch
 
@@ -149,17 +152,42 @@ defines independent labelled volumes or their union.
 
 See `FIRST_BUILD_PLAN.md` for the full product scope.
 
-## Building with the shared core
+## Building with the shared cores
 
-The plugin declares `io.github.jay2owe:oc3d-core:0.1.0`. Because that release is
-not fetched from a public Maven repository, a clean build must first check out
-the immutable `v0.1.0` core tag and install it into the same Maven repository:
+The plugin declares `io.github.jay2owe:oc3d-core:0.1.0` and
+`io.github.jay2owe:territories-core:0.1.0`. Neither is fetched from a public
+Maven repository, so a clean build must install both into the same local
+repository first:
 
 ```text
 mvn -f ../oc3d-core/pom.xml clean install
+mvn -f ../Cores/territories-core/pom.xml clean install
 mvn clean verify
 ```
 
-The GitHub Actions build performs those steps from fresh checkouts. `verify`
-also opens the packaged plugin through an isolated class loader to prove that
-the private core and JTS classes are present while ImageJ itself is not bundled.
+`verify` opens the packaged plugin through an isolated class loader to prove
+that the private cores and JTS are present, that no unrelocated copy of any of
+them survives, and that ImageJ itself is not bundled.
+
+## Equivalence gate
+
+`src/test/java/territories/equivalence/` re-runs the whole documented option
+space and compares every field against goldens captured before the engine was
+extracted, held in `golden/pre-extraction/`. Those goldens are **immutable**: a
+golden later found to be wrong is a bug report against the shipped plugin, to
+be fixed as its own change with its own release note, never by regenerating
+them to make a difference disappear.
+
+```text
+mvn -o test -Dtest=GoldenEquivalenceTest                        # verify
+mvn -o test -Dterritories.golden.dump=<case-name>               # print one case
+```
+
+Everything in the gate is compared as raw IEEE-754 bit patterns with no
+tolerance, floating-point territory areas included.
+## Parallel execution
+
+Interaction null-model permutations use a bounded worker pool while preserving the original seeded
+shuffle sequence and result order exactly. The automatic limit is eight workers. Set the JVM system
+property `territories.parallelism` to a positive integer to override it, or to `1` to use the serial
+reference path.

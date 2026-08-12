@@ -4,7 +4,7 @@ import ij.io.FileSaver;
 import ij.measure.ResultsTable;
 import territories.api.ObjectTerritoriesResult;
 import territories.api.RegionAnalysisResult;
-import territories.core.DensityResult;
+import sc.fiji.territories.core.DensityResult;
 
 import java.io.File;
 import java.io.IOException;
@@ -38,11 +38,11 @@ public final class ResultExporter {
                 saveTable(
                         ResultTables.interactions(region),
                         new File(interactionsDirectory, regionName + "_Interactions.csv"));
+            }
+            if (region.getTerritories() != null) {
                 saveTable(
                         ResultTables.regularity(region),
                         new File(interactionsDirectory, regionName + "_Regularity.csv"));
-            }
-            if (region.getTerritories() != null) {
                 ij.ImagePlus map = TerritoryMapRenderer.render(
                         region,
                         result.getImageWidth(),

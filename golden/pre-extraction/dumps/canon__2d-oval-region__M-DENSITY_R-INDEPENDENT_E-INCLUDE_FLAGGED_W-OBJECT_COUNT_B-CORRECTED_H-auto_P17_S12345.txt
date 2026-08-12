@@ -1,0 +1,17 @@
+case 2d-oval-region M-DENSITY_R-INDEPENDENT_E-INCLUDE_FLAGGED_W-OBJECT_COUNT_B-CORRECTED_H-auto_P17_S12345
+image 32 32 3ff0000000000000 3ff0000000000000 unit=[pixel]
+warnings 1
+  warning[0] [Images are not spatially calibrated; distances and areas are in pixels.]
+objects 4
+  object 0 type=0 name=[Cells] label=1 cx=4030000000000000 cy=401c000000000000 area=4010000000000000
+  object 1 type=0 name=[Cells] label=2 cx=4022000000000000 cy=4030000000000000 area=4010000000000000
+  object 2 type=0 name=[Cells] label=3 cx=4037000000000000 cy=4030000000000000 area=4010000000000000
+  object 3 type=0 name=[Cells] label=4 cx=4030000000000000 cy=4037000000000000 area=4010000000000000
+regions 1
+  region[0] [Disc]
+    territories absent
+    interactions absent
+    densities 1
+      density region=[Disc] type=[Cells] weighting=OBJECT_COUNT boundary=CORRECTED bandwidth=40137b66cfcc0280
+        loo 4 0=3f50158f9e3cc574 1=3f5ac3bc57f5add8 2=3f5ac3713c2f2dc7 3=3f5f92d9288a2ae0
+        map title=[Cells_Disc_Density] w=32 h=32 d=1 cal=3ff0000000000000,3ff0000000000000,3ff0000000000000 unit=[pixel] finite=616 nan=408 min=3f603b1600000000 max=3f8539f700000000 sum=4010000001980000 sha256=1e779095983d99d8c7d723d2f3b0d162ab226571ad90c362a9129faf8b56635b

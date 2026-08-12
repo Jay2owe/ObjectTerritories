@@ -71,8 +71,23 @@ public final class Object_Territories implements PlugIn {
                         ? (RuntimeException) error
                         : new IllegalStateException(error);
             }
-            IJ.handleException(error);
+            // Bad input is explained in the message, so lead with that rather
+            // than a stack dump. Not every IllegalArgumentException is bad
+            // input though — some report an internal geometry fault — so keep
+            // the trace in the Log window for anyone filing a report.
+            if (error instanceof IllegalArgumentException) {
+                IJ.log("[Object Territories] " + stackTrace(error));
+                IJ.error(COMMAND_NAME, error.getMessage());
+            } else {
+                IJ.handleException(error);
+            }
         }
+    }
+
+    private static String stackTrace(Throwable error) {
+        java.io.StringWriter target = new java.io.StringWriter();
+        error.printStackTrace(new java.io.PrintWriter(target));
+        return target.toString();
     }
 
     private static void execute(ObjectTerritoriesMacroOptions options, boolean headless)

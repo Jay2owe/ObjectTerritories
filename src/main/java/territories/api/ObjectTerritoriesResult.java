@@ -1,6 +1,6 @@
 package territories.api;
 
-import territories.core.SpatialObject2D;
+import sc.fiji.territories.core.SpatialObject2D;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -72,7 +72,7 @@ public final class ObjectTerritoriesResult {
     /** Closes every density image owned by this result. */
     public void closeDensityImages() {
         for (RegionAnalysisResult region : regions) {
-            for (territories.core.DensityResult density : region.getDensityResults()) {
+            for (sc.fiji.territories.core.DensityResult density : region.getDensityResults()) {
                 density.getDensityMap().close();
                 density.getDensityMap().flush();
             }

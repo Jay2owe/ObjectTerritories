@@ -1,0 +1,1 @@
+java.lang.IllegalArgumentException: label image 'Flat' must be one 3D stack with at least two z slices

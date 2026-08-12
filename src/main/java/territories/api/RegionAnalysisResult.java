@@ -1,8 +1,8 @@
 package territories.api;
 
-import territories.core.DensityResult;
-import territories.core.InteractionMatrixResult;
-import territories.core.TerritoryResult;
+import sc.fiji.territories.core.DensityResult;
+import sc.fiji.territories.core.InteractionMatrixResult;
+import sc.fiji.territories.core.TerritoryResult;
 
 import java.util.ArrayList;
 import java.util.Collections;

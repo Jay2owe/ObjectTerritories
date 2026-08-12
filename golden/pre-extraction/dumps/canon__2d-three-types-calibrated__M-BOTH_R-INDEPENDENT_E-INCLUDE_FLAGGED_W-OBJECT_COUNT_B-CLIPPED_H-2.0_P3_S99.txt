@@ -1,0 +1,44 @@
+case 2d-three-types-calibrated M-BOTH_R-INDEPENDENT_E-INCLUDE_FLAGGED_W-OBJECT_COUNT_B-CLIPPED_H-2.0_P3_S99
+image 30 26 3fd4cccccccccccd 3fd4cccccccccccd unit=[micron]
+warnings 0
+objects 8
+  object 0 type=0 name=[Type A] label=1 cx=3ff4cccccccccccd cy=3ff4cccccccccccd area=3fdb0a3d70a3d70b
+  object 1 type=0 name=[Type A] label=2 cx=4020400000000000 cy=3ff4cccccccccccd area=3fdb0a3d70a3d70b
+  object 2 type=0 name=[Type A] label=3 cx=4010e66666666667 cy=400f333333333334 area=3fdb0a3d70a3d70b
+  object 3 type=1 name=[Type B] label=1 cx=3ffa000000000000 cy=401a000000000000 area=3fdb0a3d70a3d70b
+  object 4 type=1 name=[Type B] label=2 cx=4020400000000000 cy=401a000000000000 area=3fdb0a3d70a3d70b
+  object 5 type=2 name=[Type C] label=1 cx=4014cccccccccccd cy=3ff4cccccccccccd area=3fdb0a3d70a3d70b
+  object 6 type=2 name=[Type C] label=3 cx=401de66666666667 cy=400f333333333334 area=3fdb0a3d70a3d70b
+  object 7 type=2 name=[Type C] label=2 cx=4014cccccccccccd cy=401b4ccccccccccd area=3fdb0a3d70a3d70b
+regions 1
+  region[0] [Cortex]
+    territories [Cortex] cells=8
+      cell object=0 label=1 area=4021f4c67009a33d edge=true neighbors={2,3,5} geometry=d10c0e121c9f1bde918ef1f723577e1009df85399419315acee62600b60a3700
+      cell object=1 label=2 area=4019cfe666666668 edge=true neighbors={5,6} geometry=7ea723f9c71945bce77b8d746158ddabf83fbf232db4aa376005d7b917032c7d
+      cell object=2 label=3 area=40248fd61c82e950 edge=false neighbors={0,3,5,6,7} geometry=951d5ae4ab5d191e2ba63b5dae2f56818b4d9d891e57101fec9096b5da6b0158
+      cell object=3 label=1 area=4026b31df16f1b52 edge=true neighbors={0,2,7} geometry=6ed33805a32d2142a718ff57ef94ec4887651035e2a23654a4bddc86bb8f9709
+      cell object=4 label=2 area=402068e21c3aac24 edge=true neighbors={6,7} geometry=ad3c27cff24e53a089ab5ef0c635a19ba171b0a51acd5c9ee50ff8049a23d71e
+      cell object=5 label=1 area=401ea6ab851eb852 edge=true neighbors={0,1,2,6} geometry=bd111610cb3dccf2fba5197f6a0638a442e1d4a8a45c3c03a40b8228f007cbf7
+      cell object=6 label=3 area=4021f220c2d635b2 edge=true neighbors={1,2,4,5,7} geometry=e5eef96255f63017e3939e12b273fc56024c255f518285a7d7e418b622d67cd8
+      cell object=7 label=2 area=402227bc3c8d0fe5 edge=true neighbors={2,3,4,6} geometry=d2aebc2b1c7a2b28df940a6cbff485ff070635ee9e251fda8ca40e8c9acbe82d
+      regularity included=8 sizeCv=3fc5c66500ccca93 areaCv=3fc5c66500ccca93 nnMean=400806c235af17db nnSd=3fde49b96c4748e5 nnRatio=4019626d6be1c3df
+    interactions types=3 permutations=3 seed=99
+      pair [Type A] [Type A] observed=1 expected=3ff5555555555555 z=bfe279a74590331b p=3ff0000000000000
+      pair [Type A] [Type B] observed=2 expected=4002aaaaaaaaaaab z=bfe279a74590331e p=3ff0000000000000
+      pair [Type A] [Type C] observed=6 expected=4016aaaaaaaaaaab z=3fe279a745903317 p=3ff0000000000000
+      pair [Type B] [Type A] observed=2 expected=4002aaaaaaaaaaab z=bfe279a74590331e p=3ff0000000000000
+      pair [Type B] [Type B] observed=0 expected=3fe5555555555555 z=bff279a74590331b p=3fe0000000000000
+      pair [Type B] [Type C] observed=3 expected=4002aaaaaaaaaaab z=3ff279a74590331a p=3fe0000000000000
+      pair [Type C] [Type A] observed=6 expected=4016aaaaaaaaaaab z=3fe279a745903317 p=3ff0000000000000
+      pair [Type C] [Type B] observed=3 expected=4002aaaaaaaaaaab z=3ff279a74590331a p=3fe0000000000000
+      pair [Type C] [Type C] observed=2 expected=3ffaaaaaaaaaaaab z=3fe279a74590331b p=3ff0000000000000
+    densities 3
+      density region=[Cortex] type=[Type A] weighting=OBJECT_COUNT boundary=CLIPPED bandwidth=4000000000000000
+        loo 3 0=3f7806afddf03bb6 1=3f64ea60239ee9ff 2=3f813deff7dfd85b
+        map title=[Type_A_Cortex_Density] w=30 h=26 d=1 cal=3fd4cccccccccccd,3fd4cccccccccccd,3ff0000000000000 unit=[micron] finite=672 nan=108 min=3f2bc78100000000 max=3fa9f20bc0000000 sum=4031f87d1f9ca000 sha256=3e1b9e51bc1bdb640e9df2ab2920cfb3688654c0599d24b2c99f18b754fac400
+      density region=[Cortex] type=[Type B] weighting=OBJECT_COUNT boundary=CLIPPED bandwidth=4000000000000000
+        loo 2 3=0000000000000000 4=0000000000000000
+        map title=[Type_B_Cortex_Density] w=30 h=26 d=1 cal=3fd4cccccccccccd,3fd4cccccccccccd,3ff0000000000000 unit=[micron] finite=672 nan=108 min=3f2e884660000000 max=3fa45f3000000000 sum=40263702a1460000 sha256=ea2a3654c504357ced5187154f1e0c08899eb8886df94015a33c31ba697626fe
+      density region=[Cortex] type=[Type C] weighting=OBJECT_COUNT boundary=CLIPPED bandwidth=4000000000000000
+        loo 3 5=3f841fabbd547c25 6=3f907c9651f35fc8 7=3f80704dd6c4ca98
+        map title=[Type_C_Cortex_Density] w=30 h=26 d=1 cal=3fd4cccccccccccd,3fd4cccccccccccd,3ff0000000000000 unit=[micron] finite=672 nan=108 min=3f5f491400000000 max=3faeda1e60000000 sum=4034a97219010000 sha256=641446ea73253351af9431a3f7bab2b45d1c14a5c7b1864d7ad33c51a94058fa

@@ -43,6 +43,31 @@ public class PackagingIT {
             assertTrue(jar.getJarEntry("org/locationtech/jts/geom/Geometry.class") == null);
             assertTrue(jar.getJarEntry("ij/IJ.class") == null);
 
+            // territories-core, relocated onto the package name the engine has
+            // always occupied in the shipped JAR, so every published API
+            // signature stays exactly what 0.2.0 documented. The unrelocated
+            // name must not survive anywhere: another plugin embedding the
+            // same core would then carry a second copy of it.
+            assertNotNull(jar.getJarEntry("territories/core/TerritoryEngine.class"));
+            assertNotNull(jar.getJarEntry("territories/core/TerritoryEngine3D.class"));
+            assertNotNull(jar.getJarEntry("territories/core/DensityEngine.class"));
+            assertNotNull(jar.getJarEntry("territories/core/InteractionEngine.class"));
+            assertNotNull(jar.getJarEntry("territories/core/RegionFactory.class"));
+            assertNotNull(jar.getJarEntry("territories/core/SpatialObject2D.class"));
+            assertNotNull(jar.getJarEntry("territories/core/EdgeCellPolicy.class"));
+            assertTrue(jar.getJarEntry(
+                    "sc/fiji/territories/core/TerritoryEngine.class") == null);
+            assertNoEntriesUnder(jar, "sc/fiji/");
+            assertNoEntriesUnder(jar, "org/locationtech/");
+            assertNoEntriesUnder(jar, "ij/");
+
+            // Never relocated: the documented entry points and the option
+            // vocabulary every macro and Java caller names.
+            assertNotNull(jar.getJarEntry("territories/api/ObjectTerritories.class"));
+            assertNotNull(jar.getJarEntry("territories/api/EdgeCellPolicy.class"));
+            assertNotNull(jar.getJarEntry(
+                    "territories/macro/ObjectTerritoriesMacroOptions.class"));
+
             Attributes attributes = jar.getManifest().getMainAttributes();
             assertEquals(gitHead(project), attributes.getValue("Implementation-Build"));
         } finally {
@@ -88,9 +113,29 @@ public class PackagingIT {
                     "territories.internal.core.io.RegexGroupDiscovery"));
             assertNotNull(loader.loadClass(
                     "territories.internal.shaded.jts.geom.Geometry"));
+            // The engine resolves with nothing on the classpath but this JAR
+            // and ImageJ — no separate territories-core or JTS install.
+            assertNotNull(loader.loadClass("territories.core.TerritoryEngine"));
+            assertNotNull(loader.loadClass("territories.api.ObjectTerritories"));
         } finally {
             loader.close();
             delete(root);
+        }
+    }
+
+    /**
+     * Fails if the JAR carries any entry beneath a package root that must have
+     * been relocated away or never bundled. Naming one class is not enough:
+     * relocation is configured per pattern, and a stray sibling package would
+     * pass a per-class check while still colliding inside Fiji.
+     */
+    private static void assertNoEntriesUnder(JarFile jar, String prefix) {
+        java.util.Enumeration<JarEntry> entries = jar.entries();
+        while (entries.hasMoreElements()) {
+            JarEntry entry = entries.nextElement();
+            assertTrue(
+                    "unrelocated entry survived shading: " + entry.getName(),
+                    !entry.getName().startsWith(prefix));
         }
     }
 

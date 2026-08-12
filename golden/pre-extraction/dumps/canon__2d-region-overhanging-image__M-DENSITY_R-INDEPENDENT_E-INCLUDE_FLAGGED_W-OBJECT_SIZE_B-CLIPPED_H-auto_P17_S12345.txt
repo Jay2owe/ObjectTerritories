@@ -1,0 +1,17 @@
+case 2d-region-overhanging-image M-DENSITY_R-INDEPENDENT_E-INCLUDE_FLAGGED_W-OBJECT_SIZE_B-CLIPPED_H-auto_P17_S12345
+image 24 24 3ff0000000000000 3ff0000000000000 unit=[pixel]
+warnings 1
+  warning[0] [Images are not spatially calibrated; distances and areas are in pixels.]
+objects 4
+  object 0 type=0 name=[Cells] label=1 cx=4014000000000000 cy=4014000000000000 area=4010000000000000
+  object 1 type=0 name=[Cells] label=2 cx=4032000000000000 cy=4018000000000000 area=4010000000000000
+  object 2 type=0 name=[Cells] label=3 cx=4018000000000000 cy=4032000000000000 area=4010000000000000
+  object 3 type=0 name=[Cells] label=4 cx=4033000000000000 cy=4033000000000000 area=4010000000000000
+regions 1
+  region[0] [Overhang]
+    territories absent
+    interactions absent
+    densities 1
+      density region=[Overhang] type=[Cells] weighting=OBJECT_SIZE boundary=CLIPPED bandwidth=4017e6279e18bb77
+        loo 4 0=3f6b9d6ae3b4dcdb 1=3f6d994fb2c2c37a 2=3f6d994fb2c2c37a 3=3f6b9d6ae3b4dcdc
+        map title=[Cells_Overhang_Density] w=24 h=24 d=1 cal=3ff0000000000000,3ff0000000000000,3ff0000000000000 unit=[pixel] finite=576 nan=0 min=3f7fc59ea0000000 max=3f975a85a0000000 sum=4025837a294c0000 sha256=1cb96be6834b1a4cab0993a023c58afd548f5d570e1a273a11a5633e9c2a3a56

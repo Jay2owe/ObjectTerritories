@@ -1,0 +1,1 @@
+java.lang.IllegalArgumentException: the region mask must be separate from the object label images
