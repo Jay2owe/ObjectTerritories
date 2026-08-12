@@ -1,0 +1,22 @@
+Object Territories
+Copyright (c) 2026 Jamie Malcolm
+
+Developed at the Brancaccio Lab, UK Dementia Research Institute,
+Imperial College London.
+
+Licensed under the BSD 3-Clause License. See LICENSE.
+
+
+Third-party components
+----------------------
+
+JTS Topology Suite (org.locationtech.jts:jts-core 1.19.0)
+  Bundled and relocated into the plugin jar. Dual-licensed under the
+  Eclipse Public License 2.0 and the Eclipse Distribution License 1.0.
+  This plugin takes JTS under the EDL 1.0, which is the BSD 3-Clause
+  licence in substance, and so redistributes under BSD-3-Clause with the
+  JTS notice retained.
+
+  The notice is carried at
+  src/main/resources/META-INF/licenses/JTS-LICENSE.txt
+  and must travel with any jar that bundles it.

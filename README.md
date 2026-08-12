@@ -191,3 +191,19 @@ Interaction null-model permutations use a bounded worker pool while preserving t
 shuffle sequence and result order exactly. The automatic limit is eight workers. Set the JVM system
 property `territories.parallelism` to a positive integer to override it, or to `1` to use the serial
 reference path.
+
+## Licence
+
+BSD 3-Clause. See `LICENSE`. Attribution and third-party notices are in
+`NOTICE`; both ship inside the jar under `META-INF/`.
+
+JTS (Java Topology Suite) is bundled and relocated, so the distributed jar
+carries JTS bytecode. JTS is dual-licensed **EPL 2.0 / EDL 1.0** and the
+consumer picks. This plugin takes it under **EDL 1.0**, which is the BSD
+3-Clause licence in substance, and therefore ships the combined jar under
+plain BSD-3-Clause with the JTS notice retained at
+`src/main/resources/META-INF/licenses/JTS-LICENSE.txt`. `territories-core`
+carries the same file at the same path, so a consumer that shades the core
+inherits the notice rather than having to remember it.
+
+Nothing on any code path links GPL.
