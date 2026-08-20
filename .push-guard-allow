@@ -1,0 +1,11 @@
+# Golden-master output digests, not credentials.
+#
+# golden/pre-extraction/digests-*.txt pins one SHA-256 per canonical parameter
+# combination, in the form `canon__<combination> <sha256>`. The 64-character hex
+# string matches the audit's long-token heuristic and is reported as an API key.
+#
+# Deliberately narrow: the exemption requires the `canon__` key prefix, so a real
+# secret pasted into the same file is still caught. The hex run is matched as
+# 20-or-more characters because these lines are 170-187 characters long and the
+# audit truncates its snippet at 160, cutting the digest short.
+^canon__\S+\s+[0-9a-f]{20,}
