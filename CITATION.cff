@@ -1,0 +1,27 @@
+cff-version: 1.2.0
+message: "If you use this plugin, please cite it as below."
+type: software
+title: "Object Territories"
+abstract: >-
+  Fiji/ImageJ plugin for bounded Voronoi territory analysis, neighbourhood
+  interactions, and kernel density maps from labelled objects. Handles 2D label
+  images and genuine 3D label stacks, ImageJ ROI files and ROI sets, with
+  Voronoi cells clipped to arbitrary region shapes and boundary cells flagged.
+authors:
+  - given-names: Jamie
+    family-names: Malcolm
+    orcid: "https://orcid.org/0009-0008-3862-2776"
+    affiliation: "UK Dementia Research Institute at Imperial College London"
+    email: jamiemalcolm12@gmail.com
+repository-code: "https://github.com/Jay2owe/ObjectTerritories"
+url: "https://github.com/Jay2owe/ObjectTerritories"
+license: BSD-3-Clause
+version: "0.2.0"
+date-released: "2026-08-20"
+keywords:
+  - imagej
+  - fiji
+  - image-analysis
+  - microscopy
+  - voronoi
+  - spatial-analysis
