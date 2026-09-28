@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Build aligned with current Fiji: parent `pom-scijava` 43.0.0 (ImageJ
+  1.54p, the version Fiji ships), a Maven wrapper, and a green CI that builds
+  both pinned cores first. The golden-master gate is bit-identical under the
+  new parent. The jar manifest no longer carries a `Class-Path` line naming
+  jars that are shaded in and never present in Fiji.
 - Extracted the territory, density and interaction engine into
   `io.github.jay2owe:territories-core:0.1.0`, so sibling plugins can compile it
   in without the user installing Object Territories. The core is shaded into

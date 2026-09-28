@@ -4,37 +4,91 @@ on:
   push:
   pull_request:
 
-# oc3d-core is compiled into the plugin JAR, not installed beside it in Fiji.
-# Keep this immutable ref aligned with oc3d-core.version in pom.xml.
+# Both cores are compiled into the plugin JAR, not installed beside it in Fiji.
+# They are not published to any Maven repository, so a clean runner has to
+# build them from source first. Keep each immutable ref aligned with the
+# matching *-core.version property in pom.xml.
 env:
   OC3D_CORE_REPO: Jay2owe/oc3d-core
   OC3D_CORE_REF: v0.1.0
+  TERRITORIES_CORE_REPO: Jay2owe/territories-core
+  TERRITORIES_CORE_REF: v0.1.0
 
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
       - name: Check out Object Territories
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           path: plugin
 
       - name: Check out oc3d-core
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           repository: ${{ env.OC3D_CORE_REPO }}
           ref: ${{ env.OC3D_CORE_REF }}
           path: oc3d-core
 
-      - uses: actions/setup-java@v4
+      - name: Check out territories-core
+        uses: actions/checkout@v7
+        with:
+          repository: ${{ env.TERRITORIES_CORE_REPO }}
+          ref: ${{ env.TERRITORIES_CORE_REF }}
+          path: territories-core
+
+      # Java 21 builds it; the bytecode target stays at 8, set by pom-scijava.
+      - name: Set up Java
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
-          java-version: "11"
+          java-version: "21"
           cache: maven
 
-      - name: Test and install the exact core release
+      # Each core runs its own suite here, so a broken core is reported as a
+      # core failure rather than surfacing later as a plugin failure.
+      - name: Build and install oc3d-core
         run: mvn --batch-mode --no-transfer-progress -f oc3d-core/pom.xml clean install
 
-      - name: Build and verify the packaged plugin JAR
+      - name: Build and install territories-core
+        run: mvn --batch-mode --no-transfer-progress -f territories-core/pom.xml clean install
+
+      - name: Build and verify the plugin
         working-directory: plugin
-        run: mvn --batch-mode --no-transfer-progress clean verify
+        run: ./mvnw --batch-mode --no-transfer-progress clean verify
+
+      # Guards the shading, which is what makes the one-jar install work. A
+      # regression here is silent: the jar still builds and still runs on a
+      # developer machine, and only breaks for users whose Fiji has a sibling
+      # plugin carrying the same classes.
+      - name: Check the shaded jar
+        id: jar
+        working-directory: plugin
+        run: |
+          JAR=$(ls target/Object_Territories-*.jar \
+                | grep -v -e '-sources\.jar$' -e '-tests\.jar$' -e '/original-')
+          echo "Checking $JAR"
+          test "$(unzip -Z1 "$JAR" | grep -c '^sc/fiji/')" -eq 0 \
+            || { echo "FAIL: unrelocated sc/fiji classes in the jar"; exit 1; }
+          test "$(unzip -Z1 "$JAR" | grep -c '^ij/')" -eq 0 \
+            || { echo "FAIL: ImageJ classes bundled into the jar"; exit 1; }
+          unzip -Z1 "$JAR" | grep -q '^plugins.config$' \
+            || { echo "FAIL: plugins.config missing"; exit 1; }
+          unzip -Z1 "$JAR" | grep -q '^META-INF/MANIFEST.MF$' \
+            || { echo "FAIL: plugin manifest missing"; exit 1; }
+          if unzip -p "$JAR" META-INF/MANIFEST.MF | grep -q '^Class-Path:'; then
+            echo "FAIL: shaded cores must not appear as external class-path jars"
+            exit 1
+          fi
+          unzip -Z1 "$JAR" | grep -q '^territories/Object_Territories.class$' \
+            || { echo "FAIL: entry class missing"; exit 1; }
+          echo "OK: $(unzip -Z1 "$JAR" | grep -c '^territories/internal/') relocated internal entries"
+          echo "path=plugin/$JAR" >> "$GITHUB_OUTPUT"
+          echo "name=$(basename "$JAR" .jar)" >> "$GITHUB_OUTPUT"
+
+      - name: Upload plugin jar
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.jar.outputs.name }}
+          path: ${{ steps.jar.outputs.path }}
+          if-no-files-found: error

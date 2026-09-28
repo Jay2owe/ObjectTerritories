@@ -150,8 +150,6 @@ For 3D, use `ObjectTerritoriesParameters3D` and
 `ObjectTerritories.analyze3D(...)`; the matching positive-integer mask stack
 defines independent labelled volumes or their union.
 
-See `FIRST_BUILD_PLAN.md` for the full product scope.
-
 ## Building with the shared cores
 
 The plugin declares `io.github.jay2owe:oc3d-core:0.1.0` and
@@ -160,9 +158,9 @@ Maven repository, so a clean build must install both into the same local
 repository first:
 
 ```text
-mvn -f ../oc3d-core/pom.xml clean install
-mvn -f ../Cores/territories-core/pom.xml clean install
-mvn clean verify
+./mvnw -f ../oc3d-core/pom.xml clean install
+./mvnw -f ../territories-core/pom.xml clean install
+./mvnw clean verify
 ```
 
 `verify` opens the packaged plugin through an isolated class loader to prove
@@ -185,6 +183,7 @@ mvn -o test -Dterritories.golden.dump=<case-name>               # print one case
 
 Everything in the gate is compared as raw IEEE-754 bit patterns with no
 tolerance, floating-point territory areas included.
+
 ## Parallel execution
 
 Interaction null-model permutations use a bounded worker pool while preserving the original seeded
