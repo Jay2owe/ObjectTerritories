@@ -8,13 +8,13 @@
   <parent>
     <groupId>org.scijava</groupId>
     <artifactId>pom-scijava</artifactId>
-    <version>31.1.0</version>
+    <version>43.0.0</version>
     <relativePath/>
   </parent>
 
   <groupId>io.github.jay2owe</groupId>
   <artifactId>Object_Territories</artifactId>
-  <version>0.2.0</version>
+  <version>0.3.0-SNAPSHOT</version>
 
   <name>Object Territories</name>
   <description>Bounded Voronoi territories, neighbourhood enrichment, and density maps for labelled objects in Fiji.</description>
@@ -75,7 +75,8 @@
     <url>https://github.com/Jay2owe/ObjectTerritories/issues</url>
   </issueManagement>
   <ciManagement>
-    <system>None</system>
+    <system>GitHub Actions</system>
+    <url>https://github.com/Jay2owe/ObjectTerritories/actions</url>
   </ciManagement>
 
   <repositories>
@@ -265,6 +266,16 @@
         <configuration>
           <!-- SCM manifest values change even when compiled classes do not. -->
           <forceCreation>true</forceCreation>
+          <archive>
+            <manifest>
+              <!--
+                Every dependency is either shaded into this jar or provided by
+                Fiji; users install this one file. A Class-Path line would
+                name jars that do not exist in Fiji.
+              -->
+              <addClasspath>false</addClasspath>
+            </manifest>
+          </archive>
         </configuration>
       </plugin>
       <plugin>

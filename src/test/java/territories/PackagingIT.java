@@ -70,6 +70,11 @@ public class PackagingIT {
 
             Attributes attributes = jar.getManifest().getMainAttributes();
             assertEquals(gitHead(project), attributes.getValue("Implementation-Build"));
+            // pom-scijava adds a Class-Path line by default; it would name jars
+            // (the cores, JTS) that are shaded in and never exist in Fiji.
+            assertTrue("manifest must not carry Class-Path: "
+                            + attributes.getValue("Class-Path"),
+                    attributes.getValue("Class-Path") == null);
         } finally {
             jar.close();
         }
