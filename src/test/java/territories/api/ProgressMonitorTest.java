@@ -7,6 +7,7 @@ import ij.gui.Roi;
 import ij.process.ByteProcessor;
 import ij.process.ShortProcessor;
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -45,6 +46,16 @@ public class ProgressMonitorTest {
         public void imageUpdated(ImagePlus image) {
         }
     };
+
+    /**
+     * Close events are delivered on the AWT queue, so ones from images an
+     * earlier test closed can still be pending; deliver them before this
+     * test starts listening.
+     */
+    @Before
+    public void deliverPendingCloseEvents() {
+        drainEvents();
+    }
 
     @After
     public void removeListener() {
@@ -158,7 +169,7 @@ public class ProgressMonitorTest {
             drainEvents();
             assertEquals(1, monitor.steps.size());
             assertTrue(monitor.steps.get(0), monitor.steps.get(0).contains("density"));
-            assertTrue("no density map is finished", closed.isEmpty());
+            assertTrue("no density map is finished", closedTitled("Density").isEmpty());
         }
     }
 
@@ -177,7 +188,7 @@ public class ProgressMonitorTest {
             drainEvents();
             assertEquals(1, monitor.steps.size());
             assertTrue(monitor.steps.get(0), monitor.steps.get(0).contains("territories"));
-            assertTrue("no territory stack is finished", closed.isEmpty());
+            assertTrue("no territory stack is finished", closedTitled("Territories").isEmpty());
         }
     }
 
@@ -208,7 +219,7 @@ public class ProgressMonitorTest {
         while (monitor.steps.isEmpty() && run.isAlive()) Thread.sleep(2);
         Thread.sleep(400);
         assertTrue("the density step ended within 400 ms; the fixture is too small",
-                run.isAlive() && closed.isEmpty());
+                run.isAlive() && closedTitled("Density").isEmpty());
         monitor.fire();
         run.join(60000);
         assertTrue("the run is still going 60 s after the cancel", !run.isAlive());
@@ -220,7 +231,8 @@ public class ProgressMonitorTest {
                 outcome[0] instanceof AnalysisCancelledException);
         drainEvents();
         assertEquals(1, monitor.steps.size());
-        assertTrue("the step was stopped before its map was made", closed.isEmpty());
+        assertTrue("the step was stopped before its map was made",
+                closedTitled("Density").isEmpty());
         assertTrue("stopped " + latencyMillis + " ms after the request", latencyMillis < 1000);
     }
 
@@ -299,6 +311,19 @@ public class ProgressMonitorTest {
     }
 
     // ------------------------------------------------------------------
+
+    /** Closed images whose title contains {@code part} (the ones an analysis makes). */
+    private List<String> closedTitled(String part) {
+        List<String> titles = new ArrayList<String>();
+        synchronized (closed) {
+            for (ImagePlus image : closed) {
+                if (image.getTitle() != null && image.getTitle().contains(part)) {
+                    titles.add(image.getTitle());
+                }
+            }
+        }
+        return titles;
+    }
 
     /** ImagePlus delivers close events on the AWT event queue; wait for them. */
     private static void drainEvents() {
