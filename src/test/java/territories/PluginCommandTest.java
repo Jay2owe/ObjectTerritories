@@ -104,7 +104,26 @@ public class PluginCommandTest {
                         Collections.singletonList("A"), null, "r.roi",
                         AnalysisMode.BOTH, RegionMode.INDEPENDENT,
                         EdgeCellPolicy.INCLUDE_FLAGGED, DensityWeightingSelection.BOTH,
-                        DensityBoundaryMode.CORRECTED, 0.0, 1000001, 1, "", true,
+                        DensityBoundaryMode.CORRECTED, 0.0, 1000001, "1", "", true,
+                        images("A")));
+    }
+
+    /** A numeric field read seeds as doubles: 9007199254740993 ran as ...992. */
+    @Test
+    public void dialogKeepsLargeSeedsExactly() {
+        String options = Object_Territories.dialogModel(
+                Collections.singletonList("A"), null, "r.roi",
+                AnalysisMode.BOTH, RegionMode.INDEPENDENT,
+                EdgeCellPolicy.INCLUDE_FLAGGED, DensityWeightingSelection.BOTH,
+                DensityBoundaryMode.CORRECTED, 0.0, 10, " 9007199254740993 ", "", true,
+                images("A")).toMacroOptionString();
+        assertTrue(options, options.contains("seed=9007199254740993"));
+        expect("random seed must be a whole number",
+                () -> Object_Territories.dialogModel(
+                        Collections.singletonList("A"), null, "r.roi",
+                        AnalysisMode.BOTH, RegionMode.INDEPENDENT,
+                        EdgeCellPolicy.INCLUDE_FLAGGED, DensityWeightingSelection.BOTH,
+                        DensityBoundaryMode.CORRECTED, 0.0, 10, "1.5", "", true,
                         images("A")));
     }
 
@@ -151,7 +170,7 @@ public class PluginCommandTest {
         return Object_Territories.dialogModel(
                 titles, null, regionPath, AnalysisMode.BOTH, RegionMode.INDEPENDENT,
                 EdgeCellPolicy.INCLUDE_FLAGGED, DensityWeightingSelection.BOTH,
-                DensityBoundaryMode.CORRECTED, 0.0, 10, 1, output, showResults, resolver);
+                DensityBoundaryMode.CORRECTED, 0.0, 10, "1", output, showResults, resolver);
     }
 
     private static Function<String, ImagePlus> images(String... titles) {

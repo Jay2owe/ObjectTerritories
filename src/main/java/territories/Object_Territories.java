@@ -295,7 +295,10 @@ public final class Object_Territories implements PlugIn {
         dialog.addNumericField("Bandwidth (0 = automatic)", 0.0, 3);
         dialog.addNumericField(
                 "Permutations", ObjectTerritoriesParameters.DEFAULT_PERMUTATIONS, 0);
-        dialog.addNumericField("Random seed", ObjectTerritoriesParameters.DEFAULT_SEED, 0);
+        // A text field: a numeric one is read as a double and would silently
+        // round seeds beyond 2^53 (the batch dialog does the same).
+        dialog.addStringField(
+                "Random seed", Long.toString(ObjectTerritoriesParameters.DEFAULT_SEED), 20);
         dialog.addDirectoryField("Auto-save directory (optional)", "");
         dialog.addCheckbox("Show result windows", true);
         dialog.showDialog();
@@ -319,13 +322,13 @@ public final class Object_Territories implements PlugIn {
                 ? DensityBoundaryMode.CORRECTED : DensityBoundaryMode.CLIPPED;
         double bandwidth = dialog.getNextNumber();
         double permutationValue = dialog.getNextNumber();
-        double seedValue = dialog.getNextNumber();
+        String seedText = dialog.getNextString();
         String outputDirectory = dialog.getNextString();
         boolean showResults = dialog.getNextBoolean();
 
         return dialogModel(
                 titles, regionMaskTitle, regionPath, analysisMode, regionMode, edgePolicy,
-                weighting, boundary, bandwidth, permutationValue, seedValue,
+                weighting, boundary, bandwidth, permutationValue, seedText,
                 outputDirectory, showResults, Object_Territories::uniqueOpenImage);
     }
 
@@ -341,7 +344,7 @@ public final class Object_Territories implements PlugIn {
             DensityBoundaryMode boundary,
             double bandwidth,
             double permutationValue,
-            double seedValue,
+            String seedText,
             String outputDirectory,
             boolean showResults,
             Function<String, ImagePlus> resolveTitle) {
@@ -381,9 +384,7 @@ public final class Object_Territories implements PlugIn {
             throw new IllegalArgumentException(
                     "permutations must be at most " + ObjectTerritoriesParameters.MAX_PERMUTATIONS);
         }
-        if (!isWhole(seedValue) || seedValue < Long.MIN_VALUE || seedValue > Long.MAX_VALUE) {
-            throw new IllegalArgumentException("random seed must be a whole number");
-        }
+        long seed = parseSeed(seedText);
         if (!showResults && (outputDirectory == null || outputDirectory.trim().isEmpty())) {
             throw new IllegalArgumentException(NOTHING_KEPT);
         }
@@ -398,9 +399,17 @@ public final class Object_Territories implements PlugIn {
                 boundary,
                 bandwidth,
                 (int) permutationValue,
-                (long) seedValue,
+                seed,
                 outputDirectory,
                 showResults);
+    }
+
+    static long parseSeed(String text) {
+        try {
+            return Long.parseLong(text == null ? "" : text.trim());
+        } catch (NumberFormatException error) {
+            throw new IllegalArgumentException("random seed must be a whole number", error);
+        }
     }
 
     private static String[] openImageChoices() {
