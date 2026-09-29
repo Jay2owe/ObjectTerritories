@@ -1,6 +1,34 @@
 # Changelog
 
-## Unreleased
+## [0.3.1] - Unreleased
+
+Found by automating the GUI checks of `scripts/fiji-smoke/README.md` in a
+real Fiji window, and by a review of the 0.3.0 changes. Measurement outputs
+(tables, maps, density values) are unchanged.
+
+### Fixed
+
+- In Fiji, density maps now open with the viridis lookup table and 3D
+  territory stacks with glasbey. 0.3.0 looked these up as ImageJ 1 commands,
+  which they are not in current Fiji, so it always fell back to `Fire` and
+  `3-3-2 RGB`. The tables are now read from Fiji's `luts` folder; the fallbacks
+  remain for plain ImageJ.
+- The count and size density maps of one label type opened as two windows
+  with the same title (for example `A_Field_Density` twice). Their titles now
+  name the weighting (`A_Field_object_count_Density`,
+  `A_Field_object_size_Density`), as the saved file names already did.
+- Two region ROIs with the same name no longer make the second region's
+  Objects, Interactions and Regularity tables replace the first's on screen;
+  repeated names are shown as `name (2)`. Saved files were already distinct.
+- Pressing Escape during the last step of a run now cancels it. Previously
+  that step finished and the results were shown and saved anyway.
+- The status bar no longer reads "done (press Esc to stop)" after a run.
+- A folder batch keeps files of one sample together when their extensions
+  differ only in case or `tif`/`tiff` (`S1_nuclei.TIF` with
+  `S1_microglia.tif`). Since the default pattern became case-insensitive in
+  0.3.0 they were split into separate one-type samples.
+- The dialog's random seed is a text field, so seeds beyond 2^53 are used
+  exactly as typed instead of being rounded.
 
 ## [0.3.0] - 2026-09-29
 

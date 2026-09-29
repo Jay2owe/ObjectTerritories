@@ -36,20 +36,29 @@ The Windows launcher (`fiji-windows-x64.exe`) writes its console output only
 when standard output is redirected to a file, which the script does. It
 ignores `--console`. Each launch takes about 30 seconds.
 
-## Manual checks (need a screen)
+## GUI checks (need a screen)
 
-These cannot run headless. Tick them in a GUI Fiji with the same jar before a
+These cannot run headless. They are automated by the maintainers' GUI
+harness, which is kept outside this repository (`_gui/run-gui.sh territories`
+in the release workspace). It starts a non-headless Fiji with the built jar,
+drives the real dialogs from a Groovy script (menu commands, field values,
+button presses, the Macro Recorder, an Escape key event), checks the result
+windows' lookup tables against Fiji's `luts/` files, saves a screenshot of
+every dialog and writes PASS/FAIL per check. Last run: 0.3.1-SNAPSHOT,
+2026-09-29, all five pass. Run it (or tick by hand in a GUI Fiji) before a
 release:
 
-- [ ] `Plugins > Object Territories` opens its dialog listing the open images;
+- [x] `Plugins > Object Territories` opens its dialog listing the open images;
       with no images open it says to open a label image (2D or 3D stack).
-- [ ] With `Plugins > Macros > Record...` open, a dialog run records one
+- [x] With `Plugins > Macros > Record...` open, a dialog run records one
       `run("Object Territories", "...")` line that replays identically.
-- [ ] A run with density maps shows progress in the status bar, and pressing
+      ImageJ also records `selectImage("...")` as each result window
+      activates; those lines follow the run line and replay harmlessly.
+- [x] A run with density maps shows progress in the status bar, and pressing
       Escape stops it with the status `Object Territories cancelled`, no error
       dialog and no result windows.
-- [ ] `Plugins > Object Territories Batch...` shows the preview; `Back` returns
+- [x] `Plugins > Object Territories Batch...` shows the preview; `Back` returns
       to the settings with the values just entered; `Run batch` runs and shows
       the manifest.
-- [ ] Result windows open with the viridis (density) and glasbey (3D
+- [x] Result windows open with the viridis (density) and glasbey (3D
       territories) lookup tables.
