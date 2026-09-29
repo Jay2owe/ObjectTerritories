@@ -17,7 +17,7 @@ import territories.batch.ObjectTerritoriesBatchRunner;
 import java.awt.GraphicsEnvironment;
 import java.io.File;
 
-/** Fiji entry point for the two-dimensional regex-grouped folder batch. */
+/** Fiji entry point for the regex-grouped 2D and 3D folder batch. */
 public final class Object_Territories_Batch implements PlugIn {
 
     private static final String COMMAND_NAME = "Object Territories Batch";
@@ -27,8 +27,10 @@ public final class Object_Territories_Batch implements PlugIn {
         try {
             GenericDialog dialog = new GenericDialog(COMMAND_NAME);
             dialog.addMessage(
-                    "Group 1-5 matching 2D label images per sample.\n"
-                            + "The selected region ROI set is applied to every sample.");
+                    "Group 1-5 matching label images per sample.\n"
+                            + "2D: the selected region ROI set is applied to every sample.\n"
+                            + "3D: each group also holds one region-mask stack, the file whose\n"
+                            + "label type equals the region-mask type (the ROI field is ignored).");
             dialog.addDirectoryField("Input_folder", defaultDirectory());
             dialog.addStringField(
                     "Filename_regex",
@@ -36,6 +38,11 @@ public final class Object_Territories_Batch implements PlugIn {
                     48);
             dialog.addNumericField("Label_type_capture_group", 2, 0);
             dialog.addCheckbox("Recursive", true);
+            dialog.addChoice("Dimensions", new String[]{"2D", "3D"}, "2D");
+            dialog.addStringField(
+                    "Region_mask_type",
+                    ObjectTerritoriesBatchParameters.DEFAULT_REGION_MASK_TYPE,
+                    12);
             dialog.addFileField("Region_ROI_file_or_zip", "", 48);
             dialog.addChoice("Analysis", names(AnalysisMode.values()), AnalysisMode.BOTH.name());
             dialog.addChoice(
@@ -64,7 +71,9 @@ public final class Object_Territories_Batch implements PlugIn {
             int typeGroup = wholeNumber(
                     dialog.getNextNumber(), "Label type capture group", 1);
             boolean recursive = dialog.getNextBoolean();
-            File regionSource = new File(dialog.getNextString().trim());
+            boolean threeDimensional = "3D".equals(dialog.getNextChoice());
+            String regionMaskType = dialog.getNextString().trim();
+            String regionPath = dialog.getNextString().trim();
             AnalysisMode analysisMode = AnalysisMode.valueOf(dialog.getNextChoice());
             RegionMode regionMode = RegionMode.valueOf(dialog.getNextChoice());
             EdgeCellPolicy edgePolicy = EdgeCellPolicy.valueOf(dialog.getNextChoice());
@@ -77,9 +86,12 @@ public final class Object_Territories_Batch implements PlugIn {
             File output = new File(dialog.getNextString().trim());
             boolean showManifest = dialog.getNextBoolean();
 
-            ObjectTerritoriesBatchParameters parameters =
-                    ObjectTerritoriesBatchParameters.builder(
-                                    input, regex, typeGroup, regionSource, output)
+            ObjectTerritoriesBatchParameters.Builder builder = threeDimensional
+                    ? ObjectTerritoriesBatchParameters.builder3D(
+                            input, regex, typeGroup, regionMaskType, output)
+                    : ObjectTerritoriesBatchParameters.builder(
+                            input, regex, typeGroup, new File(regionPath), output);
+            ObjectTerritoriesBatchParameters parameters = builder
                             .recursive(recursive)
                             .analysisMode(analysisMode)
                             .regionMode(regionMode)
@@ -108,7 +120,8 @@ public final class Object_Territories_Batch implements PlugIn {
             IJ.log("Object Territories batch complete: "
                     + result.getProcessedGroups() + " processed, "
                     + result.getSkippedGroups() + " skipped, "
-                    + result.getErrorGroups() + " errors.");
+                    + result.getErrorGroups() + " errors. Manifest: "
+                    + result.getManifestFile().getAbsolutePath());
             if (showManifest && !GraphicsEnvironment.isHeadless()) {
                 result.getManifest().show("Object Territories Batch Manifest");
             }

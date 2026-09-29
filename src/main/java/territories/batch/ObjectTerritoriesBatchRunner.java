@@ -7,12 +7,16 @@ import ij.measure.ResultsTable;
 import sc.fiji.oc3d.core.io.RegexGroupDiscovery;
 import territories.api.ObjectTerritories;
 import territories.api.ObjectTerritoriesParameters;
+import territories.api.ObjectTerritoriesParameters3D;
 import territories.api.ObjectTerritoriesResult;
+import territories.api.ObjectTerritoriesResult3D;
 import territories.io.RegionRoiLoader;
 import territories.output.ResultExporter;
+import territories.output.ResultExporter3D;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -26,10 +30,15 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
-/** Discovers and executes two-dimensional Object Territories folder batches. */
+/** Discovers and executes 2D and 3D Object Territories folder batches. */
 public final class ObjectTerritoriesBatchRunner {
 
+    /** File name of the per-run manifest written to the output directory. */
+    public static final String MANIFEST_FILE_NAME = "Batch_Manifest.csv";
+
     private static final int MAX_LABEL_TYPES = 5;
+    private static final String[] MANIFEST_COLUMNS = {
+            "Folder", "Group", "Dimensions", "Status", "Label_Types", "Output", "Message"};
 
     private ObjectTerritoriesBatchRunner() {
     }
@@ -47,7 +56,9 @@ public final class ObjectTerritoriesBatchRunner {
             totalGroups += groups.size();
             for (List<File> files : groups.values()) {
                 totalFiles += files.size();
-                if (files.size() <= MAX_LABEL_TYPES) runnableGroups++;
+                if (problem(parameters, split(parameters, compiled, files)) == null) {
+                    runnableGroups++;
+                }
             }
         }
 
@@ -55,20 +66,31 @@ public final class ObjectTerritoriesBatchRunner {
         text.append(folders.size()).append(" folder(s), ")
                 .append(totalGroups).append(" group(s), ")
                 .append(runnableGroups).append(" runnable, ")
-                .append(totalFiles).append(" files\n\n");
+                .append(totalFiles).append(" files");
+        if (parameters.isThreeDimensional()) {
+            text.append(" (3D; region-mask type '")
+                    .append(parameters.getRegionMaskType()).append("')");
+        }
+        text.append("\n\n");
         for (Map.Entry<String, Map<String, List<File>>> folder : folders.entrySet()) {
             text.append(folder.getKey().isEmpty() ? "(root)" : folder.getKey() + "/")
                     .append('\n');
             for (Map.Entry<String, List<File>> group : folder.getValue().entrySet()) {
                 List<File> files = group.getValue();
+                GroupFiles split = split(parameters, compiled, files);
+                String problem = problem(parameters, split);
                 text.append("  ").append(group.getKey()).append("  (")
-                        .append(files.size()).append(" label type(s)")
-                        .append(files.size() > MAX_LABEL_TYPES ? " - SKIP: maximum is 5" : "")
+                        .append(split.labels.size()).append(" label type(s)")
+                        .append(parameters.isThreeDimensional()
+                                ? " + " + split.masks.size() + " mask" : "")
+                        .append(problem == null ? "" : " - " + problem)
                         .append(")\n");
                 for (File file : files) {
-                    text.append("    [")
-                            .append(typeName(file, compiled.pattern, compiled.typeCaptureGroup))
-                            .append("] ").append(file.getName()).append('\n');
+                    String tag = split.masks.contains(file)
+                            ? "mask"
+                            : typeName(file, compiled.pattern, compiled.typeCaptureGroup);
+                    text.append("    [").append(tag).append("] ")
+                            .append(file.getName()).append('\n');
                 }
             }
         }
@@ -78,12 +100,14 @@ public final class ObjectTerritoriesBatchRunner {
     /**
      * Runs every valid group and saves each sample beneath the configured output directory.
      * A failed group is recorded in the manifest and does not prevent later groups from running.
+     * The manifest is always written to {@value #MANIFEST_FILE_NAME} in the output directory.
      */
     public static ObjectTerritoriesBatchResult run(
             ObjectTerritoriesBatchParameters parameters) throws IOException {
         Compiled compiled = validate(parameters);
         Files.createDirectories(parameters.getOutputDirectory().toPath());
-        List<Roi> regions = RegionRoiLoader.load(parameters.getRegionSource());
+        List<Roi> regions = parameters.isThreeDimensional()
+                ? null : RegionRoiLoader.load(parameters.getRegionSource());
         Map<String, Map<String, List<File>>> folders = discover(parameters, compiled.pattern);
 
         ResultsTable manifest = new ResultsTable();
@@ -91,84 +115,200 @@ public final class ObjectTerritoriesBatchRunner {
         int skipped = 0;
         int errors = 0;
         Map<String, Set<String>> usedOutputNames = new LinkedHashMap<String, Set<String>>();
+        String dimensions = parameters.isThreeDimensional() ? "3D" : "2D";
+        File manifestFile = new File(parameters.getOutputDirectory(), MANIFEST_FILE_NAME);
 
-        for (Map.Entry<String, Map<String, List<File>>> folder : folders.entrySet()) {
-            String relativeFolder = folder.getKey();
-            for (Map.Entry<String, List<File>> group : folder.getValue().entrySet()) {
-                String groupKey = group.getKey();
-                List<File> files = group.getValue();
-                if (files.size() > MAX_LABEL_TYPES) {
-                    skipped++;
-                    addManifest(
-                            manifest, relativeFolder, groupKey, "SKIPPED", files.size(), "",
-                            "A sample can contain at most five label types.");
-                    continue;
-                }
-
-                String outputName = uniqueOutputName(
-                        relativeFolder, groupKey, usedOutputNames);
-                File folderOutput = relativeFolder.isEmpty()
-                        ? parameters.getOutputDirectory()
-                        : new File(parameters.getOutputDirectory(), slashToPlatform(relativeFolder));
-                File sampleOutput = new File(folderOutput, outputName);
-                String sampleKey = relativeFolder.isEmpty()
-                        ? groupKey : relativeFolder + "/" + groupKey;
-
-                ArrayList<ImagePlus> labels = new ArrayList<ImagePlus>();
-                ObjectTerritoriesResult result = null;
-                try {
-                    Set<String> typeNames = new HashSet<String>();
-                    for (File file : files) {
-                        String type = typeName(file, compiled.pattern, compiled.typeCaptureGroup);
-                        if (type.trim().isEmpty()) {
-                            throw new IllegalArgumentException(
-                                    "The type capture group is empty for " + file.getName());
-                        }
-                        if (!typeNames.add(type)) {
-                            throw new IllegalArgumentException(
-                                    "Duplicate label type '" + type + "' in group " + groupKey);
-                        }
-                        ImagePlus image = IJ.openImage(file.getAbsolutePath());
-                        if (image == null) {
-                            throw new IOException("Could not open label image: " + file);
-                        }
-                        image.setTitle(type);
-                        labels.add(image);
+        try {
+            for (Map.Entry<String, Map<String, List<File>>> folder : folders.entrySet()) {
+                String relativeFolder = folder.getKey();
+                for (Map.Entry<String, List<File>> group : folder.getValue().entrySet()) {
+                    String groupKey = group.getKey();
+                    GroupFiles split = split(parameters, compiled, group.getValue());
+                    int labelCount = split.labels.size();
+                    if (labelCount > MAX_LABEL_TYPES) {
+                        skipped++;
+                        addManifest(
+                                manifest, relativeFolder, groupKey, dimensions, "SKIPPED",
+                                labelCount, "", "A sample can contain at most five label types.");
+                        continue;
                     }
 
-                    ObjectTerritoriesParameters analysis = ObjectTerritoriesParameters.builder()
-                            .labelImages(labels)
-                            .regions(regions)
-                            .analysisMode(parameters.getAnalysisMode())
-                            .regionMode(parameters.getRegionMode())
-                            .edgeCellPolicy(parameters.getEdgeCellPolicy())
-                            .densityWeightingSelection(parameters.getDensityWeightingSelection())
-                            .densityBoundaryMode(parameters.getDensityBoundaryMode())
-                            .bandwidthMicrons(parameters.getBandwidthMicrons())
-                            .permutations(parameters.getPermutations())
-                            .seed(parameters.getSeed())
-                            .build();
-                    result = ObjectTerritories.analyze(analysis);
-                    ResultExporter.save(result, sampleOutput);
-                    processed.add(sampleKey);
-                    addManifest(
-                            manifest, relativeFolder, groupKey, "PROCESSED", files.size(),
-                            sampleOutput.getAbsolutePath(), "");
-                } catch (Exception error) {
-                    errors++;
-                    addManifest(
-                            manifest, relativeFolder, groupKey, "ERROR", files.size(),
-                            sampleOutput.getAbsolutePath(), message(error));
-                } finally {
-                    if (result != null) result.closeDensityImages();
-                    for (ImagePlus label : labels) {
-                        label.close();
-                        label.flush();
+                    String outputName = uniqueOutputName(
+                            relativeFolder, groupKey, usedOutputNames);
+                    File folderOutput = relativeFolder.isEmpty()
+                            ? parameters.getOutputDirectory()
+                            : new File(parameters.getOutputDirectory(),
+                                    slashToPlatform(relativeFolder));
+                    File sampleOutput = new File(folderOutput, outputName);
+                    String sampleKey = relativeFolder.isEmpty()
+                            ? groupKey : relativeFolder + "/" + groupKey;
+
+                    try {
+                        if (parameters.isThreeDimensional()) {
+                            runSample3D(parameters, compiled, groupKey, split, sampleOutput);
+                        } else {
+                            runSample2D(parameters, compiled, groupKey, split, regions,
+                                    sampleOutput);
+                        }
+                        processed.add(sampleKey);
+                        addManifest(
+                                manifest, relativeFolder, groupKey, dimensions, "PROCESSED",
+                                labelCount, sampleOutput.getAbsolutePath(), "");
+                    } catch (Exception error) {
+                        errors++;
+                        addManifest(
+                                manifest, relativeFolder, groupKey, dimensions, "ERROR",
+                                labelCount, sampleOutput.getAbsolutePath(), message(error));
                     }
                 }
             }
+        } finally {
+            saveManifest(manifest, manifestFile);
         }
-        return new ObjectTerritoriesBatchResult(processed, skipped, errors, manifest);
+        return new ObjectTerritoriesBatchResult(
+                processed, skipped, errors, manifest, manifestFile);
+    }
+
+    private static void runSample2D(
+            ObjectTerritoriesBatchParameters parameters,
+            Compiled compiled,
+            String groupKey,
+            GroupFiles split,
+            List<Roi> regions,
+            File sampleOutput) throws IOException {
+        ArrayList<ImagePlus> labels = new ArrayList<ImagePlus>();
+        ObjectTerritoriesResult result = null;
+        try {
+            openLabels(split.labels, compiled, groupKey, labels);
+            ObjectTerritoriesParameters analysis = ObjectTerritoriesParameters.builder()
+                    .labelImages(labels)
+                    .regions(regions)
+                    .analysisMode(parameters.getAnalysisMode())
+                    .regionMode(parameters.getRegionMode())
+                    .edgeCellPolicy(parameters.getEdgeCellPolicy())
+                    .densityWeightingSelection(parameters.getDensityWeightingSelection())
+                    .densityBoundaryMode(parameters.getDensityBoundaryMode())
+                    .bandwidthMicrons(parameters.getBandwidthMicrons())
+                    .permutations(parameters.getPermutations())
+                    .seed(parameters.getSeed())
+                    .build();
+            result = ObjectTerritories.analyze(analysis);
+            ResultExporter.save(result, sampleOutput);
+        } finally {
+            if (result != null) result.closeDensityImages();
+            closeAll(labels);
+        }
+    }
+
+    // Keep the shared settings in the same order as runSample2D so the two
+    // dimensionalities cannot drift apart.
+    private static void runSample3D(
+            ObjectTerritoriesBatchParameters parameters,
+            Compiled compiled,
+            String groupKey,
+            GroupFiles split,
+            File sampleOutput) throws IOException {
+        String maskType = parameters.getRegionMaskType();
+        if (split.masks.isEmpty()) {
+            throw new IllegalArgumentException(
+                    "no region-mask file (type '" + maskType + "') in group " + groupKey);
+        }
+        if (split.masks.size() > 1) {
+            throw new IllegalArgumentException(
+                    "more than one region-mask file (type '" + maskType + "') in group "
+                            + groupKey);
+        }
+        ArrayList<ImagePlus> opened = new ArrayList<ImagePlus>();
+        ObjectTerritoriesResult3D result = null;
+        try {
+            ArrayList<ImagePlus> labels = new ArrayList<ImagePlus>();
+            openLabels(split.labels, compiled, groupKey, labels);
+            opened.addAll(labels);
+            File maskFile = split.masks.get(0);
+            ImagePlus mask = IJ.openImage(maskFile.getAbsolutePath());
+            if (mask == null) {
+                throw new IOException("Could not open region-mask stack: " + maskFile);
+            }
+            opened.add(mask);
+            mask.setTitle(typeName(maskFile, compiled.pattern, compiled.typeCaptureGroup));
+
+            ObjectTerritoriesParameters3D analysis = ObjectTerritoriesParameters3D.builder()
+                    .labelImages(labels)
+                    .regionMask(mask)
+                    .analysisMode(parameters.getAnalysisMode())
+                    .regionMode(parameters.getRegionMode())
+                    .edgeCellPolicy(parameters.getEdgeCellPolicy())
+                    .densityWeightingSelection(parameters.getDensityWeightingSelection())
+                    .densityBoundaryMode(parameters.getDensityBoundaryMode())
+                    .bandwidth(parameters.getBandwidthMicrons())
+                    .permutations(parameters.getPermutations())
+                    .seed(parameters.getSeed())
+                    .build();
+            result = ObjectTerritories.analyze3D(analysis);
+            ResultExporter3D.save(result, sampleOutput);
+        } finally {
+            if (result != null) result.closeGeneratedImages();
+            closeAll(opened);
+        }
+    }
+
+    private static void openLabels(
+            List<File> files,
+            Compiled compiled,
+            String groupKey,
+            List<ImagePlus> labels) throws IOException {
+        Set<String> typeNames = new HashSet<String>();
+        for (File file : files) {
+            String type = typeName(file, compiled.pattern, compiled.typeCaptureGroup);
+            if (type.trim().isEmpty()) {
+                throw new IllegalArgumentException(
+                        "The type capture group is empty for " + file.getName());
+            }
+            if (!typeNames.add(type)) {
+                throw new IllegalArgumentException(
+                        "Duplicate label type '" + type + "' in group " + groupKey);
+            }
+            ImagePlus image = IJ.openImage(file.getAbsolutePath());
+            if (image == null) {
+                throw new IOException("Could not open label image: " + file);
+            }
+            image.setTitle(type);
+            labels.add(image);
+        }
+    }
+
+    private static void closeAll(List<ImagePlus> images) {
+        for (ImagePlus image : images) {
+            image.close();
+            image.flush();
+        }
+    }
+
+    /** Splits a group into label files and (3D only) region-mask files. */
+    private static GroupFiles split(
+            ObjectTerritoriesBatchParameters parameters, Compiled compiled, List<File> files) {
+        GroupFiles split = new GroupFiles();
+        String maskType = parameters.isThreeDimensional()
+                ? parameters.getRegionMaskType().trim() : null;
+        for (File file : files) {
+            String type = typeName(file, compiled.pattern, compiled.typeCaptureGroup);
+            if (maskType != null && type.trim().equalsIgnoreCase(maskType)) {
+                split.masks.add(file);
+            } else {
+                split.labels.add(file);
+            }
+        }
+        return split;
+    }
+
+    /** Why a group cannot run, as shown in the preview, or {@code null} if it can. */
+    private static String problem(ObjectTerritoriesBatchParameters parameters, GroupFiles split) {
+        if (split.labels.size() > MAX_LABEL_TYPES) return "SKIP: maximum is 5";
+        if (!parameters.isThreeDimensional()) return null;
+        if (split.masks.isEmpty()) return "SKIP/ERROR: no mask";
+        if (split.masks.size() > 1) return "ERROR: more than one mask";
+        if (split.labels.isEmpty()) return "ERROR: no label stacks";
+        return null;
     }
 
     private static Map<String, Map<String, List<File>>> discover(
@@ -207,10 +347,18 @@ public final class ObjectTerritoriesBatchRunner {
             throw new IllegalArgumentException(
                     "Type capture group must be between 1 and " + groupCount + ".");
         }
-        File regionSource = parameters.getRegionSource();
-        if (regionSource == null || !regionSource.isFile()) {
-            throw new IllegalArgumentException(
-                    "Region ROI source does not exist: " + regionSource);
+        if (parameters.isThreeDimensional()) {
+            String maskType = parameters.getRegionMaskType();
+            if (maskType == null || maskType.trim().isEmpty()) {
+                throw new IllegalArgumentException(
+                        "Region-mask type must not be blank in a 3D batch.");
+            }
+        } else {
+            File regionSource = parameters.getRegionSource();
+            if (regionSource == null || !regionSource.isFile()) {
+                throw new IllegalArgumentException(
+                        "Region ROI source does not exist: " + regionSource);
+            }
         }
         File output = parameters.getOutputDirectory();
         if (output == null) {
@@ -277,6 +425,7 @@ public final class ObjectTerritoriesBatchRunner {
             ResultsTable table,
             String folder,
             String group,
+            String dimensions,
             String status,
             int labelCount,
             String output,
@@ -284,10 +433,29 @@ public final class ObjectTerritoriesBatchRunner {
         table.incrementCounter();
         table.addValue("Folder", folder.isEmpty() ? "." : folder);
         table.addValue("Group", group);
+        table.addValue("Dimensions", dimensions);
         table.addValue("Status", status);
         table.addValue("Label_Types", labelCount);
         table.addValue("Output", output);
         table.addValue("Message", detail);
+    }
+
+    private static void saveManifest(ResultsTable manifest, File destination)
+            throws IOException {
+        if (manifest.size() == 0) {
+            // An empty ResultsTable has no columns to write; keep the header so
+            // the file is always a readable CSV.
+            Files.write(destination.toPath(),
+                    (String.join(",", MANIFEST_COLUMNS) + "\n")
+                            .getBytes(StandardCharsets.UTF_8));
+            return;
+        }
+        manifest.saveAs(destination.getAbsolutePath());
+    }
+
+    private static final class GroupFiles {
+        private final List<File> labels = new ArrayList<File>();
+        private final List<File> masks = new ArrayList<File>();
     }
 
     private static final class Compiled {

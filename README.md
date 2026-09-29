@@ -22,7 +22,8 @@ This repository contains the 2D and genuine-3D v0.2 build.
   in 3D).
 - Leave-one-out local density for every object.
 - Interactive, recorded macro, headless, and public Java API paths.
-- Regex-grouped recursive 2D folder batches with a preview and per-sample manifest.
+- Regex-grouped recursive 2D and 3D folder batches with a preview and a saved
+  per-sample manifest (`Batch_Manifest.csv`).
 - CSV/TIFF auto-save under `Objects/`, `Interactions/`, `Density/`, and `Maps/`.
 
 3D territories are voxel-resolved rather than projected. Physical x/y/z
@@ -50,7 +51,7 @@ install only the Object Territories JAR; none of JTS, `oc3d-core` or
 
 ## Folder batch
 
-`Object Territories Batch` groups matching 2D label images by a filename regular
+`Object Territories Batch` groups matching label images by a filename regular
 expression. Select the capture group that represents the label type; all other
 captures identify the sample. For example,
 `(.+)_([^_]+)\.(?:tif|tiff)$` with capture group 2 groups
@@ -60,16 +61,40 @@ The preview shows every discovered file before processing. Recursive discovery
 is deterministic, avoids directory cycles, and excludes the selected output
 tree so a later run cannot consume its own results. Groups of one to five label
 types run; larger groups are reported as skipped. Each sample is written to its
-own output folder and every outcome is recorded in the batch manifest.
+own output folder.
 
-The current batch path is deliberately 2D and applies one selected `.roi` or ROI
-`.zip` region set to every sample. The existing command and Java API continue to
-support genuine 3D runs one at a time. Use ImageJ's Macro Recorder while running
-the batch command to capture its complete replayable options.
+Every outcome (processed, skipped or error, with the reason) is recorded in
+`Batch_Manifest.csv` in the output directory, written at the end of every run,
+including runs in which some groups failed.
+
+**2D** (`dimensions=2D`, the default): one selected `.roi` or ROI `.zip` region
+set is applied to every sample.
+
+**3D** (`dimensions=3D`): each group also carries its own region-mask stack.
+The file whose label-type capture equals `region_mask_type` (default `mask`,
+compared case-insensitively) is the positive-integer region mask; the other one
+to five files are label stacks. For example `brain1_Cells.tif`,
+`brain1_Plaques.tif` and `brain1_mask.tif` form one two-type 3D sample. A group
+with no mask file, or more than one, is recorded as an error; the five-type
+limit does not count the mask. The region ROI field is ignored in 3D.
+
+```ijm
+run("Object Territories Batch...",
+    "input_folder=[C:/data/stacks] filename_regex=[(.+)_([^_]+)\\.(?:tif|tiff)$] " +
+    "label_type_capture_group=2 recursive dimensions=3D region_mask_type=mask " +
+    "region_roi_file_or_zip=[] analysis=BOTH multiple_region_rois=INDEPENDENT " +
+    "edge_cells=INCLUDE_FLAGGED density_weighting=BOTH density_boundary=CORRECTED " +
+    "bandwidth_0_is_automatic=0 permutations=1000 random_seed=12345 " +
+    "output_directory=[C:/results/batch-3D]");
+```
+
+Macros recorded before 3D batch existed omit `dimensions` and still run as 2D.
+Use ImageJ's Macro Recorder while running the batch command to capture its
+complete replayable options.
 
 The same workflow is available to Java callers through
-`territories.batch.ObjectTerritoriesBatchParameters`,
-`ObjectTerritoriesBatchRunner.preview(...)`, and
+`territories.batch.ObjectTerritoriesBatchParameters` (`builder(...)` for 2D,
+`builder3D(...)` for 3D), `ObjectTerritoriesBatchRunner.preview(...)`, and
 `ObjectTerritoriesBatchRunner.run(...)`.
 
 ## ImageJ macros

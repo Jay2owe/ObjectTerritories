@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+- Added: 3D folder batch with per-sample region-mask stacks
+  (`dimensions=3D`; the group file whose type is `region_mask_type`, default
+  `mask`, is the region mask). Java callers use
+  `ObjectTerritoriesBatchParameters.builder3D(...)`. 2D batches and macros
+  recorded before this change behave exactly as before.
+- Fixed: the batch manifest is now saved as `Batch_Manifest.csv` in the output
+  directory on every run, with a new `Dimensions` column; previously it was
+  only shown in a window, so headless batches lost every per-sample outcome.
 - Build aligned with current Fiji: parent `pom-scijava` 43.0.0 (ImageJ
   1.54p, the version Fiji ships), a Maven wrapper, and a green CI that builds
   both pinned cores first. The golden-master gate is bit-identical under the

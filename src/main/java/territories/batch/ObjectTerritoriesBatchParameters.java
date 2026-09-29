@@ -9,14 +9,27 @@ import territories.api.RegionMode;
 
 import java.io.File;
 
-/** Immutable configuration for a two-dimensional Object Territories folder batch. */
+/**
+ * Immutable configuration for an Object Territories folder batch.
+ *
+ * <p>A 2D batch ({@link #builder}) applies one shared region ROI set to every
+ * sample. A 3D batch ({@link #builder3D}) takes each sample's region mask from
+ * its own group: the file whose type capture equals the region-mask type
+ * (default {@value #DEFAULT_REGION_MASK_TYPE}, case-insensitive) is the
+ * region-mask stack and the other files are label stacks.</p>
+ */
 public final class ObjectTerritoriesBatchParameters {
+
+    /** Type token that marks the region-mask stack in a 3D batch group. */
+    public static final String DEFAULT_REGION_MASK_TYPE = "mask";
 
     private final File inputFolder;
     private final String filenameRegex;
     private final int typeCaptureGroup;
     private final boolean recursive;
     private final File regionSource;
+    private final boolean threeDimensional;
+    private final String regionMaskType;
     private final File outputDirectory;
     private final AnalysisMode analysisMode;
     private final RegionMode regionMode;
@@ -33,6 +46,8 @@ public final class ObjectTerritoriesBatchParameters {
         this.typeCaptureGroup = builder.typeCaptureGroup;
         this.recursive = builder.recursive;
         this.regionSource = builder.regionSource;
+        this.threeDimensional = builder.threeDimensional;
+        this.regionMaskType = builder.regionMaskType;
         this.outputDirectory = builder.outputDirectory;
         this.analysisMode = builder.analysisMode;
         this.regionMode = builder.regionMode;
@@ -44,6 +59,7 @@ public final class ObjectTerritoriesBatchParameters {
         this.seed = builder.seed;
     }
 
+    /** Starts a 2D batch that applies one region ROI file or ROI zip to every sample. */
     public static Builder builder(
             File inputFolder,
             String filenameRegex,
@@ -51,7 +67,25 @@ public final class ObjectTerritoriesBatchParameters {
             File regionSource,
             File outputDirectory) {
         return new Builder(
-                inputFolder, filenameRegex, typeCaptureGroup, regionSource, outputDirectory);
+                inputFolder, filenameRegex, typeCaptureGroup, regionSource, false, null,
+                outputDirectory);
+    }
+
+    /**
+     * Starts a 3D batch: every group holds 1-5 label stacks plus one region-mask
+     * stack, identified by its type capture equalling {@code regionMaskType}
+     * (case-insensitive; {@code null} means {@value #DEFAULT_REGION_MASK_TYPE}).
+     */
+    public static Builder builder3D(
+            File inputFolder,
+            String filenameRegex,
+            int typeCaptureGroup,
+            String regionMaskType,
+            File outputDirectory) {
+        return new Builder(
+                inputFolder, filenameRegex, typeCaptureGroup, null, true,
+                regionMaskType == null ? DEFAULT_REGION_MASK_TYPE : regionMaskType,
+                outputDirectory);
     }
 
     public File getInputFolder() {
@@ -70,8 +104,18 @@ public final class ObjectTerritoriesBatchParameters {
         return recursive;
     }
 
+    /** The shared 2D region ROI file; {@code null} in a 3D batch. */
     public File getRegionSource() {
         return regionSource;
+    }
+
+    public boolean isThreeDimensional() {
+        return threeDimensional;
+    }
+
+    /** The type token of each group's region-mask stack; {@code null} in a 2D batch. */
+    public String getRegionMaskType() {
+        return regionMaskType;
     }
 
     public File getOutputDirectory() {
@@ -115,6 +159,8 @@ public final class ObjectTerritoriesBatchParameters {
         private final String filenameRegex;
         private final int typeCaptureGroup;
         private final File regionSource;
+        private final boolean threeDimensional;
+        private final String regionMaskType;
         private final File outputDirectory;
         private boolean recursive = true;
         private AnalysisMode analysisMode = AnalysisMode.BOTH;
@@ -132,11 +178,15 @@ public final class ObjectTerritoriesBatchParameters {
                 String filenameRegex,
                 int typeCaptureGroup,
                 File regionSource,
+                boolean threeDimensional,
+                String regionMaskType,
                 File outputDirectory) {
             this.inputFolder = inputFolder;
             this.filenameRegex = filenameRegex;
             this.typeCaptureGroup = typeCaptureGroup;
             this.regionSource = regionSource;
+            this.threeDimensional = threeDimensional;
+            this.regionMaskType = regionMaskType;
             this.outputDirectory = outputDirectory;
         }
 
