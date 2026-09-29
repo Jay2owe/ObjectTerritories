@@ -19,23 +19,23 @@ public final class ResultPresenter {
     }
 
     public static void show(ObjectTerritoriesResult result, ImagePlus referenceImage) {
+        DisplayTitles titles = new DisplayTitles();
         for (RegionAnalysisResult region : result.getRegions()) {
-            String suffix = " - " + region.getRegionName();
+            String regionName = titles.region(region.getRegionName());
+            String suffix = " - " + regionName;
             ResultTables.objects(result, region).show("Object Territories Objects" + suffix);
             if (region.getInteractions() != null) {
                 ResultTables.interactions(region).show("Object Territories Interactions" + suffix);
             }
             if (region.getTerritories() != null) {
                 ResultTables.regularity(region).show("Object Territories Regularity" + suffix);
-                showTerritoryOverlay(region, referenceImage);
+                showTerritoryOverlay(region, regionName, referenceImage);
             }
             for (DensityResult density : region.getDensityResults()) {
                 ImagePlus image = density.getDensityMap();
-                if (commandExists("mpl-viridis")) {
-                    IJ.run(image, "mpl-viridis", "");
-                } else if (commandExists("Fire")) {
-                    IJ.run(image, "Fire", "");
-                }
+                image.setTitle(titles.image(
+                        DisplayTitles.densityTitle(image.getTitle(), density.getWeighting())));
+                LookupTables.apply(image, LookupTables.DENSITY, LookupTables.DENSITY_FALLBACK);
                 image.resetDisplayRange();
                 image.show();
                 IJ.run(
@@ -47,10 +47,10 @@ public final class ResultPresenter {
     }
 
     private static void showTerritoryOverlay(
-            RegionAnalysisResult region, ImagePlus referenceImage) {
+            RegionAnalysisResult region, String regionName, ImagePlus referenceImage) {
         if (referenceImage == null || region.getTerritories() == null) return;
         ImagePlus display = referenceImage.duplicate();
-        display.setTitle("Object Territories - " + region.getRegionName());
+        display.setTitle("Object Territories - " + regionName);
         Overlay overlay = new Overlay();
         double pixelWidth = calibrated(referenceImage.getCalibration().pixelWidth);
         double pixelHeight = calibrated(referenceImage.getCalibration().pixelHeight);
@@ -68,15 +68,6 @@ public final class ResultPresenter {
         }
         display.setOverlay(overlay);
         display.show();
-    }
-
-    /**
-     * Fiji's lookup tables (mpl-viridis, glasbey) are not commands in plain
-     * ImageJ, where running one raises "Unrecognized command".
-     */
-    static boolean commandExists(String command) {
-        java.util.Hashtable<?, ?> commands = ij.Menus.getCommands();
-        return commands != null && commands.get(command) != null;
     }
 
     private static double calibrated(double value) {
