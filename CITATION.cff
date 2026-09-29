@@ -7,6 +7,8 @@ abstract: >-
   interactions, and kernel density maps from labelled objects. Handles 2D label
   images and genuine 3D label stacks, ImageJ ROI files and ROI sets, with
   Voronoi cells clipped to arbitrary region shapes and boundary cells flagged.
+  Runs interactively, from macros, headless, and as 2D or 3D folder batches
+  with per-sample region-mask stacks and a saved manifest.
 authors:
   - given-names: Jamie
     family-names: Malcolm
@@ -16,7 +18,7 @@ authors:
 repository-code: "https://github.com/Jay2owe/ObjectTerritories"
 url: "https://github.com/Jay2owe/ObjectTerritories"
 license: BSD-3-Clause
-version: "0.2.0"
+version: "0.3.0"
 date-released: "2026-08-20"
 keywords:
   - imagej
@@ -25,3 +27,5 @@ keywords:
   - microscopy
   - voronoi
   - spatial-analysis
+  - kernel-density-estimation
+  - 3d
