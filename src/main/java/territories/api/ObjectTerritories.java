@@ -42,7 +42,18 @@ public final class ObjectTerritories {
     }
 
     public static ObjectTerritoriesResult analyze(ObjectTerritoriesParameters parameters) {
+        return analyze(parameters, ProgressMonitor.NONE);
+    }
+
+    /**
+     * Runs a 2D analysis, reporting each step to {@code monitor} and stopping
+     * with {@link AnalysisCancelledException} if it asks to. The results are
+     * identical to {@link #analyze(ObjectTerritoriesParameters)}.
+     */
+    public static ObjectTerritoriesResult analyze(
+            ObjectTerritoriesParameters parameters, ProgressMonitor monitor) {
         validate(parameters);
+        if (monitor == null) throw new IllegalArgumentException("progress monitor must not be null");
         List<ImagePlus> labelImages = parameters.getLabelImages();
         ImagePlus reference = labelImages.get(0);
         Calibration calibration = reference.getCalibration();
@@ -75,10 +86,18 @@ public final class ObjectTerritories {
                 Runtime.getRuntime().maxMemory());
         ArrayList<RegionAnalysisResult> analyses =
                 new ArrayList<RegionAnalysisResult>(regions.size());
+        List<DensityWeighting> weightings =
+                concreteWeightings(parameters.getDensityWeightingSelection());
+        int total = stepCount(
+                parameters.getAnalysisMode(), regions.size(), typeNames.size(), weightings.size());
+        int done = 0;
+        ArrayList<ImagePlus> produced = new ArrayList<ImagePlus>();
         for (SpatialRegion2D region : regions) {
             TerritoryResult territoryResult = null;
             InteractionMatrixResult interactionResult = null;
             if (parameters.getAnalysisMode() != AnalysisMode.DENSITY) {
+                checkCancelled(monitor, produced);
+                monitor.update("region " + region.getName() + ": territories", done, total);
                 territoryResult = TerritoryEngine.analyze(
                         objects, region, EngineOptions.engine(parameters.getEdgeCellPolicy()));
                 interactionResult = InteractionEngine.analyze(
@@ -88,14 +107,17 @@ public final class ObjectTerritories {
                         typeNames,
                         parameters.getPermutations(),
                         parameters.getSeed());
+                done++;
             }
 
             ArrayList<DensityResult> densityResults = new ArrayList<DensityResult>();
             if (parameters.getAnalysisMode() != AnalysisMode.TERRITORIES) {
                 for (String typeName : typeNames) {
-                    for (DensityWeighting weighting :
-                            concreteWeightings(parameters.getDensityWeightingSelection())) {
-                        densityResults.add(DensityEngine.generate(
+                    for (DensityWeighting weighting : weightings) {
+                        checkCancelled(monitor, produced);
+                        monitor.update(densityStep(region.getName(), typeName, weighting),
+                                done, total);
+                        DensityResult density = DensityEngine.generate(
                                 objects,
                                 region,
                                 typeName,
@@ -106,7 +128,10 @@ public final class ObjectTerritories {
                                 unit,
                                 parameters.getBandwidthMicrons(),
                                 EngineOptions.engine(weighting),
-                                EngineOptions.engine(parameters.getDensityBoundaryMode())));
+                                EngineOptions.engine(parameters.getDensityBoundaryMode()));
+                        produced.add(density.getDensityMap());
+                        densityResults.add(density);
+                        done++;
                     }
                 }
             }
@@ -114,6 +139,7 @@ public final class ObjectTerritories {
                     region.getName(), territoryResult, interactionResult, densityResults));
         }
 
+        monitor.update("done", total, total);
         ArrayList<String> warnings = new ArrayList<String>();
         if (unit == null || unit.trim().isEmpty() || unit.equalsIgnoreCase("pixel")) {
             warnings.add("Images are not spatially calibrated; distances and areas are in pixels.");
@@ -131,7 +157,18 @@ public final class ObjectTerritories {
 
     public static ObjectTerritoriesResult3D analyze3D(
             ObjectTerritoriesParameters3D parameters) {
+        return analyze3D(parameters, ProgressMonitor.NONE);
+    }
+
+    /**
+     * Runs a 3D analysis, reporting each step to {@code monitor} and stopping
+     * with {@link AnalysisCancelledException} if it asks to. The results are
+     * identical to {@link #analyze3D(ObjectTerritoriesParameters3D)}.
+     */
+    public static ObjectTerritoriesResult3D analyze3D(
+            ObjectTerritoriesParameters3D parameters, ProgressMonitor monitor) {
         validate3D(parameters);
+        if (monitor == null) throw new IllegalArgumentException("progress monitor must not be null");
         List<ImagePlus> labelImages = parameters.getLabelImages();
         ArrayList<SpatialObject3D> objects = new ArrayList<SpatialObject3D>();
         ArrayList<String> typeNames = new ArrayList<String>(labelImages.size());
@@ -150,12 +187,21 @@ public final class ObjectTerritories {
         assertReasonable3DOutputMemory(parameters, regions.size(), typeNames.size());
         ArrayList<RegionAnalysisResult3D> analyses =
                 new ArrayList<RegionAnalysisResult3D>(regions.size());
+        List<DensityWeighting> weightings =
+                concreteWeightings(parameters.getDensityWeightingSelection());
+        int total = stepCount(
+                parameters.getAnalysisMode(), regions.size(), typeNames.size(), weightings.size());
+        int done = 0;
+        ArrayList<ImagePlus> produced = new ArrayList<ImagePlus>();
         for (RegionMask3D region : regions) {
             TerritoryResult3D territoryResult = null;
             InteractionMatrixResult interactionResult = null;
             if (parameters.getAnalysisMode() != AnalysisMode.DENSITY) {
+                checkCancelled(monitor, produced);
+                monitor.update("region " + region.getName() + ": territories", done, total);
                 territoryResult = TerritoryEngine3D.analyze(
                         objects, region, EngineOptions.engine(parameters.getEdgeCellPolicy()));
+                produced.add(territoryResult.getTerritoryLabels());
                 interactionResult = InteractionEngine.analyze(
                         summaryCells(
                                 territoryResult.getCells(),
@@ -163,20 +209,26 @@ public final class ObjectTerritories {
                         typeNames,
                         parameters.getPermutations(),
                         parameters.getSeed());
+                done++;
             }
             ArrayList<DensityResult3D> densityResults =
                     new ArrayList<DensityResult3D>();
             if (parameters.getAnalysisMode() != AnalysisMode.TERRITORIES) {
                 for (String typeName : typeNames) {
-                    for (DensityWeighting weighting :
-                            concreteWeightings(parameters.getDensityWeightingSelection())) {
-                        densityResults.add(DensityEngine3D.generate(
+                    for (DensityWeighting weighting : weightings) {
+                        checkCancelled(monitor, produced);
+                        monitor.update(densityStep(region.getName(), typeName, weighting),
+                                done, total);
+                        DensityResult3D density = DensityEngine3D.generate(
                                 objects,
                                 region,
                                 typeName,
                                 parameters.getBandwidth(),
                                 EngineOptions.engine(weighting),
-                                EngineOptions.engine(parameters.getDensityBoundaryMode())));
+                                EngineOptions.engine(parameters.getDensityBoundaryMode()));
+                        produced.add(density.getDensityVolume());
+                        densityResults.add(density);
+                        done++;
                     }
                 }
             }
@@ -184,6 +236,7 @@ public final class ObjectTerritories {
                     region.getName(), territoryResult, interactionResult, densityResults));
         }
 
+        monitor.update("done", total, total);
         ArrayList<String> warnings = new ArrayList<String>();
         String unit = parameters.getRegionMask().getCalibration().getUnit();
         if (unit == null || unit.trim().isEmpty() || unit.equalsIgnoreCase("pixel")) {
@@ -191,6 +244,34 @@ public final class ObjectTerritories {
                     "Stacks are not spatially calibrated; distances, areas, and volumes use pixels.");
         }
         return new ObjectTerritoriesResult3D(objects, analyses, warnings);
+    }
+
+    /** Steps reported to a monitor: territories per region plus one per density map. */
+    static int stepCount(AnalysisMode mode, int regions, int types, int weightings) {
+        int perRegion = 0;
+        if (mode != AnalysisMode.DENSITY) perRegion++;
+        if (mode != AnalysisMode.TERRITORIES) perRegion += types * weightings;
+        return regions * perRegion;
+    }
+
+    private static String densityStep(String region, String type, DensityWeighting weighting) {
+        return "region " + region + ": density " + type + " ("
+                + weighting.name().toLowerCase(java.util.Locale.ROOT).replace('_', ' ') + ")";
+    }
+
+    /**
+     * Stops between steps when asked. Images produced so far belong to a
+     * result the caller will never receive, so they are closed here.
+     */
+    private static void checkCancelled(ProgressMonitor monitor, List<ImagePlus> produced) {
+        if (!monitor.isCancelled()) return;
+        for (ImagePlus image : produced) {
+            if (image == null) continue;
+            image.close();
+            image.flush();
+        }
+        produced.clear();
+        throw new AnalysisCancelledException();
     }
 
     private static void validate(ObjectTerritoriesParameters parameters) {

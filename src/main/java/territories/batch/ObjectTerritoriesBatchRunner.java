@@ -5,11 +5,13 @@ import ij.ImagePlus;
 import ij.gui.Roi;
 import ij.measure.ResultsTable;
 import sc.fiji.oc3d.core.io.RegexGroupDiscovery;
+import territories.api.AnalysisCancelledException;
 import territories.api.ObjectTerritories;
 import territories.api.ObjectTerritoriesParameters;
 import territories.api.ObjectTerritoriesParameters3D;
 import territories.api.ObjectTerritoriesResult;
 import territories.api.ObjectTerritoriesResult3D;
+import territories.api.ProgressMonitor;
 import territories.io.RegionRoiLoader;
 import territories.output.ResultExporter;
 import territories.output.ResultExporter3D;
@@ -104,6 +106,18 @@ public final class ObjectTerritoriesBatchRunner {
      */
     public static ObjectTerritoriesBatchResult run(
             ObjectTerritoriesBatchParameters parameters) throws IOException {
+        return run(parameters, ProgressMonitor.NONE);
+    }
+
+    /**
+     * As {@link #run(ObjectTerritoriesBatchParameters)}, reporting one step per
+     * sample. When the monitor cancels, the sample in progress and every later
+     * group are recorded as CANCELLED and the manifest is still saved.
+     */
+    public static ObjectTerritoriesBatchResult run(
+            ObjectTerritoriesBatchParameters parameters,
+            ProgressMonitor monitor) throws IOException {
+        if (monitor == null) throw new IllegalArgumentException("progress monitor must not be null");
         Compiled compiled = validate(parameters);
         Files.createDirectories(parameters.getOutputDirectory().toPath());
         List<Roi> regions = parameters.isThreeDimensional()
@@ -114,6 +128,11 @@ public final class ObjectTerritoriesBatchRunner {
         ArrayList<String> processed = new ArrayList<String>();
         int skipped = 0;
         int errors = 0;
+        int cancelled = 0;
+        boolean stopping = false;
+        int totalGroups = 0;
+        for (Map<String, List<File>> groups : folders.values()) totalGroups += groups.size();
+        int groupNumber = 0;
         Map<String, Set<String>> usedOutputNames = new LinkedHashMap<String, Set<String>>();
         String dimensions = parameters.isThreeDimensional() ? "3D" : "2D";
         File manifestFile = new File(parameters.getOutputDirectory(), MANIFEST_FILE_NAME);
@@ -125,6 +144,15 @@ public final class ObjectTerritoriesBatchRunner {
                     String groupKey = group.getKey();
                     GroupFiles split = split(parameters, compiled, group.getValue());
                     int labelCount = split.labels.size();
+                    groupNumber++;
+                    if (!stopping && monitor.isCancelled()) stopping = true;
+                    if (stopping) {
+                        cancelled++;
+                        addManifest(
+                                manifest, relativeFolder, groupKey, dimensions, "CANCELLED",
+                                labelCount, "", "The batch was cancelled before this group ran.");
+                        continue;
+                    }
                     if (labelCount > MAX_LABEL_TYPES) {
                         skipped++;
                         addManifest(
@@ -143,17 +171,29 @@ public final class ObjectTerritoriesBatchRunner {
                     String sampleKey = relativeFolder.isEmpty()
                             ? groupKey : relativeFolder + "/" + groupKey;
 
+                    String prefix = "Sample " + groupNumber + "/" + totalGroups + ": "
+                            + RegexGroupDiscovery.groupDisplayName(groupKey);
+                    monitor.update(prefix, groupNumber - 1, totalGroups);
+                    ProgressMonitor sampleMonitor = sampleMonitor(
+                            monitor, prefix, groupNumber - 1, totalGroups);
                     try {
-                        if (parameters.isThreeDimensional()) {
-                            runSample3D(parameters, compiled, groupKey, split, sampleOutput);
-                        } else {
-                            runSample2D(parameters, compiled, groupKey, split, regions,
-                                    sampleOutput);
-                        }
+                        List<String> warnings = parameters.isThreeDimensional()
+                                ? runSample3D(parameters, compiled, groupKey, split,
+                                        sampleOutput, sampleMonitor)
+                                : runSample2D(parameters, compiled, groupKey, split, regions,
+                                        sampleOutput, sampleMonitor);
                         processed.add(sampleKey);
                         addManifest(
                                 manifest, relativeFolder, groupKey, dimensions, "PROCESSED",
-                                labelCount, sampleOutput.getAbsolutePath(), "");
+                                labelCount, sampleOutput.getAbsolutePath(),
+                                join(warnings));
+                    } catch (AnalysisCancelledException stop) {
+                        stopping = true;
+                        cancelled++;
+                        addManifest(
+                                manifest, relativeFolder, groupKey, dimensions, "CANCELLED",
+                                labelCount, "", "The batch was cancelled while this group ran; "
+                                        + "nothing was saved for it.");
                     } catch (Exception error) {
                         errors++;
                         addManifest(
@@ -165,17 +205,43 @@ public final class ObjectTerritoriesBatchRunner {
         } finally {
             saveManifest(manifest, manifestFile);
         }
+        if (!stopping) monitor.update("done", totalGroups, totalGroups);
         return new ObjectTerritoriesBatchResult(
-                processed, skipped, errors, manifest, manifestFile);
+                processed, skipped, errors, cancelled, manifest, manifestFile);
     }
 
-    private static void runSample2D(
+    private static ProgressMonitor sampleMonitor(
+            final ProgressMonitor batch, final String prefix, final int done, final int total) {
+        return new ProgressMonitor() {
+            @Override
+            public void update(String step, int stepDone, int stepTotal) {
+                batch.update(prefix + " - " + step, done, total);
+            }
+
+            @Override
+            public boolean isCancelled() {
+                return batch.isCancelled();
+            }
+        };
+    }
+
+    private static String join(List<String> warnings) {
+        StringBuilder text = new StringBuilder();
+        for (String warning : warnings) {
+            if (text.length() > 0) text.append("; ");
+            text.append(warning);
+        }
+        return text.toString();
+    }
+
+    private static List<String> runSample2D(
             ObjectTerritoriesBatchParameters parameters,
             Compiled compiled,
             String groupKey,
             GroupFiles split,
             List<Roi> regions,
-            File sampleOutput) throws IOException {
+            File sampleOutput,
+            ProgressMonitor monitor) throws IOException {
         ArrayList<ImagePlus> labels = new ArrayList<ImagePlus>();
         ObjectTerritoriesResult result = null;
         try {
@@ -192,8 +258,9 @@ public final class ObjectTerritoriesBatchRunner {
                     .permutations(parameters.getPermutations())
                     .seed(parameters.getSeed())
                     .build();
-            result = ObjectTerritories.analyze(analysis);
+            result = ObjectTerritories.analyze(analysis, monitor);
             ResultExporter.save(result, sampleOutput);
+            return result.getWarnings();
         } finally {
             if (result != null) result.closeDensityImages();
             closeAll(labels);
@@ -202,12 +269,13 @@ public final class ObjectTerritoriesBatchRunner {
 
     // Keep the shared settings in the same order as runSample2D so the two
     // dimensionalities cannot drift apart.
-    private static void runSample3D(
+    private static List<String> runSample3D(
             ObjectTerritoriesBatchParameters parameters,
             Compiled compiled,
             String groupKey,
             GroupFiles split,
-            File sampleOutput) throws IOException {
+            File sampleOutput,
+            ProgressMonitor monitor) throws IOException {
         String maskType = parameters.getRegionMaskType();
         if (split.masks.isEmpty()) {
             throw new IllegalArgumentException(
@@ -244,8 +312,9 @@ public final class ObjectTerritoriesBatchRunner {
                     .permutations(parameters.getPermutations())
                     .seed(parameters.getSeed())
                     .build();
-            result = ObjectTerritories.analyze3D(analysis);
+            result = ObjectTerritories.analyze3D(analysis, monitor);
             ResultExporter3D.save(result, sampleOutput);
+            return result.getWarnings();
         } finally {
             if (result != null) result.closeGeneratedImages();
             closeAll(opened);

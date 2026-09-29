@@ -7,6 +7,7 @@ import ij.WindowManager;
 import ij.gui.GenericDialog;
 import ij.plugin.PlugIn;
 import ij.plugin.frame.Recorder;
+import territories.api.AnalysisCancelledException;
 import territories.api.AnalysisMode;
 import territories.api.DensityBoundaryMode;
 import territories.api.DensityWeightingSelection;
@@ -16,6 +17,7 @@ import territories.api.ObjectTerritoriesParameters;
 import territories.api.ObjectTerritoriesParameters3D;
 import territories.api.ObjectTerritoriesResult;
 import territories.api.ObjectTerritoriesResult3D;
+import territories.api.ProgressMonitor;
 import territories.api.RegionMode;
 import territories.io.RegionRoiLoader;
 import territories.macro.MacroOptionsParser;
@@ -48,8 +50,11 @@ public final class Object_Territories implements PlugIn {
                 macroOptions = argument;
             }
             if (macroOptions != null && !macroOptions.trim().isEmpty()) {
-                execute(MacroOptionsParser.parse(macroOptions), headless,
-                        Object_Territories::uniqueOpenImage);
+                ObjectTerritoriesMacroOptions options = MacroOptionsParser.parse(macroOptions);
+                IJ.resetEscape();
+                execute(options, headless, Object_Territories::uniqueOpenImage,
+                        new ImageJProgress(COMMAND_NAME));
+                IJ.showProgress(1.0);
                 return;
             }
             if (headless) {
@@ -65,7 +70,19 @@ public final class Object_Territories implements PlugIn {
                         "run(\"" + COMMAND_NAME + "\", \""
                                 + options.toMacroOptions() + "\");\n");
             }
-            execute(options, false, Object_Territories::uniqueOpenImage);
+            IJ.resetEscape();
+            execute(options, false, Object_Territories::uniqueOpenImage,
+                    new ImageJProgress(COMMAND_NAME));
+            IJ.showProgress(1.0);
+        } catch (AnalysisCancelledException cancelled) {
+            // Escape is a request, not an error: no dialog, no windows, no files.
+            IJ.resetEscape();
+            IJ.showProgress(1.0);
+            IJ.showStatus(COMMAND_NAME + " cancelled");
+            if (headless) {
+                IJ.log("[Object Territories] cancelled");
+                throw cancelled;
+            }
         } catch (Exception error) {
             if (headless) {
                 IJ.log("[Object Territories] ERROR: " + error.getMessage());
@@ -109,6 +126,14 @@ public final class Object_Territories implements PlugIn {
             ObjectTerritoriesMacroOptions options,
             boolean headless,
             Function<String, ImagePlus> resolveTitle) throws Exception {
+        execute(options, headless, resolveTitle, ProgressMonitor.NONE);
+    }
+
+    static void execute(
+            ObjectTerritoriesMacroOptions options,
+            boolean headless,
+            Function<String, ImagePlus> resolveTitle,
+            ProgressMonitor monitor) throws Exception {
         if (headless && options.getOutputDirectory() == null) {
             throw new IllegalArgumentException(
                     "headless execution requires output=[directory]");
@@ -125,7 +150,7 @@ public final class Object_Territories implements PlugIn {
             labels.add(image);
         }
         if (options.isThreeDimensional()) {
-            execute3D(options, labels, headless, resolveTitle);
+            execute3D(options, labels, headless, resolveTitle, monitor);
             return;
         }
 
@@ -141,7 +166,8 @@ public final class Object_Territories implements PlugIn {
                 .permutations(options.getPermutations())
                 .seed(options.getSeed())
                 .build();
-        ObjectTerritoriesResult result = ObjectTerritories.analyze(parameters);
+        ObjectTerritoriesResult result = ObjectTerritories.analyze(parameters, monitor);
+        logWarnings(result.getWarnings());
 
         boolean keepImages = !headless && !options.isHideResults();
         try {
@@ -158,7 +184,8 @@ public final class Object_Territories implements PlugIn {
             ObjectTerritoriesMacroOptions options,
             List<ImagePlus> labels,
             boolean headless,
-            Function<String, ImagePlus> resolveTitle) throws Exception {
+            Function<String, ImagePlus> resolveTitle,
+            ProgressMonitor monitor) throws Exception {
         ImagePlus mask = resolveTitle.apply(options.getRegionMaskTitle());
         if (mask == null) {
             throw new IllegalArgumentException(
@@ -177,7 +204,8 @@ public final class Object_Territories implements PlugIn {
                         .permutations(options.getPermutations())
                         .seed(options.getSeed())
                         .build();
-        ObjectTerritoriesResult3D result = ObjectTerritories.analyze3D(parameters);
+        ObjectTerritoriesResult3D result = ObjectTerritories.analyze3D(parameters, monitor);
+        logWarnings(result.getWarnings());
         boolean keepImages = !headless && !options.isHideResults();
         try {
             if (options.getOutputDirectory() != null) {
@@ -187,6 +215,14 @@ public final class Object_Territories implements PlugIn {
         } finally {
             if (!keepImages) result.closeGeneratedImages();
         }
+    }
+
+    /**
+     * Warnings such as "not spatially calibrated" change how every number is
+     * read, so they are logged on every path, headless and hidden runs included.
+     */
+    private static void logWarnings(List<String> warnings) {
+        for (String warning : warnings) IJ.log("[Object Territories] " + warning);
     }
 
     /**

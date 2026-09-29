@@ -19,7 +19,6 @@ public final class ResultPresenter {
     }
 
     public static void show(ObjectTerritoriesResult result, ImagePlus referenceImage) {
-        for (String warning : result.getWarnings()) IJ.log("[Object Territories] " + warning);
         for (RegionAnalysisResult region : result.getRegions()) {
             String suffix = " - " + region.getRegionName();
             ResultTables.objects(result, region).show("Object Territories Objects" + suffix);
@@ -32,7 +31,11 @@ public final class ResultPresenter {
             }
             for (DensityResult density : region.getDensityResults()) {
                 ImagePlus image = density.getDensityMap();
-                IJ.run(image, "mpl-viridis", "");
+                if (commandExists("mpl-viridis")) {
+                    IJ.run(image, "mpl-viridis", "");
+                } else if (commandExists("Fire")) {
+                    IJ.run(image, "Fire", "");
+                }
                 image.resetDisplayRange();
                 image.show();
                 IJ.run(
@@ -65,6 +68,15 @@ public final class ResultPresenter {
         }
         display.setOverlay(overlay);
         display.show();
+    }
+
+    /**
+     * Fiji's lookup tables (mpl-viridis, glasbey) are not commands in plain
+     * ImageJ, where running one raises "Unrecognized command".
+     */
+    static boolean commandExists(String command) {
+        java.util.Hashtable<?, ?> commands = ij.Menus.getCommands();
+        return commands != null && commands.get(command) != null;
     }
 
     private static double calibrated(double value) {

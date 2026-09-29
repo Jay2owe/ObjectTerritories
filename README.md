@@ -39,6 +39,9 @@ Plugins > Object Territories
 Plugins > Object Territories Batch...
 ```
 
+Both commands show progress in Fiji's status bar; press Escape to stop a run
+between steps (a stopped batch still saves its manifest).
+
 JTS (Java Topology Suite) is bundled and internally renamed in the plugin JAR,
 so users do not need to install a separate geometry library.
 

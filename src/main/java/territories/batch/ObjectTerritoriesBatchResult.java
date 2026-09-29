@@ -13,6 +13,7 @@ public final class ObjectTerritoriesBatchResult {
     private final List<String> processedSamples;
     private final int skippedGroups;
     private final int errorGroups;
+    private final int cancelledGroups;
     private final ResultsTable manifest;
     private final File manifestFile;
 
@@ -20,12 +21,14 @@ public final class ObjectTerritoriesBatchResult {
             List<String> processedSamples,
             int skippedGroups,
             int errorGroups,
+            int cancelledGroups,
             ResultsTable manifest,
             File manifestFile) {
         this.processedSamples = Collections.unmodifiableList(
                 new ArrayList<String>(processedSamples));
         this.skippedGroups = skippedGroups;
         this.errorGroups = errorGroups;
+        this.cancelledGroups = cancelledGroups;
         this.manifest = manifest;
         this.manifestFile = manifestFile;
     }
@@ -44,6 +47,11 @@ public final class ObjectTerritoriesBatchResult {
 
     public int getErrorGroups() {
         return errorGroups;
+    }
+
+    /** Groups recorded as CANCELLED because the batch was stopped. */
+    public int getCancelledGroups() {
+        return cancelledGroups;
     }
 
     /** One row per discovered group: folder, group, dimensions, status, output, message. */

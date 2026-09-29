@@ -243,6 +243,71 @@ public class ObjectTerritoriesBatchRunnerTest {
                 temporary.newFolder("blank-mask-output")).build());
     }
 
+    @Test
+    public void cancellingAfterTheFirstSampleRecordsTheRestAndSavesTheManifest() throws Exception {
+        File input = temporary.newFolder("cancel-input");
+        File output = temporary.newFolder("cancel-output");
+        File regions = regionFile();
+        for (String sample : new String[]{"s1", "s2", "s3"}) {
+            saveLabel(new File(input, sample + "_A.tif"), 2, 2, 7, 7);
+            saveLabel(new File(input, sample + "_B.tif"), 2, 7, 7, 2);
+        }
+        final java.util.List<String> steps = new java.util.ArrayList<String>();
+        territories.api.ProgressMonitor stopAfterFirst = new territories.api.ProgressMonitor() {
+            private boolean cancelled;
+
+            @Override
+            public void update(String step, int done, int total) {
+                steps.add(step);
+                if (step.startsWith("Sample 1/3") && step.endsWith(" - done")) cancelled = true;
+            }
+
+            @Override
+            public boolean isCancelled() {
+                return cancelled;
+            }
+        };
+
+        ObjectTerritoriesBatchResult result = ObjectTerritoriesBatchRunner.run(
+                parameters(input, regions, output, "(.+)_([AB])\\.tif"), stopAfterFirst);
+
+        assertEquals(1, result.getProcessedGroups());
+        assertEquals(2, result.getCancelledGroups());
+        ij.measure.ResultsTable manifest = result.getManifest();
+        assertEquals(3, manifest.size());
+        assertEquals("PROCESSED", manifest.getStringValue("Status", 0));
+        assertEquals("CANCELLED", manifest.getStringValue("Status", 1));
+        assertEquals("CANCELLED", manifest.getStringValue("Status", 2));
+        assertTrue(steps.toString(), steps.get(0).startsWith("Sample 1/3: s1"));
+        assertFalse(new File(output, "s2").exists());
+        java.util.List<String> lines = java.nio.file.Files.readAllLines(
+                new File(output, "Batch_Manifest.csv").toPath(),
+                java.nio.charset.StandardCharsets.UTF_8);
+        assertEquals(4, lines.size());
+        assertTrue(lines.get(3), lines.get(3).contains("CANCELLED"));
+    }
+
+    @Test
+    public void uncalibratedWarningIsRecordedForProcessedSamples() throws Exception {
+        File input = temporary.newFolder("warn-input");
+        File output = temporary.newFolder("warn-output");
+        saveLabel(new File(input, "w_A.tif"), 2, 2, 7, 7);
+        ObjectTerritoriesBatchResult result = ObjectTerritoriesBatchRunner.run(
+                parameters(input, regionFile(), output, "(.+)_([AB])\\.tif"));
+        assertEquals("PROCESSED", result.getManifest().getStringValue("Status", 0));
+        assertTrue(result.getManifest().getStringValue("Message", 0),
+                result.getManifest().getStringValue("Message", 0).contains("not spatially calibrated"));
+    }
+
+    @Test
+    public void defaultRegexMatchesUpperCaseExtensions() {
+        java.util.regex.Matcher matcher = java.util.regex.Pattern
+                .compile(territories.Object_Territories_Batch.DEFAULT_REGEX)
+                .matcher("Sample01_Cells.TIF");
+        assertTrue(matcher.matches());
+        assertEquals("Cells", matcher.group(2));
+    }
+
     private static int countUnder(java.util.List<String> files, String prefix) {
         int count = 0;
         for (String file : files) {
