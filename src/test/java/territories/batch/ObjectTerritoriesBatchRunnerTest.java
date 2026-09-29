@@ -308,6 +308,51 @@ public class ObjectTerritoriesBatchRunnerTest {
         assertEquals("Cells", matcher.group(2));
     }
 
+    @Test
+    public void mixedCaseAndTiffExtensionsOfOneSampleStayOneGroup() throws Exception {
+        // 0.3.0 grouped these as S1_*.TIF, S1_*.tif and S1_*.tiff: three
+        // one-type samples instead of one sample with three label types.
+        File input = temporary.newFolder("mixed-input");
+        File output = temporary.newFolder("mixed-output");
+        saveLabel(new File(input, "S1_nuclei.TIF"), 2, 2, 7, 7);
+        saveLabel(new File(input, "S1_microglia.tif"), 2, 7, 7, 2);
+        saveLabel(new File(input, "S1_plaques.tiff"), 5, 5, 8, 8);
+        ObjectTerritoriesBatchParameters parameters = ObjectTerritoriesBatchParameters.builder(
+                        input, territories.Object_Territories_Batch.DEFAULT_REGEX, 2,
+                        regionFile(), output)
+                .analysisMode(AnalysisMode.TERRITORIES)
+                .permutations(5)
+                .build();
+
+        String preview = ObjectTerritoriesBatchRunner.preview(parameters);
+        assertTrue(preview, preview.contains("1 group(s)"));
+        ObjectTerritoriesBatchResult result = ObjectTerritoriesBatchRunner.run(parameters);
+
+        assertEquals(1, result.getProcessedGroups());
+        assertEquals(1, result.getManifest().size());
+        assertEquals(3, (int) result.getManifest().getValue("Label_Types", 0));
+    }
+
+    @Test
+    public void extensionVariantsMergeButDifferentSamplesDoNot() {
+        java.util.Map<String, java.util.List<File>> groups =
+                new java.util.LinkedHashMap<String, java.util.List<File>>();
+        groups.put("S1_*.TIF", new java.util.ArrayList<File>(
+                java.util.Collections.singletonList(new File("S1_b.TIF"))));
+        groups.put("S2_*.tif", new java.util.ArrayList<File>(
+                java.util.Collections.singletonList(new File("S2_a.tif"))));
+        groups.put("S1_*.tiff", new java.util.ArrayList<File>(
+                java.util.Collections.singletonList(new File("S1_a.tiff"))));
+        groups.put("s1_*.tif", new java.util.ArrayList<File>(
+                java.util.Collections.singletonList(new File("s1_c.tif"))));
+        java.util.Map<String, java.util.List<File>> merged =
+                ObjectTerritoriesBatchRunner.mergeExtensionVariants(groups);
+        assertEquals(java.util.Arrays.asList("S1_*.TIF", "S2_*.tif", "s1_*.tif"),
+                new java.util.ArrayList<String>(merged.keySet()));
+        assertEquals(java.util.Arrays.asList(new File("S1_a.tiff"), new File("S1_b.TIF")),
+                merged.get("S1_*.TIF"));
+    }
+
     private static int countUnder(java.util.List<String> files, String prefix) {
         int count = 0;
         for (String file : files) {

@@ -383,13 +383,57 @@ public final class ObjectTerritoriesBatchRunner {
     private static Map<String, Map<String, List<File>>> discover(
             ObjectTerritoriesBatchParameters parameters, Pattern pattern) {
         Set<File> excluded = Collections.singleton(parameters.getOutputDirectory());
-        return RegexGroupDiscovery.findGroupsRecursive(
+        Map<String, Map<String, List<File>>> folders = RegexGroupDiscovery.findGroupsRecursive(
                 parameters.getInputFolder(),
                 pattern,
                 parameters.getTypeCaptureGroup(),
                 parameters.isRecursive(),
                 RegexGroupDiscovery.GroupOrder.FILENAME_IGNORE_CASE,
                 excluded);
+        Map<String, Map<String, List<File>>> merged =
+                new LinkedHashMap<String, Map<String, List<File>>>();
+        for (Map.Entry<String, Map<String, List<File>>> folder : folders.entrySet()) {
+            merged.put(folder.getKey(), mergeExtensionVariants(folder.getValue()));
+        }
+        return merged;
+    }
+
+    /**
+     * Group keys keep each file's own extension, so {@code S1_nuclei.TIF} and
+     * {@code S1_microglia.tif} (or {@code .tiff}) became two one-type samples
+     * once the default pattern matched any case. Keys that differ only in the
+     * extension's case, or tif/tiff, are one sample; the first key seen names it.
+     */
+    static Map<String, List<File>> mergeExtensionVariants(Map<String, List<File>> groups) {
+        Map<String, String> keyByCanonical = new LinkedHashMap<String, String>();
+        Map<String, List<File>> merged = new LinkedHashMap<String, List<File>>();
+        for (Map.Entry<String, List<File>> group : groups.entrySet()) {
+            String canonical = canonicalExtension(group.getKey());
+            String key = keyByCanonical.get(canonical);
+            if (key == null) {
+                keyByCanonical.put(canonical, group.getKey());
+                merged.put(group.getKey(), new ArrayList<File>(group.getValue()));
+            } else {
+                List<File> files = merged.get(key);
+                files.addAll(group.getValue());
+                Collections.sort(files, new java.util.Comparator<File>() {
+                    @Override
+                    public int compare(File left, File right) {
+                        int order = left.getName().compareToIgnoreCase(right.getName());
+                        return order != 0 ? order : left.getName().compareTo(right.getName());
+                    }
+                });
+            }
+        }
+        return merged;
+    }
+
+    private static String canonicalExtension(String groupKey) {
+        int dot = groupKey.lastIndexOf('.');
+        if (dot < 0 || groupKey.indexOf('*', dot) >= 0) return groupKey;
+        String extension = groupKey.substring(dot + 1).toLowerCase(Locale.ROOT);
+        if (extension.equals("tiff")) extension = "tif";
+        return groupKey.substring(0, dot + 1) + extension;
     }
 
     private static Compiled validate(ObjectTerritoriesBatchParameters parameters) {
