@@ -94,6 +94,43 @@ public class ProgressMonitorTest {
     }
 
     @Test
+    public void escapeDuringTheLastStepStillCancelsAndClosesEveryMap() {
+        ImagePlus.addImageListener(closeRecorder);
+        // All four density steps run; the check after the last one cancels.
+        // Before 0.3.1 that check did not exist and the run returned results.
+        Recording monitor = new Recording(4);
+        try {
+            ObjectTerritories.analyze(
+                    parameters(AnalysisMode.DENSITY, DensityWeightingSelection.BOTH), monitor);
+            fail("expected cancellation after the last step");
+        } catch (AnalysisCancelledException expected) {
+            drainEvents();
+            assertEquals(4, monitor.steps.size());
+            assertEquals(4, closed.size());
+        }
+    }
+
+    @Test
+    public void threeDimensionalEscapeDuringTheLastStepStillCancels() {
+        ImagePlus.addImageListener(closeRecorder);
+        // Territories plus two density volumes (count, size), then cancel.
+        Recording monitor = new Recording(3);
+        try {
+            ObjectTerritories.analyze3D(ObjectTerritoriesParameters3D.builder()
+                    .addLabelImage(labels3D())
+                    .regionMask(mask3D())
+                    .bandwidth(1.0)
+                    .permutations(5)
+                    .build(), monitor);
+            fail("expected cancellation after the last step");
+        } catch (AnalysisCancelledException expected) {
+            drainEvents();
+            assertEquals(3, monitor.steps.size());
+            assertEquals(3, closed.size());
+        }
+    }
+
+    @Test
     public void cancellationBeforeAnyStepMakesNothing() {
         ImagePlus.addImageListener(closeRecorder);
         try {

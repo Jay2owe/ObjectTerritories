@@ -14,8 +14,14 @@ final class ImageJProgress implements ProgressMonitor {
 
     @Override
     public void update(String step, int done, int total) {
-        IJ.showStatus(prefix + ": " + step + " (press Esc to stop)");
+        IJ.showStatus(statusText(prefix, step, done, total));
         IJ.showProgress(done, total);
+    }
+
+    /** The Esc hint only while there is something left to stop. */
+    static String statusText(String prefix, String step, int done, int total) {
+        boolean finished = total > 0 && done >= total;
+        return prefix + ": " + step + (finished ? "" : " (press Esc to stop)");
     }
 
     @Override

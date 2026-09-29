@@ -139,6 +139,9 @@ public final class ObjectTerritories {
                     region.getName(), territoryResult, interactionResult, densityResults));
         }
 
+        // Escape pressed during the last step must still win: the caller
+        // would otherwise show and save a result the user asked to abandon.
+        checkCancelled(monitor, produced);
         monitor.update("done", total, total);
         ArrayList<String> warnings = new ArrayList<String>();
         if (unit == null || unit.trim().isEmpty() || unit.equalsIgnoreCase("pixel")) {
@@ -236,6 +239,7 @@ public final class ObjectTerritories {
                     region.getName(), territoryResult, interactionResult, densityResults));
         }
 
+        checkCancelled(monitor, produced);
         monitor.update("done", total, total);
         ArrayList<String> warnings = new ArrayList<String>();
         String unit = parameters.getRegionMask().getCalibration().getUnit();
