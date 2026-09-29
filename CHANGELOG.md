@@ -7,6 +7,27 @@
   `mask`, is the region mask). Java callers use
   `ObjectTerritoriesBatchParameters.builder3D(...)`. 2D batches and macros
   recorded before this change behave exactly as before.
+- Fixed: leaving the 2D region ROI field empty in the dialog now says
+  "choose a region ROI .roi or .zip file for 2D label images" instead of
+  opening an exception window with a stack trace.
+- Fixed: an image title (or path) containing `[`, `]` or a quote now gives a
+  clear "rename the image" message instead of an internal-error stack trace.
+- Fixed: when two open images share a title, the command no longer silently
+  analyses the first one; it asks for unique titles (dialog and macro paths).
+- Fixed: the "no images open" message no longer says only 2D images are
+  accepted; 3D stacks are too.
+- Fixed: a run with result windows hidden and no output directory is rejected
+  up front instead of computing everything and discarding it.
+- Fixed: permutation counts above 1,000,000 are rejected with a message
+  (`ObjectTerritoriesParameters.MAX_PERMUTATIONS`) instead of running out of
+  memory; applies to the dialog, macros, the batch and the Java builders.
+- Fixed: RGB colour label images and region masks are rejected; their packed
+  colours were previously read as label values.
+- Fixed: 3D stacks of more than 2,147,483,639 voxels are rejected with a
+  message instead of failing inside the engine's array indexing.
+- Fixed: 2D density maps now have the same memory guard as 3D, so a request
+  that cannot fit in Fiji's memory is refused with an estimate instead of
+  crashing part-way through.
 - Fixed: the batch manifest is now saved as `Batch_Manifest.csv` in the output
   directory on every run, with a new `Dimensions` column; previously it was
   only shown in a window, so headless batches lost every per-sample outcome.

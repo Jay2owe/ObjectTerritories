@@ -30,6 +30,7 @@ import java.awt.GraphicsEnvironment;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 
 /** Fiji/ImageJ entry point for interactive, recorded macro, and headless use. */
 public final class Object_Territories implements PlugIn {
@@ -47,7 +48,8 @@ public final class Object_Territories implements PlugIn {
                 macroOptions = argument;
             }
             if (macroOptions != null && !macroOptions.trim().isEmpty()) {
-                execute(MacroOptionsParser.parse(macroOptions), headless);
+                execute(MacroOptionsParser.parse(macroOptions), headless,
+                        Object_Territories::uniqueOpenImage);
                 return;
             }
             if (headless) {
@@ -63,7 +65,7 @@ public final class Object_Territories implements PlugIn {
                         "run(\"" + COMMAND_NAME + "\", \""
                                 + options.toMacroOptions() + "\");\n");
             }
-            execute(options, false);
+            execute(options, false, Object_Territories::uniqueOpenImage);
         } catch (Exception error) {
             if (headless) {
                 IJ.log("[Object Territories] ERROR: " + error.getMessage());
@@ -90,22 +92,40 @@ public final class Object_Territories implements PlugIn {
         return target.toString();
     }
 
-    private static void execute(ObjectTerritoriesMacroOptions options, boolean headless)
-            throws Exception {
+    /** Rejection when a run would compute results and keep none of them. */
+    static final String NOTHING_KEPT =
+            "nothing would be kept: result windows are hidden and no output directory is set; "
+                    + "show the result windows or choose an auto-save directory";
+
+    /** Parses macro options and runs them; the seam unit tests drive headlessly. */
+    static void runMacro(
+            String macroOptions,
+            boolean headless,
+            Function<String, ImagePlus> resolveTitle) throws Exception {
+        execute(MacroOptionsParser.parse(macroOptions), headless, resolveTitle);
+    }
+
+    static void execute(
+            ObjectTerritoriesMacroOptions options,
+            boolean headless,
+            Function<String, ImagePlus> resolveTitle) throws Exception {
         if (headless && options.getOutputDirectory() == null) {
             throw new IllegalArgumentException(
                     "headless execution requires output=[directory]");
         }
+        if (options.isHideResults() && options.getOutputDirectory() == null) {
+            throw new IllegalArgumentException(NOTHING_KEPT);
+        }
         List<ImagePlus> labels = new ArrayList<ImagePlus>();
         for (String title : options.getLabelTitles()) {
-            ImagePlus image = WindowManager.getImage(title);
+            ImagePlus image = resolveTitle.apply(title);
             if (image == null) {
                 throw new IllegalArgumentException("label image is not open: " + title);
             }
             labels.add(image);
         }
         if (options.isThreeDimensional()) {
-            execute3D(options, labels, headless);
+            execute3D(options, labels, headless, resolveTitle);
             return;
         }
 
@@ -137,8 +157,9 @@ public final class Object_Territories implements PlugIn {
     private static void execute3D(
             ObjectTerritoriesMacroOptions options,
             List<ImagePlus> labels,
-            boolean headless) throws Exception {
-        ImagePlus mask = WindowManager.getImage(options.getRegionMaskTitle());
+            boolean headless,
+            Function<String, ImagePlus> resolveTitle) throws Exception {
+        ImagePlus mask = resolveTitle.apply(options.getRegionMaskTitle());
         if (mask == null) {
             throw new IllegalArgumentException(
                     "3D region-mask image is not open: " + options.getRegionMaskTitle());
@@ -168,10 +189,46 @@ public final class Object_Territories implements PlugIn {
         }
     }
 
+    /**
+     * Finds the one open image with this title. WindowManager.getImage(title)
+     * silently returns the first of several same-titled images, so choosing
+     * the second one in the dialog would analyse the wrong image.
+     */
+    static ImagePlus uniqueOpenImage(String title) {
+        int[] identifiers = WindowManager.getIDList();
+        ArrayList<ImagePlus> open = new ArrayList<ImagePlus>();
+        if (identifiers != null) {
+            for (int identifier : identifiers) {
+                ImagePlus image = WindowManager.getImage(identifier);
+                if (image != null) open.add(image);
+            }
+        }
+        ImagePlus found = uniqueImage(title, open);
+        return found != null ? found : WindowManager.getImage(title);
+    }
+
+    static ImagePlus uniqueImage(String title, List<ImagePlus> candidates) {
+        ImagePlus found = null;
+        int matches = 0;
+        for (ImagePlus image : candidates) {
+            if (image != null && title != null && title.equals(image.getTitle())) {
+                matches++;
+                found = image;
+            }
+        }
+        if (matches > 1) {
+            throw new IllegalArgumentException(
+                    "two or more open images are titled '" + title
+                            + "'; rename them so each title is unique");
+        }
+        return found;
+    }
+
     private static ObjectTerritoriesDialogModel showDialog() {
         String[] imageChoices = openImageChoices();
         if (imageChoices.length == 1) {
-            IJ.error(COMMAND_NAME, "Open at least one 2D label image first.");
+            IJ.error(COMMAND_NAME,
+                    "Open at least one label image (a 2D image or a 3D stack) first.");
             return null;
         }
         ImagePlus current = WindowManager.getCurrentImage();
@@ -238,8 +295,39 @@ public final class Object_Territories implements PlugIn {
         String outputDirectory = dialog.getNextString();
         boolean showResults = dialog.getNextBoolean();
 
+        return dialogModel(
+                titles, regionMaskTitle, regionPath, analysisMode, regionMode, edgePolicy,
+                weighting, boundary, bandwidth, permutationValue, seedValue,
+                outputDirectory, showResults, Object_Territories::uniqueOpenImage);
+    }
+
+    /** Validates the dialog's choices; separate from the Swing code so tests can reach it. */
+    static ObjectTerritoriesDialogModel dialogModel(
+            List<String> titles,
+            String regionMaskTitle,
+            String regionPath,
+            AnalysisMode analysisMode,
+            RegionMode regionMode,
+            EdgeCellPolicy edgePolicy,
+            DensityWeightingSelection weighting,
+            DensityBoundaryMode boundary,
+            double bandwidth,
+            double permutationValue,
+            double seedValue,
+            String outputDirectory,
+            boolean showResults,
+            Function<String, ImagePlus> resolveTitle) {
         if (titles.isEmpty()) throw new IllegalArgumentException("select at least one label image");
-        ImagePlus firstLabel = WindowManager.getImage(titles.get(0));
+        for (String title : titles) {
+            if (resolveTitle.apply(title) == null) {
+                throw new IllegalArgumentException("label image is not open: " + title);
+            }
+        }
+        if (regionMaskTitle != null && resolveTitle.apply(regionMaskTitle) == null) {
+            throw new IllegalArgumentException(
+                    "3D region-mask image is not open: " + regionMaskTitle);
+        }
+        ImagePlus firstLabel = resolveTitle.apply(titles.get(0));
         boolean threeDimensional = firstLabel != null && firstLabel.getStackSize() > 1;
         if (threeDimensional && regionMaskTitle == null) {
             throw new IllegalArgumentException(
@@ -253,12 +341,23 @@ public final class Object_Territories implements PlugIn {
             regionPath = null;
         } else {
             regionMaskTitle = null;
+            if (regionPath == null || regionPath.trim().isEmpty()) {
+                throw new IllegalArgumentException(
+                        "choose a region ROI .roi or .zip file for 2D label images");
+            }
         }
         if (!isWhole(permutationValue) || permutationValue < 1 || permutationValue > Integer.MAX_VALUE) {
             throw new IllegalArgumentException("permutations must be a positive whole number");
         }
+        if (permutationValue > ObjectTerritoriesParameters.MAX_PERMUTATIONS) {
+            throw new IllegalArgumentException(
+                    "permutations must be at most " + ObjectTerritoriesParameters.MAX_PERMUTATIONS);
+        }
         if (!isWhole(seedValue) || seedValue < Long.MIN_VALUE || seedValue > Long.MAX_VALUE) {
             throw new IllegalArgumentException("random seed must be a whole number");
+        }
+        if (!showResults && (outputDirectory == null || outputDirectory.trim().isEmpty())) {
+            throw new IllegalArgumentException(NOTHING_KEPT);
         }
         return new ObjectTerritoriesDialogModel(
                 titles,

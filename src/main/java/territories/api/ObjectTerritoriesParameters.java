@@ -18,6 +18,12 @@ public final class ObjectTerritoriesParameters {
 
     public static final int DEFAULT_PERMUTATIONS = 1000;
     public static final long DEFAULT_SEED = 12345L;
+    /**
+     * Largest accepted permutation count. The interaction null model keeps one
+     * k x k count matrix per permutation, so an unbounded count ends in an
+     * out-of-memory crash rather than a message.
+     */
+    public static final int MAX_PERMUTATIONS = 1_000_000;
 
     private final List<ImagePlus> labelImages;
     private final List<Roi> regions;
@@ -168,6 +174,10 @@ public final class ObjectTerritoriesParameters {
 
         public Builder permutations(int value) {
             if (value < 1) throw new IllegalArgumentException("permutations must be at least 1");
+            if (value > MAX_PERMUTATIONS) {
+                throw new IllegalArgumentException(
+                        "permutations must be at most " + MAX_PERMUTATIONS);
+            }
             this.permutations = value;
             return this;
         }

@@ -233,6 +233,10 @@ public final class ObjectTerritoriesBatchParameters {
             if (value < 1) {
                 throw new IllegalArgumentException("permutations must be at least 1");
             }
+            if (value > ObjectTerritoriesParameters.MAX_PERMUTATIONS) {
+                throw new IllegalArgumentException("permutations must be at most "
+                        + ObjectTerritoriesParameters.MAX_PERMUTATIONS);
+            }
             this.permutations = value;
             return this;
         }

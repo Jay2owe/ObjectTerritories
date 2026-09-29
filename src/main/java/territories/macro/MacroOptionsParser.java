@@ -60,6 +60,7 @@ public final class MacroOptionsParser {
                 tokens.get("permutations"),
                 ObjectTerritoriesParameters.DEFAULT_PERMUTATIONS,
                 1,
+                ObjectTerritoriesParameters.MAX_PERMUTATIONS,
                 "permutations");
         long seed = longValue(tokens.get("seed"), ObjectTerritoriesParameters.DEFAULT_SEED, "seed");
         String output = tokens.containsKey("output")
@@ -166,12 +167,6 @@ public final class MacroOptionsParser {
         }
     }
 
-    private static String required(Map<String, String> values, String key) {
-        String value = values.get(key);
-        if (value == null) throw new IllegalArgumentException(key + " is required");
-        return value;
-    }
-
     private static String requireSafeValue(String value, String key) {
         if (value == null || value.trim().isEmpty()) {
             throw new IllegalArgumentException(key + " must not be empty");
@@ -197,15 +192,18 @@ public final class MacroOptionsParser {
         return parsed;
     }
 
-    private static int integer(String value, int defaultValue, int minimum, String key) {
+    private static int integer(
+            String value, int defaultValue, int minimum, int maximum, String key) {
         if (value == null) return defaultValue;
+        long parsed;
         try {
-            int parsed = Integer.parseInt(value);
-            if (parsed < minimum) throw new IllegalArgumentException(key + " must be at least " + minimum);
-            return parsed;
+            parsed = Long.parseLong(value.trim());
         } catch (NumberFormatException error) {
             throw new IllegalArgumentException(key + " must be an integer", error);
         }
+        if (parsed < minimum) throw new IllegalArgumentException(key + " must be at least " + minimum);
+        if (parsed > maximum) throw new IllegalArgumentException(key + " must be at most " + maximum);
+        return (int) parsed;
     }
 
     private static long longValue(String value, long defaultValue, String key) {

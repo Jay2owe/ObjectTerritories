@@ -198,13 +198,22 @@ public final class ObjectTerritoriesMacroOptions {
         append(target, key, "[" + value + "]");
     }
 
+    /**
+     * Bad values here come from the user (an image title, a chosen path), so
+     * they are reported as bad input with a remedy, never as an internal fault.
+     */
     private static void validateBracketed(String value, String key) {
         if (value == null || value.isEmpty()) {
-            throw new IllegalStateException(key + " must not be empty");
+            throw new IllegalArgumentException(key + " must not be empty");
         }
         if (value.indexOf('[') >= 0 || value.indexOf(']') >= 0
                 || value.indexOf('"') >= 0 || value.indexOf('\r') >= 0 || value.indexOf('\n') >= 0) {
-            throw new IllegalStateException(key + " contains characters that cannot be recorded safely");
+            boolean title = key.startsWith("label") || key.equals("region_mask");
+            throw new IllegalArgumentException(title
+                    ? "'" + value + "': rename the image; ImageJ macros cannot record titles "
+                            + "containing [ ] or quotes"
+                    : "'" + value + "': rename or move it; ImageJ macros cannot record paths "
+                            + "containing [ ] or quotes");
         }
     }
 

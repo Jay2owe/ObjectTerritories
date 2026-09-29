@@ -66,6 +66,13 @@ public final class ObjectTerritories {
                 parameters.getRegions(), EngineOptions.engine(parameters.getRegionMode()),
                 pixelWidth, pixelHeight,
                 reference.getWidth(), reference.getHeight());
+        assertReasonable2DOutputMemory(
+                (long) reference.getWidth() * reference.getHeight(),
+                regions.size(),
+                typeNames.size(),
+                parameters.getAnalysisMode(),
+                parameters.getDensityWeightingSelection(),
+                Runtime.getRuntime().maxMemory());
         ArrayList<RegionAnalysisResult> analyses =
                 new ArrayList<RegionAnalysisResult>(regions.size());
         for (SpatialRegion2D region : regions) {
@@ -206,6 +213,7 @@ public final class ObjectTerritories {
                 throw new IllegalArgumentException(
                         "label image '" + image.getTitle() + "' is not two-dimensional");
             }
+            rejectRgb(image, "label image");
             if (image.getWidth() != reference.getWidth()
                     || image.getHeight() != reference.getHeight()) {
                 throw new IllegalArgumentException("all label images must have identical dimensions");
@@ -259,6 +267,26 @@ public final class ObjectTerritories {
         }
         validateVolumeShape(mask, reference, "region mask");
         validateVolumeCalibration(mask.getCalibration(), referenceCalibration);
+        long voxels = (long) reference.getWidth() * reference.getHeight()
+                * reference.getStackSize();
+        if (voxels > MAX_VOXELS) {
+            throw new IllegalArgumentException(
+                    "the 3D stacks have " + voxels + " voxels; at most " + MAX_VOXELS
+                            + " voxels per stack can be analysed (Java array limit); "
+                            + "crop or downsample the stacks");
+        }
+    }
+
+    /** Largest voxel count the core's int-indexed volume arrays can hold. */
+    static final long MAX_VOXELS = Integer.MAX_VALUE - 8L;
+
+    private static void rejectRgb(ImagePlus image, String role) {
+        if (image.getType() == ImagePlus.COLOR_RGB) {
+            throw new IllegalArgumentException(
+                    role + " '" + image.getTitle() + "' is RGB colour, whose packed colours "
+                            + "cannot be read as labels; convert it to an 8-, 16- or 32-bit "
+                            + "label image");
+        }
     }
 
     private static void validateVolumeShape(
@@ -275,6 +303,7 @@ public final class ObjectTerritories {
             throw new IllegalArgumentException(
                     "all 3D label images and the region mask must have identical dimensions");
         }
+        rejectRgb(image, role);
     }
 
     private static void validateVolumeCalibration(
@@ -357,6 +386,40 @@ public final class ObjectTerritories {
                             + humanBytes(estimatedWorkingBytes)
                             + " including core working arrays; reduce regions/types, choose one density "
                             + "weighting, or increase Fiji's maximum memory");
+        }
+    }
+
+    /**
+     * 2D counterpart of the 3D guard: every region x type x weighting density
+     * map is a float image the caller receives, plus one int component array
+     * per map while it is computed. Without the guard a large field with
+     * several regions ends in an out-of-memory crash part-way through.
+     */
+    static void assertReasonable2DOutputMemory(
+            long pixels,
+            int regionCount,
+            int typeCount,
+            AnalysisMode analysisMode,
+            DensityWeightingSelection weighting,
+            long maxMemory) {
+        if (analysisMode == AnalysisMode.TERRITORIES) return;
+        int weightCount = weighting == DensityWeightingSelection.BOTH ? 2 : 1;
+        long maps = (long) regionCount * typeCount * weightCount;
+        long estimatedBytes;
+        try {
+            estimatedBytes = Math.addExact(
+                    Math.multiplyExact(Math.multiplyExact(pixels, maps), 4L),
+                    Math.multiplyExact(pixels, 4L));
+        } catch (ArithmeticException error) {
+            throw new IllegalArgumentException("requested 2D density maps exceed Java array limits");
+        }
+        long safeBudget = (long) (maxMemory * 0.65);
+        if (estimatedBytes > safeBudget) {
+            throw new IllegalArgumentException(
+                    "requested 2D density maps need approximately "
+                            + humanBytes(estimatedBytes)
+                            + " (" + maps + " maps); reduce regions/types, choose one density "
+                            + "weighting, run territories only, or increase Fiji's maximum memory");
         }
     }
 
