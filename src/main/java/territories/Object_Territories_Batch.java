@@ -63,11 +63,7 @@ public final class Object_Territories_Batch implements PlugIn {
                 return;
             }
         } catch (Exception error) {
-            if (headless) {
-                IJ.log("[" + COMMAND_NAME + "] ERROR: " + error.getMessage());
-                throw error instanceof RuntimeException
-                        ? (RuntimeException) error : new IllegalStateException(error);
-            }
+            if (headless) throw HeadlessFailure.abort(COMMAND_NAME, error);
             // Bad input is explained in its message; the trace stays in the Log
             // for anyone filing a report, but no stack-trace window opens.
             if (error instanceof IllegalArgumentException) {
@@ -117,14 +113,14 @@ public final class Object_Territories_Batch implements PlugIn {
                         + "2D: the selected region ROI set is applied to every sample.\n"
                         + "3D: each group also holds one region-mask stack, the file whose\n"
                         + "label type equals the region-mask type (the ROI field is ignored).");
-        dialog.addDirectoryField("Input_folder", previous.input);
+        addPathField(dialog, "Input_folder", previous.input, true);
         dialog.addStringField("Filename_regex", previous.regex, 48);
         dialog.addNumericField("Label_type_capture_group", previous.typeGroup, 0);
         dialog.addCheckbox("Recursive", previous.recursive);
         dialog.addChoice("Dimensions", new String[]{"2D", "3D"},
                 previous.threeDimensional ? "3D" : "2D");
         dialog.addStringField("Region_mask_type", previous.regionMaskType, 12);
-        dialog.addFileField("Region_ROI_file_or_zip", previous.regionPath, 48);
+        addPathField(dialog, "Region_ROI_file_or_zip", previous.regionPath, false);
         dialog.addChoice("Analysis", names(AnalysisMode.values()), previous.analysisMode.name());
         dialog.addChoice(
                 "Multiple_region_ROIs", names(RegionMode.values()), previous.regionMode.name());
@@ -139,7 +135,7 @@ public final class Object_Territories_Batch implements PlugIn {
         dialog.addNumericField("Bandwidth_0_is_automatic", previous.bandwidth, 3);
         dialog.addNumericField("Permutations", previous.permutations, 0);
         dialog.addStringField("Random_seed", previous.seed, 18);
-        dialog.addDirectoryField("Output_directory", previous.output);
+        addPathField(dialog, "Output_directory", previous.output, true);
         dialog.addCheckbox("Show_manifest", previous.showManifest);
         dialog.showDialog();
         if (dialog.wasCanceled()) return null;
@@ -163,6 +159,23 @@ public final class Object_Territories_Batch implements PlugIn {
         next.output = dialog.getNextString().trim();
         next.showManifest = dialog.getNextBoolean();
         return next;
+    }
+
+    /**
+     * Fiji's headless dialog registers neither addDirectoryField nor
+     * addFileField, so every later getNextString() read the wrong field and a
+     * headless batch could never start. A plain string field reads the same
+     * recorded key; the browse buttons only matter with a screen.
+     */
+    private static void addPathField(
+            GenericDialog dialog, String label, String value, boolean directory) {
+        if (GraphicsEnvironment.isHeadless()) {
+            dialog.addStringField(label, value, 48);
+        } else if (directory) {
+            dialog.addDirectoryField(label, value, 48);
+        } else {
+            dialog.addFileField(label, value, 48);
+        }
     }
 
     /** Everything the settings dialog holds, so Back can reopen it unchanged. */

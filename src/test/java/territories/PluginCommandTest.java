@@ -108,6 +108,22 @@ public class PluginCommandTest {
                         images("A")));
     }
 
+    /**
+     * Rethrowing in headless Fiji printed a full stack trace to stdout and let
+     * the calling macro continue; the failure must instead be ImageJ's silent
+     * "Macro canceled" signal, after one logged ERROR line.
+     */
+    @Test
+    public void headlessFailureEndsTheMacroWithImageJsSilentCancelSignal() {
+        RuntimeException bad = HeadlessFailure.abort(
+                "Object Territories", new IllegalArgumentException("permutations must be at least 1"));
+        assertTrue(ij.Macro.MACRO_CANCELED.equals(bad.getMessage()));
+        RuntimeException stopped = HeadlessFailure.cancelled("Object Territories");
+        assertTrue(ij.Macro.MACRO_CANCELED.equals(stopped.getMessage()));
+        assertTrue("NullPointerException".equals(
+                HeadlessFailure.message(new NullPointerException())));
+    }
+
     @Test
     public void validHeadlessMacroRunSavesResults() throws Exception {
         File regions = temporary.newFile("field.roi");

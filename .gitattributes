@@ -3,3 +3,8 @@
 *.xml text eol=lf
 *.md text eol=lf
 *.config text eol=lf
+*.sh text eol=lf
+*.ijm text eol=lf
+*.yml text eol=lf
+mvnw text eol=lf
+*.cmd text eol=crlf

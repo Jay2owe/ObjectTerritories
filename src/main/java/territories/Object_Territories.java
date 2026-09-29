@@ -79,17 +79,9 @@ public final class Object_Territories implements PlugIn {
             IJ.resetEscape();
             IJ.showProgress(1.0);
             IJ.showStatus(COMMAND_NAME + " cancelled");
-            if (headless) {
-                IJ.log("[Object Territories] cancelled");
-                throw cancelled;
-            }
+            if (headless) throw HeadlessFailure.cancelled(COMMAND_NAME);
         } catch (Exception error) {
-            if (headless) {
-                IJ.log("[Object Territories] ERROR: " + error.getMessage());
-                throw error instanceof RuntimeException
-                        ? (RuntimeException) error
-                        : new IllegalStateException(error);
-            }
+            if (headless) throw HeadlessFailure.abort(COMMAND_NAME, error);
             // Bad input is explained in the message, so lead with that rather
             // than a stack dump. Not every IllegalArgumentException is bad
             // input though — some report an internal geometry fault — so keep

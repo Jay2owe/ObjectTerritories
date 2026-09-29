@@ -15,6 +15,13 @@
   `mask`, is the region mask). Java callers use
   `ObjectTerritoriesBatchParameters.builder3D(...)`. 2D batches and macros
   recorded before this change behave exactly as before.
+- Fixed: the batch command now runs headless in Fiji. Fiji's headless dialog
+  ignores folder and file fields, so every later text setting was read from
+  the wrong field and the run failed before discovering any file.
+- Fixed: a headless run that fails now logs one
+  `[Object Territories] ERROR: <message>` line and stops the calling macro.
+  Previously Fiji printed the full stack trace to standard output and the
+  macro carried on as if the command had succeeded.
 - Fixed: result display no longer fails with "Unrecognized command" in plain
   ImageJ, where the Fiji lookup tables `mpl-viridis` and `glasbey` do not
   exist; it falls back to ImageJ's built-in `Fire` and `3-3-2 RGB`.
