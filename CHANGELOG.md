@@ -1,5 +1,7 @@
 # Changelog
 
+## Unreleased
+
 ## [0.3.1] - 2026-09-29
 
 Found by automating the GUI checks of `scripts/fiji-smoke/README.md` in a

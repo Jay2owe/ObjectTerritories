@@ -41,18 +41,18 @@ jobs:
       IMAGEJ_UPDATE_SITE_NAME: "ObjectTerritories"
       IMAGEJ_UPDATE_SITE_URL: "https://sites.imagej.net/ObjectTerritories/"
       GH_TOKEN: ${{ github.token }}
-      RELEASE_TAG: "v0.3.0"
-      RELEASE_COMMIT: "659a91a0efdb090d0b5838cbc19b9549a6636180"
-      RELEASE_SHA256: "177DF5F8D60C5616C13565232DC958C6FA04F721154C4D962D755737E7C0614E"
-      RELEASE_JAR: "Object_Territories-0.3.0.jar"
+      RELEASE_TAG: "v0.3.1"
+      RELEASE_COMMIT: "c79b15fa7bc17ebbad2eb08806217b1d9c53d308"
+      RELEASE_SHA256: "0B0F6B89C13322CCD7965CE51ABA040471F1120A6E41B3CAFFAE3F79A8A34A2B"
+      RELEASE_JAR: "Object_Territories-0.3.1.jar"
       OC3D_CORE_REPO: "Jay2owe/oc3d-core"
       OC3D_CORE_REF: "v0.1.0"
       TERRITORIES_CORE_REPO: "Jay2owe/territories-core"
-      TERRITORIES_CORE_REF: "v0.2.0"
+      TERRITORIES_CORE_REF: "v0.2.1"
       IMAGEJ_UPLOAD_USER: ${{ secrets.IMAGEJ_UPLOAD_USER }}
       IMAGEJ_UPLOAD_PASSWORD: ${{ secrets.IMAGEJ_UPLOAD_PASSWORD }}
       DEFAULT_UPLOAD_USER: ""
-      ARTIFACT_GLOB: "release-artifact/Object_Territories-0.3.0.jar"
+      ARTIFACT_GLOB: "release-artifact/Object_Territories-0.3.1.jar"
       INSTALL_DIR: "plugins"
       ARTIFACT_NAME: ""
       REPLACE_GLOB: "plugins/Object_Territories-*.jar"
@@ -312,5 +312,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: object-territories-uploaded-artifact
-          path: release-artifact/Object_Territories-0.3.0.jar
+          path: release-artifact/Object_Territories-0.3.1.jar
           if-no-files-found: error
