@@ -47,7 +47,7 @@ so users do not need to install a separate geometry library.
 
 The folder-batch discovery supplied by `oc3d-core` 0.1.0 is also bundled and
 renamed under `territories.internal.core`. The analysis engine itself lives in
-`io.github.jay2owe:territories-core` 0.1.0 and is bundled under
+`io.github.jay2owe:territories-core` 0.2.0 and is bundled under
 `territories.core`, the package it has always occupied here. Users still
 install only the Object Territories JAR; none of JTS, `oc3d-core` or
 `territories-core` should be copied into Fiji separately.
@@ -181,7 +181,7 @@ defines independent labelled volumes or their union.
 ## Building with the shared cores
 
 The plugin declares `io.github.jay2owe:oc3d-core:0.1.0` and
-`io.github.jay2owe:territories-core:0.1.0`. Neither is fetched from a public
+`io.github.jay2owe:territories-core:0.2.0`. Neither is fetched from a public
 Maven repository, so a clean build must install both into the same local
 repository first:
 
@@ -214,10 +214,17 @@ tolerance, floating-point territory areas included.
 
 ## Parallel execution
 
-Interaction null-model permutations use a bounded worker pool while preserving the original seeded
-shuffle sequence and result order exactly. The automatic limit is eight workers. Set the JVM system
-property `territories.parallelism` to a positive integer to override it, or to `1` to use the serial
-reference path.
+Density maps, 3D territory assignment and the interaction null-model
+permutations run on a bounded pool of worker threads. Results are
+bit-identical to a serial run: each density pixel receives its kernel
+contributions in the same order, and permutations keep the original seeded
+shuffle sequence and result order. The automatic limit is eight workers. Set
+the JVM system property `territories.parallelism` to a positive integer to
+override it, or to `1` to use the serial reference path.
+
+On a 16-thread workstation, a 1024 x 1024 image with 2 x 1000 objects and
+automatic-bandwidth density maps takes about 9 s instead of 48 s, and a
+384 x 384 x 64 stack with 2 x 800 objects about 48 s instead of 217 s.
 
 ## Licence
 

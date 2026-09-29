@@ -91,7 +91,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <jts.version>1.19.0</jts.version>
     <oc3d-core.version>0.1.0</oc3d-core.version>
-    <territories-core.version>0.1.0</territories-core.version>
+    <territories-core.version>0.2.0</territories-core.version>
     <license.licenseName>bsd_3</license.licenseName>
     <license.copyrightOwners>Jamie Malcolm</license.copyrightOwners>
   </properties>

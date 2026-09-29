@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Performance: density maps computed in parallel (territories-core 0.2.0);
+  47.6 s -> 8.9 s for a 1024 x 1024 image and 217 s -> 48 s for a
+  384 x 384 x 64 stack with automatic-bandwidth density maps on the synthetic
+  benchmark; outputs bit-identical to 0.2.0 (golden gate and benchmark
+  digests).
 - Added: progress in Fiji's status bar and Escape to stop, for single runs
   and folder batches. Java callers get the same through the new
   `territories.api.ProgressMonitor`, `AnalysisCancelledException`, the
