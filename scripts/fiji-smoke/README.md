@@ -44,8 +44,8 @@ in the release workspace). It starts a non-headless Fiji with the built jar,
 drives the real dialogs from a Groovy script (menu commands, field values,
 button presses, the Macro Recorder, an Escape key event), checks the result
 windows' lookup tables against Fiji's `luts/` files, saves a screenshot of
-every dialog and writes PASS/FAIL per check. Last run: 0.3.1-SNAPSHOT,
-2026-09-29, all five pass. Run it (or tick by hand in a GUI Fiji) before a
+every dialog and writes PASS/FAIL per check. Last run: 0.3.1,
+2026-09-29, all six pass. Run it (or tick by hand in a GUI Fiji) before a
 release:
 
 - [x] `Plugins > Object Territories` opens its dialog listing the open images;
@@ -54,9 +54,14 @@ release:
       `run("Object Territories", "...")` line that replays identically.
       ImageJ also records `selectImage("...")` as each result window
       activates; those lines follow the run line and replay harmlessly.
+- [x] With the Recorder open, a dialog run that fails (a missing ROI file, or
+      no ROI chosen) shows a message, not an exception window, and leaves no
+      `run("Object Territories", ...)` line.
 - [x] A run with density maps shows progress in the status bar, and pressing
-      Escape stops it with the status `Object Territories cancelled`, no error
-      dialog and no result windows.
+      Escape part-way through the first density map stops it within 2 s
+      (measured: 43 ms on a 2400 x 2400 map) with the status
+      `Object Territories cancelled`, no error dialog, no result windows and
+      no Recorder line.
 - [x] `Plugins > Object Territories Batch...` shows the preview; `Back` returns
       to the settings with the values just entered; `Run batch` runs and shows
       the manifest.

@@ -24,8 +24,18 @@ final class ImageJProgress implements ProgressMonitor {
         return prefix + ": " + step + (finished ? "" : " (press Esc to stop)");
     }
 
+    /**
+     * Once Escape has been seen the answer stays {@code true} for this run.
+     * The engine polls from its worker threads; reading the volatile latch
+     * first stops the JIT from hoisting ImageJ's plain {@code escapePressed}
+     * field out of a hot loop, so a key press is seen within one poll.
+     */
+    private volatile boolean cancelled;
+
     @Override
     public boolean isCancelled() {
-        return IJ.escapePressed();
+        if (cancelled) return true;
+        if (IJ.escapePressed()) cancelled = true;
+        return cancelled;
     }
 }

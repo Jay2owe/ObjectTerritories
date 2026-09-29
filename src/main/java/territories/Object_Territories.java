@@ -43,6 +43,7 @@ public final class Object_Territories implements PlugIn {
     @Override
     public void run(String argument) {
         boolean headless = GraphicsEnvironment.isHeadless();
+        RecordedRun recorded = null;
         try {
             String macroOptions = Macro.getOptions();
             if ((macroOptions == null || macroOptions.trim().isEmpty())
@@ -64,35 +65,47 @@ public final class Object_Territories implements PlugIn {
             ObjectTerritoriesDialogModel model = showDialog();
             if (model == null) return;
             ObjectTerritoriesMacroOptions options = model.toMacroOptions();
-            if (Recorder.record) {
-                Recorder.setCommand(null);
-                Recorder.recordString(
-                        "run(\"" + COMMAND_NAME + "\", \""
-                                + options.toMacroOptions() + "\");\n");
-            }
+            recorded = RecordedRun.record(
+                    "run(\"" + COMMAND_NAME + "\", \"" + options.toMacroOptions() + "\");\n");
             IJ.resetEscape();
             execute(options, false, Object_Territories::uniqueOpenImage,
                     new ImageJProgress(COMMAND_NAME));
             IJ.showProgress(1.0);
         } catch (AnalysisCancelledException cancelled) {
-            // Escape is a request, not an error: no dialog, no windows, no files.
+            // Escape is a request, not an error: no dialog, no windows, no files,
+            // and no macro line for a run that made nothing.
+            forgetRecording(recorded);
             IJ.resetEscape();
             IJ.showProgress(1.0);
             IJ.showStatus(COMMAND_NAME + " cancelled");
             if (headless) throw HeadlessFailure.cancelled(COMMAND_NAME);
         } catch (Exception error) {
+            forgetRecording(recorded);
             if (headless) throw HeadlessFailure.abort(COMMAND_NAME, error);
             // Bad input is explained in the message, so lead with that rather
             // than a stack dump. Not every IllegalArgumentException is bad
             // input though — some report an internal geometry fault — so keep
-            // the trace in the Log window for anyone filing a report.
-            if (error instanceof IllegalArgumentException) {
+            // the trace in the Log window for anyone filing a report. A file
+            // that cannot be read (IOException) is explained the same way.
+            if (error instanceof IllegalArgumentException
+                    || error instanceof java.io.IOException) {
                 IJ.log("[Object Territories] " + stackTrace(error));
                 IJ.error(COMMAND_NAME, error.getMessage());
             } else {
                 IJ.handleException(error);
             }
         }
+    }
+
+    /**
+     * A run that did not complete leaves nothing in the Macro Recorder: the
+     * line this command recorded is taken back, and ImageJ's own pending
+     * line (recorded when the command ends, for example after the dialog
+     * rejected its values) is dropped.
+     */
+    private static void forgetRecording(RecordedRun recorded) {
+        if (recorded != null) recorded.takeBack();
+        if (Recorder.record) Recorder.setCommand(null);
     }
 
     private static String stackTrace(Throwable error) {

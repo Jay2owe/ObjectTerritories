@@ -100,8 +100,9 @@ Open the label images (and, for 3D, the region-mask stack), then run
 - **Auto-save directory**: optional; writes the files listed under
   [Saved output](#saved-output).
 
-Progress is shown in Fiji's status bar. Press Escape to stop a run between
-steps; nothing partial is shown or saved.
+Progress is shown in Fiji's status bar. Press Escape to stop a run; it stops
+within a second, even part-way through a density map or a 3D territory
+assignment, and nothing partial is shown or saved.
 
 ## Folder batch
 
@@ -197,7 +198,9 @@ run("Object Territories Batch...",
 
 Macros recorded before 3D batch existed omit `dimensions` and still run as 2D.
 Use ImageJ's Macro Recorder while running either command to capture its
-complete replayable options.
+complete replayable options. A run that fails, or a single run stopped with
+Escape, leaves no line behind; a batch stopped with Escape is still recorded,
+since it saved its finished samples and manifest.
 
 ## Java API
 
@@ -318,12 +321,12 @@ automatic-bandwidth density maps takes about 9 s instead of 48 s, and a
 
 The plugin depends on two private engine modules,
 `io.github.jay2owe:oc3d-core:0.1.0` and
-`io.github.jay2owe:territories-core:0.2.0`, which are not on a public Maven
+`io.github.jay2owe:territories-core:0.2.1`, which are not on a public Maven
 repository. Install both into the same local repository first:
 
 ```text
 git clone --branch v0.1.0 https://github.com/Jay2owe/oc3d-core.git ../oc3d-core
-git clone --branch v0.2.0 https://github.com/Jay2owe/territories-core.git ../territories-core
+git clone --branch v0.2.1 https://github.com/Jay2owe/territories-core.git ../territories-core
 ./mvnw -f ../oc3d-core/pom.xml clean install
 ./mvnw -f ../territories-core/pom.xml clean install
 ./mvnw clean verify

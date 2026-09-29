@@ -20,8 +20,20 @@ real Fiji window, and by a review of the 0.3.0 changes. Measurement outputs
 - Two region ROIs with the same name no longer make the second region's
   Objects, Interactions and Regularity tables replace the first's on screen;
   repeated names are shown as `name (2)`. Saved files were already distinct.
+- Escape now stops a run part-way through a step, within a fraction of a
+  second, instead of after the density map or 3D territory assignment in
+  progress had finished (which could take minutes on large images). The
+  engine polls for Escape per image row, slice, kernel, object and
+  permutation; in the GUI check a 2400 x 2400 density map that used to run
+  on for 8.9 s after Escape now stops within milliseconds.
 - Pressing Escape during the last step of a run now cancels it. Previously
   that step finished and the results were shown and saved anyway.
+- The Macro Recorder no longer keeps a `run("Object Territories", ...)` line
+  for a dialog run that fails or is cancelled with Escape, or whose dialog
+  values are rejected; a failed batch records nothing either. Lines for runs
+  that complete are unchanged and replay as before.
+- A region ROI file that cannot be read (for example one that was moved)
+  now gives a message instead of an exception window.
 - The status bar no longer reads "done (press Esc to stop)" after a run.
 - A folder batch keeps files of one sample together when their extensions
   differ only in case or `tif`/`tiff` (`S1_nuclei.TIF` with
@@ -29,6 +41,15 @@ real Fiji window, and by a review of the 0.3.0 changes. Measurement outputs
   0.3.0 they were split into separate one-type samples.
 - The dialog's random seed is a text field, so seeds beyond 2^53 are used
   exactly as typed instead of being rounded.
+
+### Changed
+
+- Embeds `territories-core` 0.2.1, which adds the cancellation check the
+  long loops poll. Outputs are bit-identical to 0.3.0: the golden gate and
+  all six synthetic-benchmark digests are unchanged.
+- Java API: `ProgressMonitor.isCancelled()` is now also polled during each
+  step, many times and from worker threads, so implementations must be
+  thread-safe and cheap. A monitor that never cancels behaves as before.
 
 ## [0.3.0] - 2026-09-29
 

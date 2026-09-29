@@ -145,6 +145,86 @@ public class ProgressMonitorTest {
     }
 
     @Test
+    public void densityStepStopsPartWayThrough() {
+        ImagePlus.addImageListener(closeRecorder);
+        // Before 0.3.1 the engine never polled, so a step always ran to the end
+        // and made its map; now the tenth poll inside the first step stops it.
+        MidStep monitor = new MidStep(10);
+        try {
+            ObjectTerritories.analyze(
+                    parameters(AnalysisMode.DENSITY, DensityWeightingSelection.BOTH), monitor);
+            fail("expected cancellation inside the first density step");
+        } catch (AnalysisCancelledException expected) {
+            drainEvents();
+            assertEquals(1, monitor.steps.size());
+            assertTrue(monitor.steps.get(0), monitor.steps.get(0).contains("density"));
+            assertTrue("no density map is finished", closed.isEmpty());
+        }
+    }
+
+    @Test
+    public void threeDimensionalTerritoryStepStopsPartWayThrough() {
+        ImagePlus.addImageListener(closeRecorder);
+        MidStep monitor = new MidStep(3);
+        try {
+            ObjectTerritories.analyze3D(ObjectTerritoriesParameters3D.builder()
+                    .addLabelImage(spacedLabels3D(160, 160, 24))
+                    .regionMask(filledMask3D(160, 160, 24))
+                    .permutations(5)
+                    .build(), monitor);
+            fail("expected cancellation inside the territory step");
+        } catch (AnalysisCancelledException expected) {
+            drainEvents();
+            assertEquals(1, monitor.steps.size());
+            assertTrue(monitor.steps.get(0), monitor.steps.get(0).contains("territories"));
+            assertTrue("no territory stack is finished", closed.isEmpty());
+        }
+    }
+
+    /**
+     * The Escape check of the GUI kit, without the GUI: a density map that
+     * takes seconds is stopped part-way, well within a second of the request.
+     */
+    @Test(timeout = 180000)
+    public void escapeDuringALongDensityStepStopsItWithinASecond() throws Exception {
+        ImagePlus.addImageListener(closeRecorder);
+        final ObjectTerritoriesParameters parameters = longDensityRun();
+        final MidStep monitor = new MidStep(Integer.MAX_VALUE);
+        final Throwable[] outcome = new Throwable[1];
+        final long[] endedAt = new long[1];
+        Thread run = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    ObjectTerritories.analyze(parameters, monitor).closeDensityImages();
+                } catch (Throwable error) {
+                    outcome[0] = error;
+                } finally {
+                    endedAt[0] = System.nanoTime();
+                }
+            }
+        }, "long-density-run");
+        run.start();
+        while (monitor.steps.isEmpty() && run.isAlive()) Thread.sleep(2);
+        Thread.sleep(400);
+        assertTrue("the density step ended within 400 ms; the fixture is too small",
+                run.isAlive() && closed.isEmpty());
+        monitor.fire();
+        run.join(60000);
+        assertTrue("the run is still going 60 s after the cancel", !run.isAlive());
+        long latencyMillis = (endedAt[0] - monitor.firedAt()) / 1000000L;
+        System.out.println("[ProgressMonitorTest] cancelled "
+                + (monitor.firedAt() - monitor.stepStartedAt) / 1000000L
+                + " ms into the density step; stopped " + latencyMillis + " ms after the request");
+        assertTrue("expected AnalysisCancelledException, got " + outcome[0],
+                outcome[0] instanceof AnalysisCancelledException);
+        drainEvents();
+        assertEquals(1, monitor.steps.size());
+        assertTrue("the step was stopped before its map was made", closed.isEmpty());
+        assertTrue("stopped " + latencyMillis + " ms after the request", latencyMillis < 1000);
+    }
+
+    @Test
     public void threeDimensionalCancellationClosesTerritoryAndDensityStacks() {
         ImagePlus.addImageListener(closeRecorder);
         // Territories (1 stack) and one density volume are made, then cancel.
@@ -261,6 +341,58 @@ public class ProgressMonitorTest {
                 .build();
     }
 
+    /** About 1,600 objects on 1600 x 1600 pixels, 40 um bandwidth: seconds per map. */
+    private static ObjectTerritoriesParameters longDensityRun() {
+        int size = 1600;
+        ShortProcessor labels = new ShortProcessor(size, size);
+        int label = 1;
+        for (int y = 10; y < size - 10; y += 40) {
+            for (int x = 10; x < size - 10; x += 40) {
+                labels.setValue(label++);
+                labels.fill(new Roi(x, y, 4, 4));
+            }
+        }
+        ImagePlus image = new ImagePlus("Big", labels);
+        image.getCalibration().pixelWidth = 0.5;
+        image.getCalibration().pixelHeight = 0.5;
+        image.getCalibration().setUnit("micron");
+        Roi field = new Roi(2, 2, size - 4, size - 4);
+        field.setName("Field");
+        return ObjectTerritoriesParameters.builder()
+                .addLabelImage(image)
+                .addRegion(field)
+                .analysisMode(AnalysisMode.DENSITY)
+                .densityWeightingSelection(DensityWeightingSelection.OBJECT_COUNT)
+                .bandwidthMicrons(40.0)
+                .build();
+    }
+
+    private static ImagePlus spacedLabels3D(int width, int height, int depth) {
+        ImageStack stack = new ImageStack(width, height);
+        int label = 1;
+        for (int z = 0; z < depth; z++) {
+            ShortProcessor processor = new ShortProcessor(width, height);
+            if (z % 6 == 3) {
+                for (int y = 5; y < height; y += 20) {
+                    for (int x = 5 + z; x < width; x += 20) processor.set(x, y, label++);
+                }
+            }
+            stack.addSlice(processor);
+        }
+        return new ImagePlus("Spaced", stack);
+    }
+
+    private static ImagePlus filledMask3D(int width, int height, int depth) {
+        ImageStack stack = new ImageStack(width, height);
+        for (int z = 0; z < depth; z++) {
+            ByteProcessor processor = new ByteProcessor(width, height);
+            processor.setValue(1);
+            processor.fill();
+            stack.addSlice(processor);
+        }
+        return new ImagePlus("Filled", stack);
+    }
+
     private static ImagePlus labels3D() {
         ImageStack stack = new ImageStack(7, 5);
         for (int z = 0; z < 5; z++) stack.addSlice(new ShortProcessor(7, 5));
@@ -304,10 +436,16 @@ public class ProgressMonitorTest {
         }
     }
 
-    /** Records every update; cancels once {@code allowed} steps have been let through. */
+    /**
+     * Records every update; cancels once {@code allowed} steps have been let
+     * through. Only the between-step polls are counted: since 0.3.1 the
+     * engines also poll inside every step, from worker threads, and those
+     * polls simply repeat the last between-step answer.
+     */
     private static final class Recording implements ProgressMonitor {
         private final int allowed;
         private int checks;
+        private volatile boolean cancelled;
         final List<String> steps = new ArrayList<String>();
         final List<Integer> done = new ArrayList<Integer>();
         final List<Integer> totals = new ArrayList<Integer>();
@@ -325,7 +463,67 @@ public class ProgressMonitorTest {
 
         @Override
         public boolean isCancelled() {
-            return checks++ >= allowed;
+            if (!betweenSteps()) return cancelled;
+            if (checks++ >= allowed) cancelled = true;
+            return cancelled;
+        }
+
+        private static boolean betweenSteps() {
+            for (StackTraceElement frame : new Throwable().getStackTrace()) {
+                if (frame.getClassName().equals(ObjectTerritories.class.getName())
+                        && frame.getMethodName().equals("checkCancelled")) {
+                    return true;
+                }
+            }
+            return false;
+        }
+    }
+
+    /**
+     * Never cancels between steps; inside a step it cancels at the
+     * {@code afterPolls}-th engine poll, or once {@link #fire()} is called.
+     */
+    private static final class MidStep implements ProgressMonitor {
+        private final int afterPolls;
+        private final java.util.concurrent.atomic.AtomicInteger polls =
+                new java.util.concurrent.atomic.AtomicInteger();
+        private volatile boolean fired;
+        private volatile long firedAt;
+        final List<String> steps = Collections.synchronizedList(new ArrayList<String>());
+        volatile long stepStartedAt;
+
+        MidStep(int afterPolls) {
+            this.afterPolls = afterPolls;
+        }
+
+        void fire() {
+            firedAt = System.nanoTime();
+            fired = true;
+        }
+
+        long firedAt() {
+            return firedAt;
+        }
+
+        int polls() {
+            return polls.get();
+        }
+
+        @Override
+        public void update(String step, int stepDone, int total) {
+            steps.add(step);
+            stepStartedAt = System.nanoTime();
+        }
+
+        @Override
+        public boolean isCancelled() {
+            if (Recording.betweenSteps()) return false;
+            if (fired) return true;
+            if (polls.incrementAndGet() >= afterPolls) {
+                fire();
+                return true;
+            }
+            return false;
         }
     }
 }

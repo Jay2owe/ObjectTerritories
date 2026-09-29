@@ -1,9 +1,9 @@
 package territories.api;
 
 /**
- * Receives coarse progress from an analysis and may ask it to stop between
- * steps. A step is one region's territories and interactions, or one density
- * map. Free of ImageJ types, so the Java API stays GUI-free.
+ * Receives coarse progress from an analysis and may ask it to stop. A step is
+ * one region's territories and interactions, or one density map. Free of
+ * ImageJ types, so the Java API stays GUI-free.
  */
 public interface ProgressMonitor {
 
@@ -28,6 +28,12 @@ public interface ProgressMonitor {
      */
     void update(String step, int done, int total);
 
-    /** Polled before every step; returning {@code true} stops the analysis. */
+    /**
+     * Polled before every step and, since 0.3.1, many times during each long
+     * step (per image row, slice, object or permutation), so a run stops
+     * within a fraction of a second. Returning {@code true} stops the
+     * analysis. Calls may come from several worker threads at once, so an
+     * implementation must be thread-safe and cheap.
+     */
     boolean isCancelled();
 }

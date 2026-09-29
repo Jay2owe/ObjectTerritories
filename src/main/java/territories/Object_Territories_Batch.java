@@ -44,8 +44,8 @@ public final class Object_Territories_Batch implements PlugIn {
                     GenericDialog confirmation = new GenericDialog(COMMAND_NAME + " Preview");
                     confirmation.addMessage(
                             "Review the groups below. Groups with more than five label types "
-                                    + "are skipped.\nPress Esc during the run to stop after "
-                                    + "the current step.");
+                                    + "are skipped.\nPress Esc during the run to stop it; the "
+                                    + "sample in progress and later ones are marked CANCELLED.");
                     confirmation.addTextAreas(preview, null, 24, 80);
                     confirmation.enableYesNoCancel("Run batch", "Back");
                     confirmation.showDialog();
@@ -63,10 +63,14 @@ public final class Object_Territories_Batch implements PlugIn {
                 return;
             }
         } catch (Exception error) {
+            // ImageJ records the command when it ends; a batch that failed
+            // must not leave a line in the Macro Recorder.
+            if (Recorder.record) Recorder.setCommand(null);
             if (headless) throw HeadlessFailure.abort(COMMAND_NAME, error);
             // Bad input is explained in its message; the trace stays in the Log
             // for anyone filing a report, but no stack-trace window opens.
-            if (error instanceof IllegalArgumentException) {
+            if (error instanceof IllegalArgumentException
+                    || error instanceof java.io.IOException) {
                 IJ.log("[" + COMMAND_NAME + "] " + stackTrace(error));
                 IJ.error(COMMAND_NAME, error.getMessage());
             } else {

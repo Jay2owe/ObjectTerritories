@@ -2,6 +2,7 @@ package territories.api;
 
 import ij.ImagePlus;
 import ij.measure.Calibration;
+import sc.fiji.territories.core.ComputationCancelledException;
 import sc.fiji.territories.core.DensityEngine;
 import sc.fiji.territories.core.DensityResult;
 import sc.fiji.territories.core.DensityEngine3D;
@@ -26,6 +27,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.BooleanSupplier;
 
 /**
  * Public Java facade for Object Territories.
@@ -92,51 +94,58 @@ public final class ObjectTerritories {
                 parameters.getAnalysisMode(), regions.size(), typeNames.size(), weightings.size());
         int done = 0;
         ArrayList<ImagePlus> produced = new ArrayList<ImagePlus>();
-        for (SpatialRegion2D region : regions) {
-            TerritoryResult territoryResult = null;
-            InteractionMatrixResult interactionResult = null;
-            if (parameters.getAnalysisMode() != AnalysisMode.DENSITY) {
-                checkCancelled(monitor, produced);
-                monitor.update("region " + region.getName() + ": territories", done, total);
-                territoryResult = TerritoryEngine.analyze(
-                        objects, region, EngineOptions.engine(parameters.getEdgeCellPolicy()));
-                interactionResult = InteractionEngine.analyze(
-                        summaryCells(
-                                territoryResult.getCells(),
-                                parameters.getEdgeCellPolicy()),
-                        typeNames,
-                        parameters.getPermutations(),
-                        parameters.getSeed());
-                done++;
-            }
+        BooleanSupplier cancelled = monitor::isCancelled;
+        try {
+            for (SpatialRegion2D region : regions) {
+                TerritoryResult territoryResult = null;
+                InteractionMatrixResult interactionResult = null;
+                if (parameters.getAnalysisMode() != AnalysisMode.DENSITY) {
+                    checkCancelled(monitor, produced);
+                    monitor.update("region " + region.getName() + ": territories", done, total);
+                    territoryResult = TerritoryEngine.analyze(
+                            objects, region, EngineOptions.engine(parameters.getEdgeCellPolicy()));
+                    interactionResult = InteractionEngine.analyze(
+                            summaryCells(
+                                    territoryResult.getCells(),
+                                    parameters.getEdgeCellPolicy()),
+                            typeNames,
+                            parameters.getPermutations(),
+                            parameters.getSeed(),
+                            cancelled);
+                    done++;
+                }
 
-            ArrayList<DensityResult> densityResults = new ArrayList<DensityResult>();
-            if (parameters.getAnalysisMode() != AnalysisMode.TERRITORIES) {
-                for (String typeName : typeNames) {
-                    for (DensityWeighting weighting : weightings) {
-                        checkCancelled(monitor, produced);
-                        monitor.update(densityStep(region.getName(), typeName, weighting),
-                                done, total);
-                        DensityResult density = DensityEngine.generate(
-                                objects,
-                                region,
-                                typeName,
-                                reference.getWidth(),
-                                reference.getHeight(),
-                                pixelWidth,
-                                pixelHeight,
-                                unit,
-                                parameters.getBandwidthMicrons(),
-                                EngineOptions.engine(weighting),
-                                EngineOptions.engine(parameters.getDensityBoundaryMode()));
-                        produced.add(density.getDensityMap());
-                        densityResults.add(density);
-                        done++;
+                ArrayList<DensityResult> densityResults = new ArrayList<DensityResult>();
+                if (parameters.getAnalysisMode() != AnalysisMode.TERRITORIES) {
+                    for (String typeName : typeNames) {
+                        for (DensityWeighting weighting : weightings) {
+                            checkCancelled(monitor, produced);
+                            monitor.update(densityStep(region.getName(), typeName, weighting),
+                                    done, total);
+                            DensityResult density = DensityEngine.generate(
+                                    objects,
+                                    region,
+                                    typeName,
+                                    reference.getWidth(),
+                                    reference.getHeight(),
+                                    pixelWidth,
+                                    pixelHeight,
+                                    unit,
+                                    parameters.getBandwidthMicrons(),
+                                    EngineOptions.engine(weighting),
+                                    EngineOptions.engine(parameters.getDensityBoundaryMode()),
+                                    cancelled);
+                            produced.add(density.getDensityMap());
+                            densityResults.add(density);
+                            done++;
+                        }
                     }
                 }
+                analyses.add(new RegionAnalysisResult(
+                        region.getName(), territoryResult, interactionResult, densityResults));
             }
-            analyses.add(new RegionAnalysisResult(
-                    region.getName(), territoryResult, interactionResult, densityResults));
+        } catch (ComputationCancelledException stoppedMidStep) {
+            throw cancel(produced);
         }
 
         // Escape pressed during the last step must still win: the caller
@@ -196,47 +205,55 @@ public final class ObjectTerritories {
                 parameters.getAnalysisMode(), regions.size(), typeNames.size(), weightings.size());
         int done = 0;
         ArrayList<ImagePlus> produced = new ArrayList<ImagePlus>();
-        for (RegionMask3D region : regions) {
-            TerritoryResult3D territoryResult = null;
-            InteractionMatrixResult interactionResult = null;
-            if (parameters.getAnalysisMode() != AnalysisMode.DENSITY) {
-                checkCancelled(monitor, produced);
-                monitor.update("region " + region.getName() + ": territories", done, total);
-                territoryResult = TerritoryEngine3D.analyze(
-                        objects, region, EngineOptions.engine(parameters.getEdgeCellPolicy()));
-                produced.add(territoryResult.getTerritoryLabels());
-                interactionResult = InteractionEngine.analyze(
-                        summaryCells(
-                                territoryResult.getCells(),
-                                parameters.getEdgeCellPolicy()),
-                        typeNames,
-                        parameters.getPermutations(),
-                        parameters.getSeed());
-                done++;
-            }
-            ArrayList<DensityResult3D> densityResults =
-                    new ArrayList<DensityResult3D>();
-            if (parameters.getAnalysisMode() != AnalysisMode.TERRITORIES) {
-                for (String typeName : typeNames) {
-                    for (DensityWeighting weighting : weightings) {
-                        checkCancelled(monitor, produced);
-                        monitor.update(densityStep(region.getName(), typeName, weighting),
-                                done, total);
-                        DensityResult3D density = DensityEngine3D.generate(
-                                objects,
-                                region,
-                                typeName,
-                                parameters.getBandwidth(),
-                                EngineOptions.engine(weighting),
-                                EngineOptions.engine(parameters.getDensityBoundaryMode()));
-                        produced.add(density.getDensityVolume());
-                        densityResults.add(density);
-                        done++;
+        BooleanSupplier cancelled = monitor::isCancelled;
+        try {
+            for (RegionMask3D region : regions) {
+                TerritoryResult3D territoryResult = null;
+                InteractionMatrixResult interactionResult = null;
+                if (parameters.getAnalysisMode() != AnalysisMode.DENSITY) {
+                    checkCancelled(monitor, produced);
+                    monitor.update("region " + region.getName() + ": territories", done, total);
+                    territoryResult = TerritoryEngine3D.analyze(
+                            objects, region, EngineOptions.engine(parameters.getEdgeCellPolicy()),
+                            cancelled);
+                    produced.add(territoryResult.getTerritoryLabels());
+                    interactionResult = InteractionEngine.analyze(
+                            summaryCells(
+                                    territoryResult.getCells(),
+                                    parameters.getEdgeCellPolicy()),
+                            typeNames,
+                            parameters.getPermutations(),
+                            parameters.getSeed(),
+                            cancelled);
+                    done++;
+                }
+                ArrayList<DensityResult3D> densityResults =
+                        new ArrayList<DensityResult3D>();
+                if (parameters.getAnalysisMode() != AnalysisMode.TERRITORIES) {
+                    for (String typeName : typeNames) {
+                        for (DensityWeighting weighting : weightings) {
+                            checkCancelled(monitor, produced);
+                            monitor.update(densityStep(region.getName(), typeName, weighting),
+                                    done, total);
+                            DensityResult3D density = DensityEngine3D.generate(
+                                    objects,
+                                    region,
+                                    typeName,
+                                    parameters.getBandwidth(),
+                                    EngineOptions.engine(weighting),
+                                    EngineOptions.engine(parameters.getDensityBoundaryMode()),
+                                    cancelled);
+                            produced.add(density.getDensityVolume());
+                            densityResults.add(density);
+                            done++;
+                        }
                     }
                 }
+                analyses.add(new RegionAnalysisResult3D(
+                        region.getName(), territoryResult, interactionResult, densityResults));
             }
-            analyses.add(new RegionAnalysisResult3D(
-                    region.getName(), territoryResult, interactionResult, densityResults));
+        } catch (ComputationCancelledException stoppedMidStep) {
+            throw cancel(produced);
         }
 
         checkCancelled(monitor, produced);
@@ -264,18 +281,25 @@ public final class ObjectTerritories {
     }
 
     /**
-     * Stops between steps when asked. Images produced so far belong to a
-     * result the caller will never receive, so they are closed here.
+     * Stops between steps when asked. The engines also poll the monitor
+     * inside each long step and stop part-way through it.
      */
     private static void checkCancelled(ProgressMonitor monitor, List<ImagePlus> produced) {
-        if (!monitor.isCancelled()) return;
+        if (monitor.isCancelled()) throw cancel(produced);
+    }
+
+    /**
+     * Images produced so far belong to a result the caller will never
+     * receive, so they are closed here before the cancel is reported.
+     */
+    private static AnalysisCancelledException cancel(List<ImagePlus> produced) {
         for (ImagePlus image : produced) {
             if (image == null) continue;
             image.close();
             image.flush();
         }
         produced.clear();
-        throw new AnalysisCancelledException();
+        return new AnalysisCancelledException();
     }
 
     private static void validate(ObjectTerritoriesParameters parameters) {
