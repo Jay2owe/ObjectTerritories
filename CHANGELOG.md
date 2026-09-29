@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.3.1] - Unreleased
+## [0.3.1] - 2026-09-29
 
 Found by automating the GUI checks of `scripts/fiji-smoke/README.md` in a
 real Fiji window, and by a review of the 0.3.0 changes. Measurement outputs
@@ -163,5 +163,6 @@ real Fiji window, and by a review of the 0.3.0 changes. Measurement outputs
 - Added an exact-tag CI bootstrap plus isolated packaged-runtime checks for the
   core, JTS, ImageJ exclusion, plugin entries, licence, and build provenance.
 
+[0.3.1]: https://github.com/Jay2owe/ObjectTerritories/releases/tag/v0.3.1
 [0.3.0]: https://github.com/Jay2owe/ObjectTerritories/releases/tag/v0.3.0
 [0.2.0]: https://github.com/Jay2owe/ObjectTerritories/releases/tag/v0.2.0
