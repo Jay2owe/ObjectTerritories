@@ -2,6 +2,23 @@
 
 ## Unreleased
 
+## [0.3.2] - 2026-09-30
+
+Faster 3D territory runs. Measurement outputs (tables, maps, density values)
+are unchanged.
+
+### Changed
+
+- Embeds `territories-core` 0.2.2, which assigns 3D territories tile by tile
+  instead of searching for the nearest object from every voxel. On the
+  synthetic 3D benchmark (384 x 384 x 64 stack, 2 x 800 objects, two-region
+  mask, 1,000 permutations) a whole territory run takes about 2.0 s instead of
+  3.1 s, and 4.4 s instead of 6.6 s in a second paired run (about 1.5x), with
+  the default number of workers; with one worker, about 4.3-6.0 s instead of
+  10.5-12.9 s (about 2.3x). Density-map runs are not affected. Outputs are
+  bit-identical to 0.3.1: the golden gate and all six synthetic-benchmark
+  digests are unchanged.
+
 ## [0.3.1] - 2026-09-29
 
 Found by automating the GUI checks of `scripts/fiji-smoke/README.md` in a
@@ -165,6 +182,7 @@ real Fiji window, and by a review of the 0.3.0 changes. Measurement outputs
 - Added an exact-tag CI bootstrap plus isolated packaged-runtime checks for the
   core, JTS, ImageJ exclusion, plugin entries, licence, and build provenance.
 
+[0.3.2]: https://github.com/Jay2owe/ObjectTerritories/releases/tag/v0.3.2
 [0.3.1]: https://github.com/Jay2owe/ObjectTerritories/releases/tag/v0.3.1
 [0.3.0]: https://github.com/Jay2owe/ObjectTerritories/releases/tag/v0.3.0
 [0.2.0]: https://github.com/Jay2owe/ObjectTerritories/releases/tag/v0.2.0

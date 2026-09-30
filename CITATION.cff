@@ -18,8 +18,8 @@ authors:
 repository-code: "https://github.com/Jay2owe/ObjectTerritories"
 url: "https://github.com/Jay2owe/ObjectTerritories"
 license: BSD-3-Clause
-version: "0.3.1"
-date-released: "2026-09-29"
+version: "0.3.2"
+date-released: "2026-09-30"
 keywords:
   - imagej
   - fiji
