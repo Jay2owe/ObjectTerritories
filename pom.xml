@@ -14,7 +14,7 @@
 
   <groupId>io.github.jay2owe</groupId>
   <artifactId>Object_Territories</artifactId>
-  <version>0.3.2</version>
+  <version>0.3.3-SNAPSHOT</version>
 
   <name>Object Territories</name>
   <description>Bounded Voronoi territories, neighbourhood enrichment, and density maps for labelled objects in Fiji.</description>
