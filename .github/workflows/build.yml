@@ -12,7 +12,7 @@ env:
   OC3D_CORE_REPO: Jay2owe/oc3d-core
   OC3D_CORE_REF: v0.1.0
   TERRITORIES_CORE_REPO: Jay2owe/territories-core
-  TERRITORIES_CORE_REF: v0.2.1
+  TERRITORIES_CORE_REF: v0.2.2
 
 jobs:
   test:

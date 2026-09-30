@@ -321,12 +321,12 @@ automatic-bandwidth density maps takes about 9 s instead of 48 s, and a
 
 The plugin depends on two private engine modules,
 `io.github.jay2owe:oc3d-core:0.1.0` and
-`io.github.jay2owe:territories-core:0.2.1`, which are not on a public Maven
+`io.github.jay2owe:territories-core:0.2.2`, which are not on a public Maven
 repository. Install both into the same local repository first:
 
 ```text
 git clone --branch v0.1.0 https://github.com/Jay2owe/oc3d-core.git ../oc3d-core
-git clone --branch v0.2.1 https://github.com/Jay2owe/territories-core.git ../territories-core
+git clone --branch v0.2.2 https://github.com/Jay2owe/territories-core.git ../territories-core
 ./mvnw -f ../oc3d-core/pom.xml clean install
 ./mvnw -f ../territories-core/pom.xml clean install
 ./mvnw clean verify
