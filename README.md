@@ -39,10 +39,10 @@ concentrates. If you use Object Territories in your research, please cite it
 
 The update site is planned and not yet live. Once it is, in Fiji choose
 **Help > Update... > Manage update sites**, add a site named
-`ObjectTerritories` with this URL, enable it, apply the changes and restart
+`Object-Territories` with this URL, enable it, apply the changes and restart
 Fiji:
 
-`https://sites.imagej.net/ObjectTerritories/`
+`https://sites.imagej.net/Object-Territories/`
 
 Until then, install the jar by hand:
 
